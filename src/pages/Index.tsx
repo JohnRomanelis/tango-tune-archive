@@ -1,12 +1,22 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Sidebar from "@/components/Sidebar";
+import FeaturedSection from "@/components/FeaturedSection";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="flex min-h-screen bg-tango-dark">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <div className="sticky top-0 bg-tango-dark/90 backdrop-blur-sm z-10 p-6">
+          <div className="flex items-center space-x-4">
+            <input
+              type="search"
+              placeholder="Search for songs, orchestras, or singers..."
+              className="w-full max-w-md px-4 py-2 rounded-full bg-gray-800 text-tango-light border border-gray-700 focus:outline-none focus:border-tango-gold"
+            />
+          </div>
+        </div>
+        <FeaturedSection />
+      </main>
     </div>
   );
 };
