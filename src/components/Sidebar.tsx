@@ -1,7 +1,26 @@
-import { Home, Search, Library, Music, ListMusic, PlaySquare, PlusSquare } from "lucide-react";
+import { Home, Search, Library, Music, ListMusic, PlaySquare, PlusSquare, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const Sidebar = () => {
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+      });
+    }
+  };
+
   return (
     <div className="w-64 h-screen bg-tango-darkGray border-r border-tango-gray p-6">
       <div className="mb-8">
@@ -50,6 +69,16 @@ const Sidebar = () => {
             <PlusSquare className="w-5 h-5" />
             <span>Create Playlist</span>
           </Link>
+        </div>
+
+        <div className="pt-6 border-t border-tango-gray">
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 text-tango-light hover:text-tango-red transition-colors w-full"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </nav>
     </div>
