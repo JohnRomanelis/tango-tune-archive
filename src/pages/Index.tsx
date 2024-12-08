@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "@/components/Sidebar";
-import FeaturedSection from "@/components/FeaturedSection";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
@@ -78,7 +77,17 @@ const Index = () => {
             )}
           </div>
         </div>
-        <FeaturedSection tandas={featuredTandas} />
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-tango-light mb-6">Featured Tandas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredTandas?.map((tanda) => (
+              <div key={tanda.id} className="bg-tango-gray rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-tango-light mb-2">{tanda.title}</h3>
+                <p className="text-gray-400">{tanda.comments}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
