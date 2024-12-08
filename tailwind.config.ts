@@ -25,9 +25,10 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         tango: {
-          burgundy: "#800020",
-          gold: "#FFD700",
-          dark: "#1A1F2C",
+          red: "#D32F2F",
+          darkRed: "#B71C1C",
+          darkGray: "#1E1E1E",
+          gray: "#2D2D2D",
           light: "#F5F5F5",
         },
         primary: {
