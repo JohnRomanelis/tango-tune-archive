@@ -21,9 +21,11 @@ const AutocompleteInput = ({
   label,
   value,
   onChange,
-  options = [],
+  options,
   placeholder,
 }: AutocompleteInputProps) => {
+  console.log('AutocompleteInput render - options:', options);
+  
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const [filteredOptions, setFilteredOptions] = useState<{ name: string }[]>([]);
@@ -35,12 +37,13 @@ const AutocompleteInput = ({
 
   // Update filtered options when input changes or options change
   useEffect(() => {
+    console.log('Filtering options - input:', inputValue, 'options:', options);
     const safeOptions = Array.isArray(options) ? options : [];
-    setFilteredOptions(
-      safeOptions.filter((option) =>
-        option.name.toLowerCase().includes(inputValue.toLowerCase())
-      )
+    const filtered = safeOptions.filter((option) =>
+      option.name.toLowerCase().includes(inputValue.toLowerCase())
     );
+    console.log('Filtered results:', filtered);
+    setFilteredOptions(filtered);
   }, [inputValue, options]);
 
   return (
@@ -61,38 +64,40 @@ const AutocompleteInput = ({
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        <div className="absolute z-10 w-full mt-1">
-          <Command className="rounded-lg border shadow-md bg-tango-gray">
-            <CommandInput 
-              placeholder={`Search ${label.toLowerCase()}...`}
-              value={inputValue}
-              onValueChange={(value) => {
-                setInputValue(value);
-                onChange(value);
-              }}
-            />
-            <CommandGroup>
-              {filteredOptions.length === 0 ? (
-                <CommandEmpty>No results found.</CommandEmpty>
-              ) : (
-                filteredOptions.map((option) => (
-                  <CommandItem
-                    key={option.name}
-                    value={option.name}
-                    onSelect={(value) => {
-                      onChange(value);
-                      setInputValue(value);
-                      setOpen(false);
-                    }}
-                    className="cursor-pointer hover:bg-tango-darkGray"
-                  >
-                    {option.name}
-                  </CommandItem>
-                ))
-              )}
-            </CommandGroup>
-          </Command>
-        </div>
+        {open && (
+          <div className="absolute z-10 w-full mt-1">
+            <Command className="rounded-lg border shadow-md bg-tango-gray">
+              <CommandInput 
+                placeholder={`Search ${label.toLowerCase()}...`}
+                value={inputValue}
+                onValueChange={(value) => {
+                  setInputValue(value);
+                  onChange(value);
+                }}
+              />
+              <CommandGroup>
+                {filteredOptions.length === 0 ? (
+                  <CommandEmpty>No results found.</CommandEmpty>
+                ) : (
+                  filteredOptions.map((option) => (
+                    <CommandItem
+                      key={option.name}
+                      value={option.name}
+                      onSelect={(value) => {
+                        onChange(value);
+                        setInputValue(value);
+                        setOpen(false);
+                      }}
+                      className="cursor-pointer hover:bg-tango-darkGray"
+                    >
+                      {option.name}
+                    </CommandItem>
+                  ))
+                )}
+              </CommandGroup>
+            </Command>
+          </div>
+        )}
       </div>
     </div>
   );
