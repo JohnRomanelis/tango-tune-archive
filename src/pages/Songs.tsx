@@ -3,31 +3,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "@/components/Sidebar";
 import SongSearch from "@/components/SongSearch";
-import { Loader2, Heart } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-
-interface SearchParams {
-  title?: string;
-  orchestra?: string;
-  singer?: string;
-  yearFrom?: number;
-  yearTo?: number;
-  isInstrumental?: boolean;
-  type?: string;
-  style?: string;
-  likedOnly?: boolean;
-}
+import SongResultsTable from "@/components/SongResultsTable";
 
 const Songs = () => {
-  const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
-  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState(null);
+  const [selectedTrackId, setSelectedTrackId] = useState(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch user's liked songs
   const { data: likedSongs } = useQuery({
     queryKey: ["liked-songs"],
     queryFn: async () => {
@@ -43,7 +30,6 @@ const Songs = () => {
     },
   });
 
-  // Fetch songs with filters
   const { data: songs, isLoading } = useQuery({
     queryKey: ["songs", searchParams],
     queryFn: async () => {
@@ -107,7 +93,6 @@ const Songs = () => {
     enabled: searchParams !== null,
   });
 
-  // Like/Unlike mutation
   const toggleLikeMutation = useMutation({
     mutationFn: async ({ songId, isLiked }: { songId: number; isLiked: boolean }) => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -144,17 +129,17 @@ const Songs = () => {
     },
   });
 
-  const handleSearch = (params: SearchParams) => {
+  const handleSearch = (params) => {
     setSearchParams(params);
   };
 
-  const handleSongClick = (spotify_id: string | null) => {
+  const handleSongClick = (spotify_id) => {
     if (spotify_id) {
       setSelectedTrackId(spotify_id);
     }
   };
 
-  const handleLikeClick = (e: React.MouseEvent, songId: number) => {
+  const handleLikeClick = (e, songId) => {
     e.stopPropagation();
     const isLiked = likedSongs?.includes(songId) || false;
     toggleLikeMutation.mutate({ songId, isLiked });
@@ -175,39 +160,13 @@ const Songs = () => {
               <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {songs?.map((song) => (
-                <div 
-                  key={song.id} 
-                  className={`bg-tango-gray rounded-lg p-6 cursor-pointer transition-all hover:bg-tango-gray/80 ${
-                    song.spotify_id === selectedTrackId ? 'ring-2 ring-tango-red' : ''
-                  }`}
-                  onClick={() => handleSongClick(song.spotify_id)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-semibold text-tango-light">{song.title}</h3>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`${likedSongs?.includes(song.id) ? 'text-tango-red' : 'text-gray-400'} hover:text-tango-red`}
-                      onClick={(e) => handleLikeClick(e, song.id)}
-                    >
-                      <Heart className="h-5 w-5" fill={likedSongs?.includes(song.id) ? "currentColor" : "none"} />
-                    </Button>
-                  </div>
-                  <div className="space-y-2 text-gray-400">
-                    <p>Orchestra: {song.orchestra?.name || 'N/A'}</p>
-                    <p>Type: {song.type}</p>
-                    <p>Style: {song.style}</p>
-                    <p>Year: {song.recording_year || 'Unknown'}</p>
-                    <p>{song.is_instrumental ? 'Instrumental' : 'Vocal'}</p>
-                    {song.song_singer && song.song_singer.length > 0 && (
-                      <p>Singers: {song.song_singer.map(s => s.singer?.name || 'Unknown').join(', ')}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SongResultsTable
+              songs={songs || []}
+              likedSongs={likedSongs}
+              selectedTrackId={selectedTrackId}
+              onSongClick={handleSongClick}
+              onLikeClick={handleLikeClick}
+            />
           )}
         </ScrollArea>
       </main>
