@@ -6,9 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface TandaSearchSectionProps {
   onAddTanda: (tanda: any) => void;
+  onTandaClick?: (tanda: any) => void;
 }
 
-const TandaSearchSection = ({ onAddTanda }: TandaSearchSectionProps) => {
+const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProps) => {
   const [searchParams, setSearchParams] = useState(null);
 
   const { data: tandas } = useQuery({
@@ -67,6 +68,7 @@ const TandaSearchSection = ({ onAddTanda }: TandaSearchSectionProps) => {
         tandas={tandas || []}
         isLoading={false}
         onAddClick={onAddTanda}
+        onTandaClick={onTandaClick}
         showAddButton
       />
     </div>
