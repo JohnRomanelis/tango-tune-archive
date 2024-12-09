@@ -4,6 +4,7 @@ import SongResultsTable from "@/components/SongResultsTable";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface Song {
   id: number;
@@ -24,6 +25,8 @@ const SongSearchSection = ({
   onSongClick,
   onAddSong,
 }: SongSearchSectionProps) => {
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
   const { data: likedSongs = [] } = useQuery({
     queryKey: ["likedSongs"],
     queryFn: async () => {
@@ -85,12 +88,18 @@ const SongSearchSection = ({
         if (likedSongIds && likedSongIds.length > 0) {
           query = query.in('id', likedSongIds.map(like => like.song_id));
         } else {
-          return { data: [] };
+          setSearchResults([]);
+          return;
         }
       }
     }
 
-    return query;
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error searching songs:', error);
+      return;
+    }
+    setSearchResults(data || []);
   };
 
   const handleLikeClick = async (e: React.MouseEvent, songId: number) => {
@@ -118,9 +127,9 @@ const SongSearchSection = ({
   return (
     <div className="space-y-6 h-full">
       <SongSearch onSearch={handleSearch} />
-      <ScrollArea className="h-[calc(100vh-300px)]">
+      <ScrollArea className="h-[calc(100vh-400px)]">
         <SongResultsTable
-          songs={[]}
+          songs={searchResults}
           likedSongs={likedSongs}
           selectedTrackId={selectedTrackId}
           onSongClick={onSongClick}
