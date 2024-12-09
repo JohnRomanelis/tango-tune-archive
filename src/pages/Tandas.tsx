@@ -35,6 +35,34 @@ const Tandas = () => {
         `);
 
       if (searchParams) {
+        const { data: user } = await supabase.auth.getUser();
+        const userId = user?.user?.id;
+
+        // Handle visibility filters
+        const visibilityConditions = [];
+        if (searchParams.includeMine && userId) {
+          visibilityConditions.push(`user_id.eq.${userId}`);
+        }
+        if (searchParams.includePublic) {
+          visibilityConditions.push(`visibility.eq.public`);
+        }
+        if (searchParams.includeShared && userId) {
+          const { data: sharedTandas } = await supabase
+            .from('tanda_shared')
+            .select('tanda_id')
+            .eq('user_id', userId);
+          
+          if (sharedTandas?.length) {
+            const sharedIds = sharedTandas.map(st => st.tanda_id);
+            visibilityConditions.push(`id.in.(${sharedIds.join(',')})`);
+          }
+        }
+
+        if (visibilityConditions.length > 0) {
+          query = query.or(visibilityConditions.join(','));
+        }
+
+        // Handle other filters
         if (searchParams.orchestra) {
           query = query.contains('tanda_song.song.orchestra.name', [searchParams.orchestra]);
         }

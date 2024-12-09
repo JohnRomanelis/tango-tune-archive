@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import AutocompleteInput from "./AutocompleteInput";
 import { Loader2 } from "lucide-react";
+import AutocompleteInput from "./AutocompleteInput";
+import TandaVisibilityFilters from "./tanda/TandaVisibilityFilters";
+import TandaYearRange from "./tanda/TandaYearRange";
 
 interface SearchParams {
   orchestra?: string;
@@ -16,6 +17,9 @@ interface SearchParams {
   isInstrumental?: boolean;
   type?: string;
   style?: string;
+  includeMine?: boolean;
+  includeShared?: boolean;
+  includePublic?: boolean;
 }
 
 interface TandaSearchProps {
@@ -23,7 +27,11 @@ interface TandaSearchProps {
 }
 
 const TandaSearch = ({ onSearch }: TandaSearchProps) => {
-  const [searchParams, setSearchParams] = useState<SearchParams>({});
+  const [searchParams, setSearchParams] = useState<SearchParams>({
+    includeMine: true,
+    includeShared: false,
+    includePublic: false,
+  });
 
   const { data: orchestras, isLoading: orchestrasLoading } = useQuery({
     queryKey: ["orchestras"],
@@ -59,6 +67,9 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
     if (searchParams.isInstrumental !== undefined) cleanedParams.isInstrumental = searchParams.isInstrumental;
     if (searchParams.type) cleanedParams.type = searchParams.type;
     if (searchParams.style) cleanedParams.style = searchParams.style;
+    cleanedParams.includeMine = searchParams.includeMine;
+    cleanedParams.includeShared = searchParams.includeShared;
+    cleanedParams.includePublic = searchParams.includePublic;
 
     onSearch(cleanedParams);
   };
@@ -90,25 +101,28 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
           placeholder="Search singer..."
         />
 
-        <div className="space-y-2">
-          <Label>Year Range</Label>
-          <div className="flex space-x-2">
-            <Input
-              placeholder="From..."
-              type="number"
-              value={searchParams.yearFrom || ""}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, yearFrom: e.target.value ? Number(e.target.value) : undefined }))}
-              className="bg-tango-darkGray text-tango-light"
-            />
-            <Input
-              placeholder="To..."
-              type="number"
-              value={searchParams.yearTo || ""}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, yearTo: e.target.value ? Number(e.target.value) : undefined }))}
-              className="bg-tango-darkGray text-tango-light"
-            />
-          </div>
-        </div>
+        <TandaVisibilityFilters
+          includeMine={searchParams.includeMine || false}
+          includeShared={searchParams.includeShared || false}
+          includePublic={searchParams.includePublic || false}
+          onVisibilityChange={(type, checked) => {
+            setSearchParams(prev => ({
+              ...prev,
+              [`include${type.charAt(0).toUpperCase() + type.slice(1)}`]: checked,
+            }));
+          }}
+        />
+
+        <TandaYearRange
+          yearFrom={searchParams.yearFrom}
+          yearTo={searchParams.yearTo}
+          onYearChange={(type, value) => {
+            setSearchParams(prev => ({
+              ...prev,
+              [type === 'from' ? 'yearFrom' : 'yearTo']: value,
+            }));
+          }}
+        />
 
         <div className="space-y-2">
           <Label>Type</Label>
