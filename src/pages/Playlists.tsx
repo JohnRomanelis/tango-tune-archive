@@ -39,19 +39,9 @@ const Playlists = () => {
             tanda (
               id,
               title,
-              comments,
-              visibility,
               tanda_song (
-                order_in_tanda,
                 song (
-                  id,
-                  title,
-                  type,
-                  recording_year,
-                  orchestra (name),
-                  song_singer (
-                    singer (name)
-                  )
+                  duration
                 )
               )
             )
@@ -61,7 +51,17 @@ const Playlists = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+
+      // Calculate total duration for each playlist
+      return (data || []).map(playlist => ({
+        ...playlist,
+        total_duration: playlist.playlist_tanda?.reduce((total: number, pt: any) => {
+          const tandaDuration = pt.tanda.tanda_song?.reduce((tandaTotal: number, ts: any) => {
+            return tandaTotal + (ts.song.duration || 0);
+          }, 0) || 0;
+          return total + tandaDuration;
+        }, 0) || 0
+      }));
     },
     enabled: !!user?.id,
   });
@@ -150,20 +150,10 @@ const Playlists = () => {
                 }`}
                 onClick={() => setSelectedPlaylistId(playlist.id)}
               >
-                <div className="bg-tango-gray rounded-lg p-4 relative group hover:bg-tango-gray/90 transition-colors">
-                  <h3 className="text-lg font-semibold text-tango-light mb-2">
-                    {playlist.title}
-                  </h3>
-                  {playlist.description && (
-                    <p className="text-sm text-tango-light/80 mb-4 line-clamp-2">
-                      {playlist.description}
-                    </p>
-                  )}
-                  <p className="text-sm text-tango-light/80">
-                    {playlist.playlist_tanda?.length || 0}{" "}
-                    {playlist.playlist_tanda?.length === 1 ? "tanda" : "tandas"}
-                  </p>
-                </div>
+                <PlaylistCard
+                  playlist={playlist}
+                  onDelete={() => handleDeletePlaylist(playlist.id)}
+                />
               </div>
             ))}
           </div>

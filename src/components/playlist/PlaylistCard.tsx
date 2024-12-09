@@ -6,6 +6,7 @@ interface Playlist {
   title: string;
   description: string | null;
   visibility: "private" | "public" | "shared";
+  total_duration?: number;
   playlist_tanda?: Array<{
     order_in_playlist: number;
     tanda: {
@@ -20,8 +21,22 @@ interface PlaylistCardProps {
   onDelete: () => void;
 }
 
+const formatDuration = (totalSeconds: number) => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+
+  return parts.join(' ');
+};
+
 const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
   const tandaCount = playlist.playlist_tanda?.length || 0;
+  const duration = playlist.total_duration || 0;
 
   return (
     <div className="bg-tango-gray rounded-lg p-4 relative group hover:bg-tango-gray/90 transition-colors">
@@ -38,9 +53,14 @@ const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
         <p className="text-sm text-tango-light/80 mb-4">{playlist.description}</p>
       )}
 
-      <p className="text-sm text-tango-light/80">
-        {tandaCount} {tandaCount === 1 ? "tanda" : "tandas"}
-      </p>
+      <div className="space-y-1">
+        <p className="text-sm text-tango-light/80">
+          {tandaCount} {tandaCount === 1 ? "tanda" : "tandas"}
+        </p>
+        <p className="text-sm text-tango-light/80">
+          Duration: {formatDuration(duration)}
+        </p>
+      </div>
 
       <Button
         variant="ghost"
