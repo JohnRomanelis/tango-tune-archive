@@ -138,6 +138,10 @@ const Songs = () => {
     }
   };
 
+  const handleClosePlayer = () => {
+    setSelectedTrackId(null);
+  };
+
   const handleLikeClick = (e, songId) => {
     e.stopPropagation();
     const isLiked = likedSongs?.includes(songId) || false;
@@ -166,7 +170,9 @@ const Songs = () => {
           />
         )}
       </ScrollArea>
-      <SpotifyPlayer trackId={selectedTrackId} />
+      {selectedTrackId && (
+        <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
+      )}
     </main>
   );
 };
