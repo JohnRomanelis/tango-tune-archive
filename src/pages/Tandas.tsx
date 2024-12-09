@@ -98,13 +98,18 @@ const Tandas = () => {
           }
           query = query.contains('tanda_song.song', yearConditions);
         }
-        if (searchParams.isInstrumental) {
-          query = query.not('tanda_song.song.is_instrumental', 'eq', false);
-        }
       }
 
       const { data, error } = await query;
       if (error) throw error;
+
+      // Filter instrumental tandas after fetching
+      if (searchParams?.isInstrumental) {
+        return data?.filter(tanda => 
+          tanda.tanda_song?.every(ts => ts.song?.is_instrumental)
+        ) || [];
+      }
+
       return data || [];
     },
   });

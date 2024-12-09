@@ -18,6 +18,7 @@ interface TandaSong {
     recording_year?: number;
     type?: string;
     style?: string;
+    song_singer?: Array<{ singer: { name: string } }>;
   };
 }
 
@@ -83,6 +84,7 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
           <div className="space-y-4">
             {(tanda.tanda_song || []).map((ts, index) => {
               if (!ts?.song) return null;
+              const singers = ts.song.song_singer?.map(s => s.singer.name).join(', ');
               return (
                 <div key={ts.song.id} className="bg-tango-gray p-4 rounded-lg">
                   <div className="flex justify-between items-start">
@@ -90,6 +92,9 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
                       <p className="font-medium">{ts.song.title || 'Untitled Song'}</p>
                       <p className="text-sm text-tango-light/80">
                         {ts.song.orchestra?.name || 'Unknown Orchestra'} ({ts.song.recording_year || 'Year unknown'})
+                      </p>
+                      <p className="text-sm text-tango-light/80">
+                        {singers ? `Singers: ${singers}` : 'Instrumental'}
                       </p>
                       <p className="text-sm text-tango-light/80">
                         {ts.song.type || 'Unknown type'} - {ts.song.style || 'Unknown style'}
