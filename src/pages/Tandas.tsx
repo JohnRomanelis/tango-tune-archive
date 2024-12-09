@@ -1,25 +1,16 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
-import TandaSearch from "@/components/TandaSearch";
-import TandaCard from "@/components/tanda/TandaCard";
-import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
+import { Loader2 } from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import TandasHeader from "@/components/tanda/TandasHeader";
+import TandasGrid from "@/components/tanda/TandasGrid";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
-  const [selectedTanda, setSelectedTanda] = useState<any>(null);
   const user = useAuthRedirect();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const { data: tandas, isLoading } = useQuery({
+  const { data: tandas, isLoading, refetch } = useQuery({
     queryKey: ["tandas", searchParams, user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -73,25 +64,19 @@ const Tandas = () => {
           query = query.or(visibilityConditions.join(','));
         }
 
+        // Apply other filters
         if (searchParams.orchestra) {
           query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
         }
         if (searchParams.singer) {
-          // First, get song IDs that match the singer
           const { data: songIds } = await supabase
             .from('song_singer')
-            .select(`
-              song_id,
-              singer!inner (
-                name
-              )
-            `)
+            .select('song_id, singer!inner(name)')
             .eq('singer.name', searchParams.singer);
 
           if (songIds?.length) {
             query = query.in('tanda_song.song.id', songIds.map(s => s.song_id));
           } else {
-            // If no songs found with this singer, return empty result
             return [];
           }
         }
@@ -114,7 +99,6 @@ const Tandas = () => {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Filter instrumental tandas after fetching
       if (searchParams?.isInstrumental) {
         return data?.filter(tanda => 
           tanda.tanda_song?.every(ts => ts.song?.is_instrumental)
@@ -126,28 +110,6 @@ const Tandas = () => {
     enabled: !!user?.id,
   });
 
-  const handleSearch = (params: any) => {
-    setSearchParams(params);
-  };
-
-  const handleDeleteTanda = async (tandaId: number) => {
-    const { error } = await supabase.from("tanda").delete().eq("id", tandaId);
-    
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete tanda",
-      });
-    } else {
-      queryClient.invalidateQueries({ queryKey: ["tandas"] });
-      toast({
-        title: "Success",
-        description: "Tanda deleted successfully",
-      });
-    }
-  };
-
   if (!user) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
@@ -158,43 +120,19 @@ const Tandas = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-tango-light">Tandas</h1>
-          <Button
-            onClick={() => navigate('/tandas/create')}
-            className="bg-tango-red hover:bg-tango-red/90"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Tanda
-          </Button>
-        </div>
-        <TandaSearch onSearch={handleSearch} />
-      </div>
+      <TandasHeader onSearch={setSearchParams} />
       
-      <ScrollArea className="h-[calc(100vh-300px)]">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tandas?.map((tanda: any) => (
-            <div
-              key={tanda.id}
-              onClick={() => setSelectedTanda(tanda)}
-              className="cursor-pointer"
-            >
-              <TandaCard
-                tanda={tanda}
-                currentUserId={user?.id}
-                onDelete={() => handleDeleteTanda(tanda.id)}
-              />
-            </div>
-          ))}
+      {isLoading ? (
+        <div className="flex justify-center items-center h-[calc(100vh-300px)]">
+          <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
         </div>
-      </ScrollArea>
-
-      <TandaDetailsDialog
-        tanda={selectedTanda}
-        isOpen={!!selectedTanda}
-        onClose={() => setSelectedTanda(null)}
-      />
+      ) : (
+        <TandasGrid
+          tandas={tandas || []}
+          currentUserId={user.id}
+          onTandaDeleted={refetch}
+        />
+      )}
     </main>
   );
 };
