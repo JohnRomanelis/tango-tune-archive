@@ -5,9 +5,11 @@ import { Loader2 } from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import TandasHeader from "@/components/tanda/TandasHeader";
 import TandasGrid from "@/components/tanda/TandasGrid";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const user = useAuthRedirect();
 
   const { data: tandas, isLoading, refetch } = useQuery({
@@ -68,47 +70,24 @@ const Tandas = () => {
         if (searchParams.orchestra) {
           query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
         }
-        if (searchParams.singer) {
-          const { data: songIds } = await supabase
-            .from('song_singer')
-            .select('song_id, singer!inner(name)')
-            .eq('singer.name', searchParams.singer);
-
-          if (songIds?.length) {
-            query = query.in('tanda_song.song.id', songIds.map(s => s.song_id));
-          } else {
-            return [];
-          }
-        }
         if (searchParams.type) {
           query = query.eq('tanda_song.song.type', searchParams.type);
         }
         if (searchParams.style) {
           query = query.eq('tanda_song.song.style', searchParams.style);
         }
-        if (searchParams.yearFrom || searchParams.yearTo) {
-          if (searchParams.yearFrom) {
-            query = query.gte('tanda_song.song.recording_year', searchParams.yearFrom);
-          }
-          if (searchParams.yearTo) {
-            query = query.lte('tanda_song.song.recording_year', searchParams.yearTo);
-          }
-        }
       }
 
       const { data, error } = await query;
       if (error) throw error;
-
-      if (searchParams?.isInstrumental) {
-        return data?.filter(tanda => 
-          tanda.tanda_song?.every(ts => ts.song?.is_instrumental)
-        ) || [];
-      }
-
       return data || [];
     },
     enabled: !!user?.id,
   });
+
+  const handleSongClick = (spotify_id: string | null) => {
+    setSelectedTrackId(spotify_id);
+  };
 
   if (!user) {
     return (
@@ -131,6 +110,14 @@ const Tandas = () => {
           tandas={tandas || []}
           currentUserId={user.id}
           onTandaDeleted={refetch}
+          onSongClick={handleSongClick}
+        />
+      )}
+
+      {selectedTrackId && (
+        <SpotifyPlayer
+          trackId={selectedTrackId}
+          onClose={() => setSelectedTrackId(null)}
         />
       )}
     </main>
