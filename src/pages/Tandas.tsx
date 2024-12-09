@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import TandaSearch from "@/components/TandaSearch";
-import TandasGrid from "@/components/tanda/TandasGrid";
+import TandaCard from "@/components/tanda/TandaCard";
+import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
+  const [selectedTanda, setSelectedTanda] = useState<any>(null);
   const user = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -124,7 +126,7 @@ const Tandas = () => {
     enabled: !!user?.id,
   });
 
-  const handleSearch = (params) => {
+  const handleSearch = (params: any) => {
     setSearchParams(params);
   };
 
@@ -171,13 +173,28 @@ const Tandas = () => {
       </div>
       
       <ScrollArea className="h-[calc(100vh-300px)]">
-        <TandasGrid
-          tandas={tandas || []}
-          isLoading={isLoading}
-          currentUserId={user?.id}
-          onDelete={handleDeleteTanda}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tandas?.map((tanda: any) => (
+            <div
+              key={tanda.id}
+              onClick={() => setSelectedTanda(tanda)}
+              className="cursor-pointer"
+            >
+              <TandaCard
+                tanda={tanda}
+                currentUserId={user?.id}
+                onDelete={() => handleDeleteTanda(tanda.id)}
+              />
+            </div>
+          ))}
+        </div>
       </ScrollArea>
+
+      <TandaDetailsDialog
+        tanda={selectedTanda}
+        open={!!selectedTanda}
+        onClose={() => setSelectedTanda(null)}
+      />
     </main>
   );
 };

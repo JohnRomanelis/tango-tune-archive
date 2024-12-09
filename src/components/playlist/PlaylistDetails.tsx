@@ -31,8 +31,9 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
     return Array.from(styles).join(", ");
   };
 
-  const handleSongClick = (spotify_id: string | null) => {
-    if (!spotify_id) return; // Don't do anything if there's no Spotify ID
+  const handleSongClick = (e: React.MouseEvent, spotify_id: string | null) => {
+    e.stopPropagation(); // Prevent event bubbling
+    if (!spotify_id) return;
     setSelectedTrackId(spotify_id);
   };
 
@@ -77,7 +78,7 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
                           className={`bg-tango-gray p-2 rounded cursor-pointer hover:bg-tango-gray/80 transition-colors ${
                             ts.song.spotify_id && ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
                           }`}
-                          onClick={() => handleSongClick(ts.song.spotify_id)}
+                          onClick={(e) => handleSongClick(e, ts.song.spotify_id)}
                         >
                           <div className="flex items-center gap-2">
                             {ts.song.spotify_id && (
