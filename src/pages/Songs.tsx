@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import SongSearch from "@/components/SongSearch";
 import { Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
 
 interface SearchParams {
   title?: string;
@@ -19,6 +20,7 @@ interface SearchParams {
 
 const Songs = () => {
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   const { data: songs, isLoading } = useQuery({
     queryKey: ["songs", searchParams],
@@ -27,9 +29,9 @@ const Songs = () => {
         .from("song")
         .select(`
           *,
-          orchestra!inner (name),
-          song_singer!inner (
-            singer!inner (name)
+          orchestra (name),
+          song_singer (
+            singer (name)
           )
         `);
 
@@ -71,10 +73,16 @@ const Songs = () => {
     setSearchParams(params);
   };
 
+  const handleSongClick = (spotify_id: string | null) => {
+    if (spotify_id) {
+      setSelectedTrackId(spotify_id);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-tango-darkGray">
       <Sidebar />
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-6 pb-[200px]"> {/* Added padding bottom to account for player */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-tango-light mb-6">Songs</h1>
           <SongSearch onSearch={handleSearch} />
@@ -88,7 +96,13 @@ const Songs = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {songs?.map((song) => (
-                <div key={song.id} className="bg-tango-gray rounded-lg p-6">
+                <div 
+                  key={song.id} 
+                  className={`bg-tango-gray rounded-lg p-6 cursor-pointer transition-all hover:bg-tango-gray/80 ${
+                    song.spotify_id === selectedTrackId ? 'ring-2 ring-tango-red' : ''
+                  }`}
+                  onClick={() => handleSongClick(song.spotify_id)}
+                >
                   <h3 className="text-xl font-semibold text-tango-light mb-2">{song.title}</h3>
                   <div className="space-y-2 text-gray-400">
                     <p>Orchestra: {song.orchestra?.name || 'N/A'}</p>
@@ -106,6 +120,7 @@ const Songs = () => {
           )}
         </ScrollArea>
       </main>
+      <SpotifyPlayer trackId={selectedTrackId} />
     </div>
   );
 };

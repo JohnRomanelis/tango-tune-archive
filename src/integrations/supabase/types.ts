@@ -138,7 +138,7 @@ export type Database = {
           is_instrumental: boolean | null
           orchestra_id: number | null
           recording_year: number | null
-          spotify_link: string | null
+          spotify_id: string | null
           style: Database["public"]["Enums"]["song_style"]
           title: string
           type: Database["public"]["Enums"]["song_type"]
@@ -149,7 +149,7 @@ export type Database = {
           is_instrumental?: boolean | null
           orchestra_id?: number | null
           recording_year?: number | null
-          spotify_link?: string | null
+          spotify_id?: string | null
           style: Database["public"]["Enums"]["song_style"]
           title: string
           type: Database["public"]["Enums"]["song_type"]
@@ -160,7 +160,7 @@ export type Database = {
           is_instrumental?: boolean | null
           orchestra_id?: number | null
           recording_year?: number | null
-          spotify_link?: string | null
+          spotify_id?: string | null
           style?: Database["public"]["Enums"]["song_style"]
           title?: string
           type?: Database["public"]["Enums"]["song_type"]
