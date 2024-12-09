@@ -13,6 +13,7 @@ interface TandasGridProps {
   onTandaClick?: (tanda: any) => void;
   onSongClick?: (spotify_id: string | null) => void;
   showAddButton?: boolean;
+  selectedTrackId?: string | null;
 }
 
 const TandasGrid = ({ 
@@ -22,7 +23,8 @@ const TandasGrid = ({
   onAddClick,
   onTandaClick,
   onSongClick,
-  showAddButton 
+  showAddButton,
+  selectedTrackId
 }: TandasGridProps) => {
   const [selectedTanda, setSelectedTanda] = useState<any>(null);
   const { toast } = useToast();
@@ -65,10 +67,12 @@ const TandasGrid = ({
               <TandaCard
                 tanda={tanda}
                 currentUserId={currentUserId}
+                userId={tanda.user_id}
                 onDelete={() => handleDeleteTanda(tanda.id)}
-                onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
+                onAdd={onAddClick ? () => onAddClick(tanda) : undefined}
                 onSongClick={onSongClick}
                 showAddButton={showAddButton}
+                selectedTrackId={selectedTrackId}
               />
             </div>
           ))}
