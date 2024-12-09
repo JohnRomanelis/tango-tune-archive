@@ -4,11 +4,20 @@ import TandaCard from "./TandaCard";
 interface TandasGridProps {
   tandas: any[];
   isLoading: boolean;
-  currentUserId: string | null;
-  onDelete: (id: number) => void;
+  currentUserId?: string | null;
+  onDelete?: (id: number) => void;
+  onAddClick?: (tanda: any) => void;
+  showAddButton?: boolean;
 }
 
-const TandasGrid = ({ tandas, isLoading, currentUserId, onDelete }: TandasGridProps) => {
+const TandasGrid = ({ 
+  tandas, 
+  isLoading, 
+  currentUserId, 
+  onDelete,
+  onAddClick,
+  showAddButton 
+}: TandasGridProps) => {
   if (isLoading) {
     return (
       <div className="flex justify-center p-6">
@@ -25,6 +34,7 @@ const TandasGrid = ({ tandas, isLoading, currentUserId, onDelete }: TandasGridPr
           tanda={tanda}
           currentUserId={currentUserId}
           onDelete={onDelete}
+          onAdd={showAddButton ? () => onAddClick?.(tanda) : undefined}
         />
       ))}
     </div>

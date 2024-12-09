@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useAuthRedirect = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -16,13 +16,13 @@ export const useAuthRedirect = () => {
         toast({
           variant: "destructive",
           title: "Authentication required",
-          description: "Please sign in to view tandas",
+          description: "Please sign in to continue",
         });
         navigate("/login");
         return;
       }
       
-      setCurrentUser(session.user);
+      setUser(session.user);
     };
 
     checkAuth();
@@ -31,7 +31,7 @@ export const useAuthRedirect = () => {
       if (event === 'SIGNED_OUT' || !session) {
         navigate("/login");
       } else {
-        setCurrentUser(session.user);
+        setUser(session.user);
       }
     });
 
@@ -40,5 +40,5 @@ export const useAuthRedirect = () => {
     };
   }, [navigate, toast]);
 
-  return currentUser;
+  return { user };
 };
