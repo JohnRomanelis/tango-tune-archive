@@ -12,8 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
 import SongResultsTable from "@/components/SongResultsTable";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
+import { Switch } from "@/components/ui/switch";
 
-// Update the TandaSong type to make spotify_id optional
 interface TandaSong {
   id: number;
   title: string;
@@ -30,6 +30,8 @@ const CreateTanda = () => {
   const [spotifyLink, setSpotifyLink] = useState("");
   const [selectedSongs, setSelectedSongs] = useState<TandaSong[]>([]);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+  const [isPublic, setIsPublic] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   const handleSongClick = (spotify_id: string | null) => {
     setSelectedTrackId(spotify_id);
@@ -59,6 +61,57 @@ const CreateTanda = () => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setSelectedSongs(items);
+  };
+
+  const handleSearch = async (params: any) => {
+    let query = supabase
+      .from('song')
+      .select(`
+        *,
+        orchestra:orchestra_id (name),
+        song_singer (
+          singer (name)
+        )
+      `);
+
+    if (params.title) {
+      query = query.ilike('title', `%${params.title}%`);
+    }
+    if (params.orchestra) {
+      query = query.eq('orchestra.name', params.orchestra);
+    }
+    if (params.singer) {
+      query = query.contains('song_singer.singer.name', [params.singer]);
+    }
+    if (params.type) {
+      query = query.eq('type', params.type);
+    }
+    if (params.style) {
+      query = query.eq('style', params.style);
+    }
+    if (params.yearFrom) {
+      query = query.gte('recording_year', params.yearFrom);
+    }
+    if (params.yearTo) {
+      query = query.lte('recording_year', params.yearTo);
+    }
+    if (params.isInstrumental !== undefined) {
+      query = query.eq('is_instrumental', params.isInstrumental);
+    }
+
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching songs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch songs. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSearchResults(data || []);
   };
 
   const handleSaveTanda = async () => {
@@ -92,7 +145,7 @@ const CreateTanda = () => {
           comments,
           spotify_link: spotifyLink,
           user_id: user.id,
-          visibility: 'private'
+          visibility: isPublic ? 'public' : 'private'
         })
         .select()
         .single();
@@ -168,6 +221,19 @@ const CreateTanda = () => {
                 placeholder="Add Spotify playlist link..."
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>Visibility</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={isPublic}
+                  onCheckedChange={setIsPublic}
+                />
+                <span className="text-sm text-tango-light">
+                  {isPublic ? 'Public' : 'Private'}
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="bg-tango-gray rounded-lg p-6">
@@ -236,10 +302,10 @@ const CreateTanda = () => {
         {/* Right side - Song search and player */}
         <div className="w-1/2 space-y-6">
           <div className="space-y-6">
-            <SongSearch onSearch={() => {}} />
+            <SongSearch onSearch={handleSearch} />
             <ScrollArea className="h-[calc(100vh-500px)]">
               <SongResultsTable
-                songs={[]}
+                songs={searchResults}
                 likedSongs={[]}
                 selectedTrackId={selectedTrackId}
                 onSongClick={handleSongClick}
