@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Heart, PlayCircle } from "lucide-react";
+import { Heart, PlayCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Song {
@@ -20,6 +20,7 @@ interface SongResultsTableProps {
   selectedTrackId: string | null;
   onSongClick: (spotify_id: string | null) => void;
   onLikeClick: (e: React.MouseEvent, songId: number) => void;
+  onAddClick?: (song: Song) => void;
 }
 
 const SongResultsTable = ({
@@ -28,6 +29,7 @@ const SongResultsTable = ({
   selectedTrackId,
   onSongClick,
   onLikeClick,
+  onAddClick,
 }: SongResultsTableProps) => {
   return (
     <div className="rounded-md bg-tango-gray">
@@ -41,7 +43,7 @@ const SongResultsTable = ({
             <TableHead className="text-tango-light">Type</TableHead>
             <TableHead className="text-tango-light">Style</TableHead>
             <TableHead className="text-tango-light">Year</TableHead>
-            <TableHead className="text-tango-light w-[40px]"></TableHead>
+            <TableHead className="text-tango-light w-[80px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,19 +83,37 @@ const SongResultsTable = ({
                 {song.recording_year || '-'}
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`${
-                    likedSongs.includes(song.id) ? 'text-tango-red' : 'text-gray-400'
-                  } hover:text-tango-red`}
-                  onClick={(e) => onLikeClick(e, song.id)}
-                >
-                  <Heart
-                    className="h-4 w-4"
-                    fill={likedSongs.includes(song.id) ? "currentColor" : "none"}
-                  />
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`${
+                      likedSongs.includes(song.id) ? 'text-tango-red' : 'text-gray-400'
+                    } hover:text-tango-red`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onLikeClick(e, song.id);
+                    }}
+                  >
+                    <Heart
+                      className="h-4 w-4"
+                      fill={likedSongs.includes(song.id) ? "currentColor" : "none"}
+                    />
+                  </Button>
+                  {onAddClick && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-tango-red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddClick(song);
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

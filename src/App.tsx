@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Songs from "./pages/Songs";
 import Tandas from "./pages/Tandas";
+import CreateTanda from "./pages/CreateTanda";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
                     <Route path="/" element={<Index />} />
                     <Route path="/songs" element={<Songs />} />
                     <Route path="/tandas" element={<Tandas />} />
+                    <Route path="/tandas/create" element={<CreateTanda />} />
                   </Routes>
                 </>
               }

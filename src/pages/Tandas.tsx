@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import TandaSearch from "@/components/TandaSearch";
 import TandaResultsTable from "@/components/TandaResultsTable";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
+  const navigate = useNavigate();
 
   const { data: tandas, isLoading } = useQuery({
     queryKey: ["tandas", searchParams],
@@ -105,7 +108,16 @@ const Tandas = () => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-tango-light mb-6">Tandas</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-tango-light">Tandas</h1>
+          <Button
+            onClick={() => navigate('/tandas/create')}
+            className="bg-tango-red hover:bg-tango-red/90"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Tanda
+          </Button>
+        </div>
         <TandaSearch onSearch={handleSearch} />
       </div>
       
