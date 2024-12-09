@@ -3,31 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import AutocompleteInput from "./AutocompleteInput";
 
 interface SongSearchProps {
   onSearch: (params: any) => void;
 }
 
 const SongSearch = ({ onSearch }: SongSearchProps) => {
-  const [open, setOpen] = useState(false);
-  const [orchestraValue, setOrchestraValue] = useState("");
   const [title, setTitle] = useState("");
+  const [orchestra, setOrchestra] = useState("");
   const [singer, setSinger] = useState("");
   const [yearFrom, setYearFrom] = useState("");
   const [yearTo, setYearTo] = useState("");
@@ -62,7 +47,7 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
   useEffect(() => {
     const searchParams = {
       title: title || undefined,
-      orchestra: orchestraValue || undefined,
+      orchestra: orchestra || undefined,
       singer: singer || undefined,
       yearFrom: yearFrom ? parseInt(yearFrom) : undefined,
       yearTo: yearTo ? parseInt(yearTo) : undefined,
@@ -71,7 +56,7 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
       style: style || undefined,
     };
     onSearch(searchParams);
-  }, [title, orchestraValue, singer, yearFrom, yearTo, isInstrumental, type, style, onSearch]);
+  }, [title, orchestra, singer, yearFrom, yearTo, isInstrumental, type, style, onSearch]);
 
   return (
     <div className="bg-tango-gray rounded-lg p-6 space-y-6">
@@ -87,86 +72,21 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label>Orchestra</Label>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-full justify-between bg-tango-darkGray text-tango-light"
-              >
-                {orchestraValue
-                  ? orchestras?.find((orchestra) => orchestra.name === orchestraValue)?.name
-                  : "Select orchestra..."}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <Command>
-                <CommandInput placeholder="Search orchestra..." />
-                <CommandEmpty>No orchestra found.</CommandEmpty>
-                <CommandGroup>
-                  {orchestras?.map((orchestra) => (
-                    <CommandItem
-                      key={orchestra.name}
-                      onSelect={() => {
-                        setOrchestraValue(orchestra.name === orchestraValue ? "" : orchestra.name);
-                        setOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          orchestraValue === orchestra.name ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {orchestra.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+        <AutocompleteInput
+          label="Orchestra"
+          value={orchestra}
+          onChange={setOrchestra}
+          options={orchestras || []}
+          placeholder="Search orchestra..."
+        />
 
-        <div className="space-y-2">
-          <Label>Singer</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-between bg-tango-darkGray text-tango-light"
-              >
-                {singer || "Select singer..."}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <Command>
-                <CommandInput placeholder="Search singer..." />
-                <CommandEmpty>No singer found.</CommandEmpty>
-                <CommandGroup>
-                  {singers?.map((s) => (
-                    <CommandItem
-                      key={s.name}
-                      onSelect={() => setSinger(s.name === singer ? "" : s.name)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          singer === s.name ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {s.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+        <AutocompleteInput
+          label="Singer"
+          value={singer}
+          onChange={setSinger}
+          options={singers || []}
+          placeholder="Search singer..."
+        />
 
         <div className="space-y-2">
           <Label>Year Range</Label>
