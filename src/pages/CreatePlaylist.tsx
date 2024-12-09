@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PlaylistForm from "@/components/playlist/PlaylistForm";
 import SelectedTandasList from "@/components/playlist/SelectedTandasList";
 import TandaSearchSection from "@/components/tanda/TandaSearchSection";
+import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface Tanda {
@@ -25,6 +26,7 @@ const CreatePlaylist = () => {
   const [spotifyLink, setSpotifyLink] = useState("");
   const [selectedTandas, setSelectedTandas] = useState<Tanda[]>([]);
   const [isPublic, setIsPublic] = useState(false);
+  const [selectedTandaForDialog, setSelectedTandaForDialog] = useState<any>(null);
 
   const handleAddTanda = (tanda: Tanda) => {
     if (selectedTandas.some(t => t.id === tanda.id)) {
@@ -150,9 +152,16 @@ const CreatePlaylist = () => {
         <div className="w-3/5">
           <TandaSearchSection
             onAddTanda={handleAddTanda}
+            onTandaClick={setSelectedTandaForDialog}
           />
         </div>
       </div>
+
+      <TandaDetailsDialog
+        tanda={selectedTandaForDialog}
+        isOpen={!!selectedTandaForDialog}
+        onClose={() => setSelectedTandaForDialog(null)}
+      />
     </main>
   );
 };
