@@ -11,15 +11,14 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
 
 const Playlists = () => {
-  const navigate = useNavigate();
-  const user = useAuthRedirect();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
   const [includeMine, setIncludeMine] = useState(true);
   const [includeShared, setIncludeShared] = useState(false);
   const [includePublic, setIncludePublic] = useState(false);
-  const [selectedPlaylist, setSelectedPlaylist] = useState<any>(null);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<number | null>(null);
+  const user = useAuthRedirect();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: playlists, isLoading } = useQuery({
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
@@ -76,8 +75,8 @@ const Playlists = () => {
 
       if (error) throw error;
 
-      if (selectedPlaylist?.id === playlistId) {
-        setSelectedPlaylist(null);
+      if (selectedPlaylistId === playlistId) {
+        setSelectedPlaylistId(null);
       }
 
       queryClient.invalidateQueries({ queryKey: ["playlists"] });
@@ -145,11 +144,11 @@ const Playlists = () => {
               <div
                 key={playlist.id}
                 className={`cursor-pointer ${
-                  selectedPlaylist?.id === playlist.id
+                  selectedPlaylistId === playlist.id
                     ? "ring-2 ring-tango-red"
                     : ""
                 }`}
-                onClick={() => setSelectedPlaylist(playlist)}
+                onClick={() => setSelectedPlaylistId(playlist.id)}
               >
                 <div className="bg-tango-gray rounded-lg p-4 relative group hover:bg-tango-gray/90 transition-colors">
                   <h3 className="text-lg font-semibold text-tango-light mb-2">
@@ -171,7 +170,7 @@ const Playlists = () => {
         </div>
 
         <div className="w-1/2">
-          <PlaylistDetails playlist={selectedPlaylist} />
+          <PlaylistDetails playlistId={selectedPlaylistId} />
         </div>
       </div>
     </main>

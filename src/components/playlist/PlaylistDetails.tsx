@@ -2,13 +2,54 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ListOrdered, PlayCircle } from "lucide-react";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PlaylistDetailsProps {
-  playlist: any;
+  playlistId: number | null;
 }
 
-const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
+const PlaylistDetails = ({ playlistId }: PlaylistDetailsProps) => {
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+
+  const { data: playlist, isLoading } = useQuery({
+    queryKey: ['playlist', playlistId],
+    queryFn: async () => {
+      if (!playlistId) return null;
+      
+      const { data, error } = await supabase
+        .from('playlist')
+        .select(`
+          *,
+          playlist_tanda (
+            order_in_playlist,
+            tanda (
+              id,
+              title,
+              tanda_song (
+                order_in_tanda,
+                song (
+                  id,
+                  title,
+                  spotify_id,
+                  recording_year,
+                  orchestra (name),
+                  song_singer (
+                    singer (name)
+                  )
+                )
+              )
+            )
+          )
+        `)
+        .eq('id', playlistId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!playlistId
+  });
 
   if (!playlist) return null;
 
@@ -32,7 +73,7 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
   };
 
   const handleSongClick = (e: React.MouseEvent, spotify_id: string | null) => {
-    e.stopPropagation(); // Prevent event bubbling
+    e.stopPropagation();
     if (!spotify_id) return;
     setSelectedTrackId(spotify_id);
   };
@@ -65,7 +106,6 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
                   <div className="space-y-1 text-sm text-tango-light/80 mb-3">
                     <p>Orchestra: {pt.tanda.tanda_song[0]?.song.orchestra?.name || "Unknown"}</p>
                     <p>Years: {getYearRange(pt.tanda.tanda_song)}</p>
-                    <p className="capitalize">Type: {pt.tanda.tanda_song[0]?.song.type || "Unknown"}</p>
                     <p className="capitalize">Styles: {getStyles(pt.tanda.tanda_song)}</p>
                   </div>
 
@@ -76,7 +116,7 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
                         <div 
                           key={ts.song.id} 
                           className={`bg-tango-gray p-2 rounded cursor-pointer hover:bg-tango-gray/80 transition-colors ${
-                            ts.song.spotify_id && ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
+                            ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
                           }`}
                           onClick={(e) => handleSongClick(e, ts.song.spotify_id)}
                         >
