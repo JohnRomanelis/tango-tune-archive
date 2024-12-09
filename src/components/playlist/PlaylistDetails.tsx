@@ -31,6 +31,8 @@ const PlaylistDetails = ({ playlistId }: PlaylistDetailsProps) => {
                 song (
                   id,
                   title,
+                  type,
+                  style,
                   spotify_id,
                   recording_year,
                   orchestra (name),
@@ -97,51 +99,58 @@ const PlaylistDetails = ({ playlistId }: PlaylistDetailsProps) => {
           <div className="space-y-4">
             {playlist.playlist_tanda
               ?.sort((a: any, b: any) => a.order_in_playlist - b.order_in_playlist)
-              .map((pt: any) => (
-                <div key={pt.tanda.id} className="bg-tango-darkGray p-4 rounded-lg">
-                  <h4 className="text-tango-light font-semibold mb-2">
-                    {pt.tanda.title}
-                  </h4>
-                  
-                  <div className="space-y-1 text-sm text-tango-light/80 mb-3">
-                    <p>Orchestra: {pt.tanda.tanda_song[0]?.song.orchestra?.name || "Unknown"}</p>
-                    <p>Years: {getYearRange(pt.tanda.tanda_song)}</p>
-                    <p className="capitalize">Styles: {getStyles(pt.tanda.tanda_song)}</p>
-                  </div>
+              .map((pt: any) => {
+                const firstSong = pt.tanda.tanda_song[0]?.song;
+                const type = firstSong?.type || 'Unknown';
+                const style = firstSong?.style || 'Unknown';
 
-                  <div className="space-y-2">
-                    {pt.tanda.tanda_song
-                      .sort((a: any, b: any) => a.order_in_tanda - b.order_in_tanda)
-                      .map((ts: any) => (
-                        <div 
-                          key={ts.song.id} 
-                          className={`bg-tango-gray p-2 rounded cursor-pointer hover:bg-tango-gray/80 transition-colors ${
-                            ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
-                          }`}
-                          onClick={(e) => handleSongClick(e, ts.song.spotify_id)}
-                        >
-                          <div className="flex items-center gap-2">
-                            {ts.song.spotify_id && (
-                              <PlayCircle className={`h-4 w-4 ${
-                                ts.song.spotify_id === selectedTrackId 
-                                  ? 'text-tango-red' 
-                                  : 'text-tango-light'
-                              }`} />
-                            )}
-                            <div>
-                              <p className="font-medium text-tango-light">
-                                {ts.song.title}
-                              </p>
-                              <p className="text-xs text-tango-light/80">
-                                {ts.song.orchestra?.name} - {ts.song.song_singer?.map((s: any) => s.singer.name).join(", ") || "Instrumental"} ({ts.song.recording_year || "Unknown"})
-                              </p>
+                return (
+                  <div key={pt.tanda.id} className="bg-tango-darkGray p-4 rounded-lg">
+                    <h4 className="text-tango-light font-semibold mb-2">
+                      {pt.tanda.title}
+                    </h4>
+                    
+                    <div className="space-y-1 text-sm text-tango-light/80 mb-3">
+                      <p>Orchestra: {pt.tanda.tanda_song[0]?.song.orchestra?.name || "Unknown"}</p>
+                      <p>Years: {getYearRange(pt.tanda.tanda_song)}</p>
+                      <p className="capitalize">Type: {type}</p>
+                      <p className="capitalize">Style: {style}</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      {pt.tanda.tanda_song
+                        .sort((a: any, b: any) => a.order_in_tanda - b.order_in_tanda)
+                        .map((ts: any) => (
+                          <div 
+                            key={ts.song.id} 
+                            className={`bg-tango-gray p-2 rounded cursor-pointer hover:bg-tango-gray/80 transition-colors ${
+                              ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
+                            }`}
+                            onClick={(e) => handleSongClick(e, ts.song.spotify_id)}
+                          >
+                            <div className="flex items-center gap-2">
+                              {ts.song.spotify_id && (
+                                <PlayCircle className={`h-4 w-4 ${
+                                  ts.song.spotify_id === selectedTrackId 
+                                    ? 'text-tango-red' 
+                                    : 'text-tango-light'
+                                }`} />
+                              )}
+                              <div>
+                                <p className="font-medium text-tango-light">
+                                  {ts.song.title}
+                                </p>
+                                <p className="text-xs text-tango-light/80">
+                                  {ts.song.orchestra?.name} - {ts.song.song_singer?.map((s: any) => s.singer.name).join(", ") || "Instrumental"} ({ts.song.recording_year || "Unknown"})
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
         </ScrollArea>
       </div>
