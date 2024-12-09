@@ -1,26 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import AutocompleteInput from "./AutocompleteInput";
+import { Loader2 } from "lucide-react";
+
+interface SearchParams {
+  title?: string;
+  orchestra?: string;
+  singer?: string;
+  yearFrom?: number;
+  yearTo?: number;
+  isInstrumental?: boolean;
+  type?: string;
+  style?: string;
+}
 
 interface SongSearchProps {
-  onSearch: (params: any) => void;
+  onSearch: (params: SearchParams) => void;
 }
 
 const SongSearch = ({ onSearch }: SongSearchProps) => {
-  const [title, setTitle] = useState("");
-  const [orchestra, setOrchestra] = useState("");
-  const [singer, setSinger] = useState("");
-  const [yearFrom, setYearFrom] = useState("");
-  const [yearTo, setYearTo] = useState("");
-  const [isInstrumental, setIsInstrumental] = useState<boolean | undefined>(undefined);
-  const [type, setType] = useState<string>("");
-  const [style, setStyle] = useState<string>("");
+  const [searchParams, setSearchParams] = useState<SearchParams>({});
 
-  const { data: orchestras } = useQuery({
+  // Fetch orchestras for autocomplete
+  const { data: orchestras, isLoading: orchestrasLoading } = useQuery({
     queryKey: ["orchestras"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -28,11 +35,12 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
         .select("name")
         .order("name");
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
-  const { data: singers } = useQuery({
+  // Fetch singers for autocomplete
+  const { data: singers, isLoading: singersLoading } = useQuery({
     queryKey: ["singers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,23 +48,33 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
         .select("name")
         .order("name");
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
-  useEffect(() => {
-    const searchParams = {
-      title: title || undefined,
-      orchestra: orchestra || undefined,
-      singer: singer || undefined,
-      yearFrom: yearFrom ? parseInt(yearFrom) : undefined,
-      yearTo: yearTo ? parseInt(yearTo) : undefined,
-      isInstrumental,
-      type: type || undefined,
-      style: style || undefined,
-    };
-    onSearch(searchParams);
-  }, [title, orchestra, singer, yearFrom, yearTo, isInstrumental, type, style, onSearch]);
+  const handleSearch = () => {
+    const cleanedParams: SearchParams = {};
+    
+    // Only include non-empty values
+    if (searchParams.title) cleanedParams.title = searchParams.title;
+    if (searchParams.orchestra) cleanedParams.orchestra = searchParams.orchestra;
+    if (searchParams.singer) cleanedParams.singer = searchParams.singer;
+    if (searchParams.yearFrom) cleanedParams.yearFrom = Number(searchParams.yearFrom);
+    if (searchParams.yearTo) cleanedParams.yearTo = Number(searchParams.yearTo);
+    if (searchParams.isInstrumental !== undefined) cleanedParams.isInstrumental = searchParams.isInstrumental;
+    if (searchParams.type) cleanedParams.type = searchParams.type;
+    if (searchParams.style) cleanedParams.style = searchParams.style;
+
+    onSearch(cleanedParams);
+  };
+
+  if (orchestrasLoading || singersLoading) {
+    return (
+      <div className="flex justify-center p-6">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-tango-gray rounded-lg p-6 space-y-6">
@@ -66,24 +84,24 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
           <Input
             id="title"
             placeholder="Search by title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={searchParams.title || ""}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, title: e.target.value }))}
             className="bg-tango-darkGray text-tango-light"
           />
         </div>
 
         <AutocompleteInput
           label="Orchestra"
-          value={orchestra}
-          onChange={setOrchestra}
+          value={searchParams.orchestra || ""}
+          onChange={(value) => setSearchParams(prev => ({ ...prev, orchestra: value }))}
           options={orchestras || []}
           placeholder="Search orchestra..."
         />
 
         <AutocompleteInput
           label="Singer"
-          value={singer}
-          onChange={setSinger}
+          value={searchParams.singer || ""}
+          onChange={(value) => setSearchParams(prev => ({ ...prev, singer: value }))}
           options={singers || []}
           placeholder="Search singer..."
         />
@@ -94,15 +112,15 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
             <Input
               placeholder="From..."
               type="number"
-              value={yearFrom}
-              onChange={(e) => setYearFrom(e.target.value)}
+              value={searchParams.yearFrom || ""}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, yearFrom: e.target.value ? Number(e.target.value) : undefined }))}
               className="bg-tango-darkGray text-tango-light"
             />
             <Input
               placeholder="To..."
               type="number"
-              value={yearTo}
-              onChange={(e) => setYearTo(e.target.value)}
+              value={searchParams.yearTo || ""}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, yearTo: e.target.value ? Number(e.target.value) : undefined }))}
               className="bg-tango-darkGray text-tango-light"
             />
           </div>
@@ -111,8 +129,8 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
         <div className="space-y-2">
           <Label>Type</Label>
           <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
+            value={searchParams.type || ""}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, type: e.target.value }))}
             className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
           >
             <option value="">All Types</option>
@@ -125,8 +143,8 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
         <div className="space-y-2">
           <Label>Style</Label>
           <select
-            value={style}
-            onChange={(e) => setStyle(e.target.value)}
+            value={searchParams.style || ""}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, style: e.target.value }))}
             className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
           >
             <option value="">All Styles</option>
@@ -140,14 +158,21 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
           <Label>Instrumental</Label>
           <div className="flex items-center space-x-2">
             <Switch
-              checked={isInstrumental === true}
-              onCheckedChange={(checked) => {
-                setIsInstrumental(checked ? true : undefined);
-              }}
+              checked={searchParams.isInstrumental === true}
+              onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, isInstrumental: checked ? true : undefined }))}
             />
             <span className="text-sm text-tango-light">Show only instrumental</span>
           </div>
         </div>
+      </div>
+
+      <div className="flex justify-end">
+        <Button 
+          onClick={handleSearch}
+          className="bg-tango-red hover:bg-tango-red/90"
+        >
+          Search Songs
+        </Button>
       </div>
     </div>
   );

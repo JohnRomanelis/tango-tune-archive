@@ -1,17 +1,29 @@
 import { useState, useEffect } from "react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 
 interface AutocompleteInputProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: { name: string }[];
-  placeholder: string;
+  placeholder?: string;
 }
 
-const AutocompleteInput = ({ label, value, onChange, options = [], placeholder }: AutocompleteInputProps) => {
+const AutocompleteInput = ({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+}: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
 
@@ -19,12 +31,9 @@ const AutocompleteInput = ({ label, value, onChange, options = [], placeholder }
     setInputValue(value);
   }, [value]);
 
-  const safeOptions = options || [];
-  const filteredOptions = safeOptions.filter(option =>
+  const filteredOptions = options.filter((option) =>
     option.name.toLowerCase().includes(inputValue.toLowerCase())
   );
-
-  const showCommands = open && inputValue && filteredOptions.length > 0;
 
   return (
     <div className="space-y-2">
@@ -39,21 +48,20 @@ const AutocompleteInput = ({ label, value, onChange, options = [], placeholder }
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => {
-            // Delay closing to allow for item selection
             setTimeout(() => setOpen(false), 200);
           }}
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        {showCommands && (
+        {open && inputValue && filteredOptions.length > 0 && (
           <div className="absolute z-10 w-full mt-1">
             <Command className="rounded-lg border shadow-md bg-tango-gray">
               <CommandInput 
-                placeholder={`Search ${label.toLowerCase()}...`} 
+                placeholder={`Search ${label.toLowerCase()}...`}
                 value={inputValue}
               />
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
+              <CommandGroup className="max-h-48 overflow-auto">
                 {filteredOptions.map((option) => (
                   <CommandItem
                     key={option.name}
