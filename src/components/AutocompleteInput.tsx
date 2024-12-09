@@ -21,7 +21,7 @@ const AutocompleteInput = ({
   label,
   value,
   onChange,
-  options = [], // Provide default empty array
+  options,
   placeholder,
 }: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
@@ -31,15 +31,9 @@ const AutocompleteInput = ({
     setInputValue(value);
   }, [value]);
 
-  // Ensure options is always an array
-  const safeOptions = Array.isArray(options) ? options : [];
-  
-  const filteredOptions = safeOptions.filter((option) =>
+  const filteredOptions = options.filter((option) =>
     option.name.toLowerCase().includes(inputValue.toLowerCase())
   );
-
-  // Only show command when we have filtered options and input
-  const showCommands = open && inputValue && filteredOptions.length > 0;
 
   return (
     <div className="space-y-2">
@@ -54,22 +48,20 @@ const AutocompleteInput = ({
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => {
-            // Delay closing to allow for item selection
             setTimeout(() => setOpen(false), 200);
           }}
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        {showCommands && (
+        {open && inputValue && filteredOptions.length > 0 && (
           <div className="absolute z-10 w-full mt-1">
             <Command className="rounded-lg border shadow-md bg-tango-gray">
               <CommandInput 
                 placeholder={`Search ${label.toLowerCase()}...`}
                 value={inputValue}
-                onValueChange={setInputValue}
               />
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
+              <CommandGroup className="max-h-48 overflow-auto">
                 {filteredOptions.map((option) => (
                   <CommandItem
                     key={option.name}
