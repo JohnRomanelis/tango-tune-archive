@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import TopNav from "@/components/TopNav";
 import SongSearch from "@/components/SongSearch";
 import { Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -146,32 +145,29 @@ const Songs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-tango-darkGray">
-      <TopNav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-tango-light mb-6">Songs</h1>
-          <SongSearch onSearch={handleSearch} />
-        </div>
-        
-        <ScrollArea className="h-[calc(100vh-300px)]">
-          {isLoading ? (
-            <div className="flex justify-center p-6">
-              <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
-            </div>
-          ) : (
-            <SongResultsTable
-              songs={songs || []}
-              likedSongs={likedSongs}
-              selectedTrackId={selectedTrackId}
-              onSongClick={handleSongClick}
-              onLikeClick={handleLikeClick}
-            />
-          )}
-        </ScrollArea>
-      </main>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-tango-light mb-6">Songs</h1>
+        <SongSearch onSearch={handleSearch} />
+      </div>
+      
+      <ScrollArea className="h-[calc(100vh-300px)]">
+        {isLoading ? (
+          <div className="flex justify-center p-6">
+            <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+          </div>
+        ) : (
+          <SongResultsTable
+            songs={songs || []}
+            likedSongs={likedSongs}
+            selectedTrackId={selectedTrackId}
+            onSongClick={handleSongClick}
+            onLikeClick={handleLikeClick}
+          />
+        )}
+      </ScrollArea>
       <SpotifyPlayer trackId={selectedTrackId} />
-    </div>
+    </main>
   );
 };
 
