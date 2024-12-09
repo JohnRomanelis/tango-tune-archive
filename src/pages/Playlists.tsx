@@ -7,6 +7,7 @@ import { Plus, Loader2, Columns } from "lucide-react";
 import PlaylistsGrid from "@/components/playlist/PlaylistsGrid";
 import PlaylistVisibilityFilters from "@/components/playlist/PlaylistVisibilityFilters";
 import PlaylistDetails from "@/components/playlist/PlaylistDetails";
+import PlaylistCard from "@/components/playlist/PlaylistCard";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
 
