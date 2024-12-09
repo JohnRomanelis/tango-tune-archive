@@ -12,15 +12,15 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
-  const currentUser = useAuthRedirect();
+  const user = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: tandas, isLoading } = useQuery({
-    queryKey: ["tandas", searchParams, currentUser?.id],
+    queryKey: ["tandas", searchParams, user?.id],
     queryFn: async () => {
-      if (!currentUser) return [];
+      if (!user?.id) return [];
 
       let query = supabase
         .from("tanda")
@@ -45,7 +45,7 @@ const Tandas = () => {
         `);
 
       if (searchParams) {
-        const userId = currentUser?.id;
+        const userId = user?.id;
 
         // Handle visibility filters
         const visibilityConditions = [];
@@ -71,7 +71,6 @@ const Tandas = () => {
           query = query.or(visibilityConditions.join(','));
         }
 
-        // Handle other filters
         if (searchParams.orchestra) {
           query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
         }
@@ -122,7 +121,7 @@ const Tandas = () => {
 
       return data || [];
     },
-    enabled: !!currentUser,
+    enabled: !!user?.id,
   });
 
   const handleSearch = (params) => {
@@ -147,7 +146,7 @@ const Tandas = () => {
     }
   };
 
-  if (!currentUser) {
+  if (!user) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
         <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
@@ -175,7 +174,7 @@ const Tandas = () => {
         <TandasGrid
           tandas={tandas || []}
           isLoading={isLoading}
-          currentUserId={currentUser?.id}
+          currentUserId={user?.id}
           onDelete={handleDeleteTanda}
         />
       </ScrollArea>

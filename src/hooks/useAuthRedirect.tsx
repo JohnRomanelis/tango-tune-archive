@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export const useAuthRedirect = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,6 +31,7 @@ export const useAuthRedirect = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         navigate("/login");
+        setUser(null);
       } else {
         setUser(session.user);
       }
@@ -40,5 +42,5 @@ export const useAuthRedirect = () => {
     };
   }, [navigate, toast]);
 
-  return { user };
+  return user;
 };
