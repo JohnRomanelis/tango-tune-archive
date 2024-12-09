@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Songs from "./pages/Songs";
 import Tandas from "./pages/Tandas";
 import CreateTanda from "./pages/CreateTanda";
+import Playlists from "./pages/Playlists";
+import CreatePlaylist from "./pages/CreatePlaylist";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,8 @@ const App = () => (
                     <Route path="/songs" element={<Songs />} />
                     <Route path="/tandas" element={<Tandas />} />
                     <Route path="/tandas/create" element={<CreateTanda />} />
+                    <Route path="/playlists" element={<Playlists />} />
+                    <Route path="/playlists/create" element={<CreatePlaylist />} />
                   </Routes>
                 </>
               }
