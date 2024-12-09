@@ -185,7 +185,7 @@ const CreateTanda = () => {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
       <div className="flex space-x-6">
         {/* Left side - Tanda form and selected songs */}
-        <div className="w-1/2 space-y-6">
+        <div className="w-2/5 space-y-6">
           <div className="bg-tango-gray rounded-lg p-6 space-y-4">
             <h2 className="text-2xl font-bold text-tango-light mb-4">Create New Tanda</h2>
             
@@ -244,7 +244,7 @@ const CreateTanda = () => {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="space-y-2"
+                    className="space-y-3"
                   >
                     {selectedSongs.map((song, index) => (
                       <Draggable
@@ -256,28 +256,30 @@ const CreateTanda = () => {
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className="flex items-center space-x-2 bg-tango-darkGray p-2 rounded-md group hover:bg-tango-darkGray/80"
+                            className="flex flex-col bg-tango-darkGray p-3 rounded-md group hover:bg-tango-darkGray/80"
                           >
-                            <div {...provided.dragHandleProps}>
-                              <GripVertical className="h-4 w-4 text-tango-light" />
-                            </div>
-                            <div
-                              className="flex-1 cursor-pointer"
-                              onClick={() => handleSongClick(song.spotify_id || null)}
-                            >
-                              <div className="text-tango-light">{song.title}</div>
-                              <div className="text-sm text-tango-light/70">
-                                {song.orchestra?.name} - {song.song_singer?.map(s => s.singer.name).join(', ') || 'Instrumental'}
+                            <div className="flex items-center space-x-2">
+                              <div {...provided.dragHandleProps}>
+                                <GripVertical className="h-4 w-4 text-tango-light" />
                               </div>
+                              <div
+                                className="flex-1 cursor-pointer"
+                                onClick={() => handleSongClick(song.spotify_id || null)}
+                              >
+                                <div className="text-tango-light font-medium">{song.title}</div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleRemoveSong(song.id)}
+                                className="text-tango-light hover:text-tango-red"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRemoveSong(song.id)}
-                              className="opacity-0 group-hover:opacity-100 text-tango-light hover:text-tango-red"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
+                            <div className="mt-1 ml-6 text-sm text-tango-light/70">
+                              {song.orchestra?.name} - {song.song_singer?.map(s => s.singer.name).join(', ') || 'Instrumental'}
+                            </div>
                           </div>
                         )}
                       </Draggable>
@@ -300,7 +302,7 @@ const CreateTanda = () => {
         </div>
 
         {/* Right side - Song search and player */}
-        <div className="w-1/2 space-y-6">
+        <div className="w-3/5 space-y-6">
           <div className="space-y-6">
             <SongSearch onSearch={handleSearch} />
             <ScrollArea className="h-[calc(100vh-500px)]">
@@ -314,7 +316,7 @@ const CreateTanda = () => {
               />
             </ScrollArea>
           </div>
-          <div className="fixed bottom-0 right-0 w-1/2 pr-4 sm:pr-6 lg:pr-8">
+          <div className="fixed bottom-0 right-0 w-3/5 pr-4 sm:pr-6 lg:pr-8">
             <SpotifyPlayer trackId={selectedTrackId} />
           </div>
         </div>
