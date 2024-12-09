@@ -83,7 +83,12 @@ const Tandas = () => {
           // First, get song IDs that match the singer
           const { data: songIds } = await supabase
             .from('song_singer')
-            .select('song_id')
+            .select(`
+              song_id,
+              singer!inner (
+                name
+              )
+            `)
             .eq('singer.name', searchParams.singer);
 
           if (songIds?.length) {
