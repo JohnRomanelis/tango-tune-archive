@@ -7,13 +7,24 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface TandasGridProps {
   tandas: any[];
-  currentUserId: string | null;
-  onTandaDeleted: () => void;
+  currentUserId?: string | null;
+  onTandaDeleted?: () => void;
+  onAddClick?: (tanda: any) => void;
+  onTandaClick?: (tanda: any) => void;
+  onSongClick?: (spotify_id: string | null) => void;
+  showAddButton?: boolean;
 }
 
-const TandasGrid = ({ tandas, currentUserId, onTandaDeleted }: TandasGridProps) => {
+const TandasGrid = ({ 
+  tandas, 
+  currentUserId, 
+  onTandaDeleted,
+  onAddClick,
+  onTandaClick,
+  onSongClick,
+  showAddButton 
+}: TandasGridProps) => {
   const [selectedTanda, setSelectedTanda] = useState<any>(null);
-  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleDeleteTanda = async (tandaId: number) => {
@@ -30,7 +41,7 @@ const TandasGrid = ({ tandas, currentUserId, onTandaDeleted }: TandasGridProps) 
         description: "Tanda deleted successfully",
       });
       
-      onTandaDeleted();
+      onTandaDeleted?.();
     } catch (error) {
       console.error('Error deleting tanda:', error);
       toast({
@@ -41,11 +52,6 @@ const TandasGrid = ({ tandas, currentUserId, onTandaDeleted }: TandasGridProps) 
     }
   };
 
-  const handleSongClick = (spotify_id: string | null) => {
-    if (!spotify_id) return;
-    setSelectedTrackId(spotify_id);
-  };
-
   return (
     <>
       <ScrollArea className="h-[calc(100vh-300px)]">
@@ -53,14 +59,16 @@ const TandasGrid = ({ tandas, currentUserId, onTandaDeleted }: TandasGridProps) 
           {tandas.map((tanda) => (
             <div
               key={tanda.id}
-              onClick={() => setSelectedTanda(tanda)}
+              onClick={() => onTandaClick ? onTandaClick(tanda) : setSelectedTanda(tanda)}
               className="cursor-pointer"
             >
               <TandaCard
                 tanda={tanda}
                 currentUserId={currentUserId}
                 onDelete={() => handleDeleteTanda(tanda.id)}
-                onSongClick={handleSongClick}
+                onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
+                onSongClick={onSongClick}
+                showAddButton={showAddButton}
               />
             </div>
           ))}

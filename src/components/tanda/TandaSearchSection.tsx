@@ -72,7 +72,6 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
       <TandaSearch onSearch={handleSearch} />
       <TandasGrid
         tandas={tandas || []}
-        isLoading={false}
         onAddClick={onAddTanda}
         onTandaClick={onTandaClick}
         onSongClick={handleSongClick}
