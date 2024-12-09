@@ -124,6 +124,10 @@ const SongSearchSection = ({
     }
   };
 
+  const handleClosePlayer = () => {
+    onSongClick(null);
+  };
+
   return (
     <div className="space-y-6 h-full">
       <SongSearch onSearch={handleSearch} />
@@ -137,9 +141,11 @@ const SongSearchSection = ({
           onAddClick={onAddSong}
         />
       </ScrollArea>
-      <div className="fixed bottom-0 right-0 w-3/5 pr-4 sm:pr-6 lg:pr-8">
-        <SpotifyPlayer trackId={selectedTrackId} />
-      </div>
+      {selectedTrackId && (
+        <div className="fixed bottom-0 right-0 w-3/5 pr-4 sm:pr-6 lg:pr-8">
+          <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
+        </div>
+      )}
     </div>
   );
 };

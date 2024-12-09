@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, User, Users, Globe, Trash } from "lucide-react";
@@ -17,8 +17,17 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    };
+    fetchUser();
+  }, []);
 
   const { data: tandas, isLoading } = useQuery({
     queryKey: ["tandas", searchParams],
@@ -46,8 +55,7 @@ const Tandas = () => {
         `);
 
       if (searchParams) {
-        const { data: user } = await supabase.auth.getUser();
-        const userId = user?.user?.id;
+        const userId = currentUser?.id;
 
         // Handle visibility filters
         const visibilityConditions = [];
@@ -97,7 +105,6 @@ const Tandas = () => {
           query = query.contains('tanda_song.song', yearConditions);
         }
         if (searchParams.isInstrumental) {
-          // For instrumental tandas, all songs must be instrumental
           query = query.not('tanda_song.song.is_instrumental', 'eq', false);
         }
       }
@@ -131,7 +138,7 @@ const Tandas = () => {
 
   const getTandaMetadata = (tanda) => {
     const songs = tanda.tanda_song || [];
-    const orchestras = new Set(songs.map(ts => ts.song.orchestra.name));
+    const orchestras = new Set(songs.map(ts => ts.song.orchestra?.name).filter(Boolean));
     const types = new Set(songs.map(ts => ts.song.type));
     const styles = new Set(songs.map(ts => ts.song.style));
     const years = songs.map(ts => ts.song.recording_year).filter(Boolean);
@@ -170,8 +177,7 @@ const Tandas = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tandas?.map((tanda) => {
               const metadata = getTandaMetadata(tanda);
-              const { data: { user } } = await supabase.auth.getUser();
-              const isOwner = user?.id === tanda.user_id;
+              const isOwner = currentUser?.id === tanda.user_id;
 
               return (
                 <Sheet key={tanda.id}>
@@ -218,7 +224,7 @@ const Tandas = () => {
                               <div>
                                 <p className="font-medium">{ts.song.title}</p>
                                 <p className="text-sm text-tango-light/80">
-                                  {ts.song.orchestra.name} ({ts.song.recording_year})
+                                  {ts.song.orchestra?.name} ({ts.song.recording_year})
                                 </p>
                                 <p className="text-sm text-tango-light/80">
                                   {ts.song.type} - {ts.song.style}
