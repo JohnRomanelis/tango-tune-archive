@@ -1,16 +1,5 @@
 import { Globe, Lock, Users, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 interface Playlist {
   id: number;
@@ -53,35 +42,17 @@ const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
         {tandaCount} {tandaCount === 1 ? "tanda" : "tandas"}
       </p>
 
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute bottom-2 right-2 text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Playlist</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{playlist.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onDelete}
-              className="bg-tango-red hover:bg-tango-red/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute bottom-2 right-2 text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+      >
+        <Trash className="h-4 w-4" />
+      </Button>
     </div>
   );
 };

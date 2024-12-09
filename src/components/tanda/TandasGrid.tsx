@@ -13,7 +13,6 @@ interface TandasGridProps {
   onTandaClick?: (tanda: any) => void;
   onSongClick?: (spotify_id: string | null) => void;
   showAddButton?: boolean;
-  selectedTrackId?: string | null;
 }
 
 const TandasGrid = ({ 
@@ -23,8 +22,7 @@ const TandasGrid = ({
   onAddClick,
   onTandaClick,
   onSongClick,
-  showAddButton,
-  selectedTrackId
+  showAddButton 
 }: TandasGridProps) => {
   const [selectedTanda, setSelectedTanda] = useState<any>(null);
   const { toast } = useToast();
@@ -54,15 +52,6 @@ const TandasGrid = ({
     }
   };
 
-  const handleTandaClick = (e: React.MouseEvent, tanda: any) => {
-    e.stopPropagation();
-    if (onTandaClick) {
-      onTandaClick(tanda);
-    } else {
-      setSelectedTanda(tanda);
-    }
-  };
-
   return (
     <>
       <ScrollArea className="h-[calc(100vh-300px)]">
@@ -70,18 +59,16 @@ const TandasGrid = ({
           {tandas.map((tanda) => (
             <div
               key={tanda.id}
-              onClick={(e) => handleTandaClick(e, tanda)}
+              onClick={() => onTandaClick ? onTandaClick(tanda) : setSelectedTanda(tanda)}
               className="cursor-pointer"
             >
               <TandaCard
                 tanda={tanda}
                 currentUserId={currentUserId}
-                userId={tanda.user_id}
                 onDelete={() => handleDeleteTanda(tanda.id)}
-                onAdd={onAddClick ? () => onAddClick(tanda) : undefined}
+                onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
                 onSongClick={onSongClick}
                 showAddButton={showAddButton}
-                selectedTrackId={selectedTrackId}
               />
             </div>
           ))}
