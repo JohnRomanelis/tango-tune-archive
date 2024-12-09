@@ -46,7 +46,7 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <div className="bg-tango-gray rounded-lg p-4 cursor-pointer hover:bg-tango-gray/90 relative">
+        <div className="bg-tango-gray rounded-lg p-4 cursor-pointer hover:bg-tango-gray/90 relative group">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-lg font-semibold text-tango-light">{tanda.title || 'Untitled Tanda'}</h3>
             <div className="flex items-center space-x-2">
@@ -68,7 +68,7 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
                 e.stopPropagation();
                 onDelete(tanda.id);
               }}
-              className="absolute top-2 right-2 text-tango-red hover:text-tango-red/80"
+              className="absolute bottom-2 right-2 text-tango-red opacity-0 group-hover:opacity-100 transition-opacity hover:text-tango-red/80"
             >
               <Trash className="h-4 w-4" />
             </button>

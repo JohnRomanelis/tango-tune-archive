@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,47 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import TandaSearch from "@/components/TandaSearch";
-import TandaCard from "@/components/tanda/TandaCard";
+import TandasGrid from "@/components/tanda/TandasGrid";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const currentUser = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Check authentication status on mount and redirect if not authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error || !session) {
-        toast({
-          variant: "destructive",
-          title: "Authentication required",
-          description: "Please sign in to view tandas",
-        });
-        navigate("/login");
-        return;
-      }
-      
-      setCurrentUser(session.user);
-    };
-
-    checkAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/login");
-      } else {
-        setCurrentUser(session.user);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, toast]);
+  const queryClient = useQueryClient();
 
   const { data: tandas, isLoading } = useQuery({
     queryKey: ["tandas", searchParams, currentUser?.id],
@@ -154,7 +122,7 @@ const Tandas = () => {
 
       return data || [];
     },
-    enabled: !!currentUser, // Only run query when we have a user
+    enabled: !!currentUser,
   });
 
   const handleSearch = (params) => {
@@ -171,6 +139,7 @@ const Tandas = () => {
         description: "Failed to delete tanda",
       });
     } else {
+      queryClient.invalidateQueries({ queryKey: ["tandas"] });
       toast({
         title: "Success",
         description: "Tanda deleted successfully",
@@ -203,22 +172,12 @@ const Tandas = () => {
       </div>
       
       <ScrollArea className="h-[calc(100vh-300px)]">
-        {isLoading ? (
-          <div className="flex justify-center p-6">
-            <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tandas?.map((tanda) => (
-              <TandaCard
-                key={tanda.id}
-                tanda={tanda}
-                currentUserId={currentUser?.id}
-                onDelete={handleDeleteTanda}
-              />
-            ))}
-          </div>
-        )}
+        <TandasGrid
+          tandas={tandas || []}
+          isLoading={isLoading}
+          currentUserId={currentUser?.id}
+          onDelete={handleDeleteTanda}
+        />
       </ScrollArea>
     </main>
   );
