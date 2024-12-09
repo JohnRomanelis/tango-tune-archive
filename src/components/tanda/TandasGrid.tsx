@@ -54,6 +54,15 @@ const TandasGrid = ({
     }
   };
 
+  const handleTandaClick = (e: React.MouseEvent, tanda: any) => {
+    e.stopPropagation();
+    if (onTandaClick) {
+      onTandaClick(tanda);
+    } else {
+      setSelectedTanda(tanda);
+    }
+  };
+
   return (
     <>
       <ScrollArea className="h-[calc(100vh-300px)]">
@@ -61,7 +70,7 @@ const TandasGrid = ({
           {tandas.map((tanda) => (
             <div
               key={tanda.id}
-              onClick={() => onTandaClick ? onTandaClick(tanda) : setSelectedTanda(tanda)}
+              onClick={(e) => handleTandaClick(e, tanda)}
               className="cursor-pointer"
             >
               <TandaCard
