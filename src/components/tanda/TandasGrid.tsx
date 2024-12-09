@@ -7,6 +7,7 @@ interface TandasGridProps {
   currentUserId?: string;
   onDelete?: (id: number) => void;
   onAddClick?: (tanda: any) => void;
+  onTandaClick?: (tanda: any) => void;
   showAddButton?: boolean;
 }
 
@@ -16,6 +17,7 @@ const TandasGrid = ({
   currentUserId,
   onDelete,
   onAddClick,
+  onTandaClick,
   showAddButton = false,
 }: TandasGridProps) => {
   if (isLoading) {
@@ -37,14 +39,15 @@ const TandasGrid = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tandas.map((tanda) => (
-        <TandaCard
-          key={tanda.id}
-          tanda={tanda}
-          currentUserId={currentUserId}
-          onDelete={onDelete ? () => onDelete(tanda.id) : undefined}
-          onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
-          showAddButton={showAddButton}
-        />
+        <div key={tanda.id} onClick={() => onTandaClick?.(tanda)}>
+          <TandaCard
+            tanda={tanda}
+            currentUserId={currentUserId}
+            onDelete={onDelete ? () => onDelete(tanda.id) : undefined}
+            onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
+            showAddButton={showAddButton}
+          />
+        </div>
       ))}
     </div>
   );
