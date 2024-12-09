@@ -1,11 +1,15 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ListOrdered } from "lucide-react";
+import { ListOrdered, PlayCircle } from "lucide-react";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
+import { useState } from "react";
 
 interface PlaylistDetailsProps {
   playlist: any;
 }
 
 const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+
   if (!playlist) return null;
 
   const getYearRange = (tandaSongs: any[]) => {
@@ -16,6 +20,19 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
     const min = Math.min(...years);
     const max = Math.max(...years);
     return min === max ? min : `${min} - ${max}`;
+  };
+
+  const getStyles = (tandaSongs: any[]) => {
+    const styles = new Set(
+      tandaSongs
+        .map((ts: any) => ts.song.style)
+        .filter(Boolean)
+    );
+    return Array.from(styles).join(", ");
+  };
+
+  const handleSongClick = (spotify_id: string | null) => {
+    setSelectedTrackId(spotify_id);
   };
 
   return (
@@ -46,22 +63,34 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
                   <div className="space-y-1 text-sm text-tango-light/80 mb-3">
                     <p>Orchestra: {pt.tanda.tanda_song[0]?.song.orchestra?.name || "Unknown"}</p>
                     <p>Years: {getYearRange(pt.tanda.tanda_song)}</p>
-                    <p className="capitalize">
-                      Type: {pt.tanda.tanda_song[0]?.song.type || "Unknown"}
-                    </p>
+                    <p className="capitalize">Type: {pt.tanda.tanda_song[0]?.song.type || "Unknown"}</p>
+                    <p className="capitalize">Styles: {getStyles(pt.tanda.tanda_song)}</p>
                   </div>
 
                   <div className="space-y-2">
                     {pt.tanda.tanda_song
                       .sort((a: any, b: any) => a.order_in_tanda - b.order_in_tanda)
                       .map((ts: any) => (
-                        <div key={ts.song.id} className="bg-tango-gray p-2 rounded">
-                          <p className="font-medium text-tango-light">
-                            {ts.song.title}
-                          </p>
-                          <p className="text-xs text-tango-light/80">
-                            {ts.song.song_singer?.map((s: any) => s.singer.name).join(", ") || "Instrumental"}
-                          </p>
+                        <div 
+                          key={ts.song.id} 
+                          className={`bg-tango-gray p-2 rounded cursor-pointer hover:bg-tango-gray/80 transition-colors ${
+                            ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
+                          }`}
+                          onClick={() => handleSongClick(ts.song.spotify_id)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {ts.song.spotify_id && (
+                              <PlayCircle className="h-4 w-4 text-tango-light" />
+                            )}
+                            <div>
+                              <p className="font-medium text-tango-light">
+                                {ts.song.title}
+                              </p>
+                              <p className="text-xs text-tango-light/80">
+                                {ts.song.orchestra?.name} - {ts.song.song_singer?.map((s: any) => s.singer.name).join(", ") || "Instrumental"} ({ts.song.recording_year || "Unknown"})
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       ))}
                   </div>
@@ -70,6 +99,13 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
           </div>
         </ScrollArea>
       </div>
+
+      {selectedTrackId && (
+        <SpotifyPlayer
+          trackId={selectedTrackId}
+          onClose={() => setSelectedTrackId(null)}
+        />
+      )}
     </div>
   );
 };
