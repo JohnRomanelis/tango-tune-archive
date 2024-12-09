@@ -19,12 +19,12 @@ const AutocompleteInput = ({ label, value, onChange, options = [], placeholder }
     setInputValue(value);
   }, [value]);
 
-  // Ensure options is always an array
   const safeOptions = options || [];
-  
   const filteredOptions = safeOptions.filter(option =>
     option.name.toLowerCase().includes(inputValue.toLowerCase())
   );
+
+  const showCommands = open && inputValue && filteredOptions.length > 0;
 
   return (
     <div className="space-y-2">
@@ -38,21 +38,29 @@ const AutocompleteInput = ({ label, value, onChange, options = [], placeholder }
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
+          onBlur={() => {
+            // Delay closing to allow for item selection
+            setTimeout(() => setOpen(false), 200);
+          }}
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        {open && inputValue && filteredOptions.length > 0 && (
+        {showCommands && (
           <div className="absolute z-10 w-full mt-1">
             <Command className="rounded-lg border shadow-md bg-tango-gray">
-              <CommandInput placeholder={`Search ${label.toLowerCase()}...`} value={inputValue} />
+              <CommandInput 
+                placeholder={`Search ${label.toLowerCase()}...`} 
+                value={inputValue}
+              />
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup className="max-h-48 overflow-auto">
+              <CommandGroup>
                 {filteredOptions.map((option) => (
                   <CommandItem
                     key={option.name}
-                    onSelect={() => {
-                      onChange(option.name);
-                      setInputValue(option.name);
+                    value={option.name}
+                    onSelect={(value) => {
+                      onChange(value);
+                      setInputValue(value);
                       setOpen(false);
                     }}
                     className="cursor-pointer hover:bg-tango-darkGray"
