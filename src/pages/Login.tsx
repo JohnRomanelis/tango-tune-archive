@@ -3,9 +3,11 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check current session on component mount
@@ -19,13 +21,30 @@ const Login = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         navigate("/");
+      } else if (event === 'USER_DELETED' || event === 'SIGNED_OUT') {
+        navigate("/login");
+      } else if (event === 'PASSWORD_RECOVERY') {
+        toast({
+          title: "Password Recovery",
+          description: "Check your email for the password recovery link",
+        });
+      } else if (event === 'USER_UPDATED') {
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been updated successfully",
+        });
+      } else if (event === 'SIGNED_UP') {
+        toast({
+          title: "Account Created",
+          description: "Please check your email to confirm your account",
+        });
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen bg-tango-darkGray flex items-center justify-center p-4">
@@ -51,6 +70,13 @@ const Login = () => {
             }}
             theme="dark"
             providers={[]}
+            onError={(error) => {
+              toast({
+                variant: "destructive",
+                title: "Error",
+                description: error.message,
+              });
+            }}
           />
         </div>
       </div>
