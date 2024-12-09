@@ -21,25 +21,28 @@ const AutocompleteInput = ({
   label,
   value,
   onChange,
-  options = [], // Provide default empty array
+  options,
   placeholder,
 }: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+  const [filteredOptions, setFilteredOptions] = useState(options);
 
+  // Update input value when external value changes
   useEffect(() => {
     setInputValue(value);
   }, [value]);
 
-  // Ensure options is always an array
-  const safeOptions = Array.isArray(options) ? options : [];
-  
-  const filteredOptions = safeOptions.filter((option) =>
-    option.name.toLowerCase().includes(inputValue.toLowerCase())
-  );
-
-  // Only show command when we have filtered options and input
-  const showCommands = open && inputValue && filteredOptions.length > 0;
+  // Update filtered options when input changes or options change
+  useEffect(() => {
+    if (options) {
+      setFilteredOptions(
+        options.filter((option) =>
+          option.name.toLowerCase().includes(inputValue.toLowerCase())
+        )
+      );
+    }
+  }, [inputValue, options]);
 
   return (
     <div className="space-y-2">
@@ -48,9 +51,9 @@ const AutocompleteInput = ({
         <Input
           value={inputValue}
           onChange={(e) => {
-            setInputValue(e.target.value);
-            onChange(e.target.value);
-            setOpen(true);
+            const newValue = e.target.value;
+            setInputValue(newValue);
+            onChange(newValue);
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => {
@@ -60,7 +63,7 @@ const AutocompleteInput = ({
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        {showCommands && (
+        {open && filteredOptions.length > 0 && (
           <div className="absolute z-10 w-full mt-1">
             <Command className="rounded-lg border shadow-md bg-tango-gray">
               <CommandInput 
