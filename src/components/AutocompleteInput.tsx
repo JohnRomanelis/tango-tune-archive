@@ -35,7 +35,6 @@ const AutocompleteInput = ({
 
   // Update filtered options when input changes or options change
   useEffect(() => {
-    // Ensure options is an array before filtering
     const safeOptions = Array.isArray(options) ? options : [];
     setFilteredOptions(
       safeOptions.filter((option) =>
@@ -69,24 +68,30 @@ const AutocompleteInput = ({
               <CommandInput 
                 placeholder={`Search ${label.toLowerCase()}...`}
                 value={inputValue}
-                onValueChange={setInputValue}
+                onValueChange={(value) => {
+                  setInputValue(value);
+                  onChange(value);
+                }}
               />
-              <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                {filteredOptions.map((option) => (
-                  <CommandItem
-                    key={option.name}
-                    value={option.name}
-                    onSelect={(value) => {
-                      onChange(value);
-                      setInputValue(value);
-                      setOpen(false);
-                    }}
-                    className="cursor-pointer hover:bg-tango-darkGray"
-                  >
-                    {option.name}
-                  </CommandItem>
-                ))}
+                {filteredOptions.length === 0 ? (
+                  <CommandEmpty>No results found.</CommandEmpty>
+                ) : (
+                  filteredOptions.map((option) => (
+                    <CommandItem
+                      key={option.name}
+                      value={option.name}
+                      onSelect={(value) => {
+                        onChange(value);
+                        setInputValue(value);
+                        setOpen(false);
+                      }}
+                      className="cursor-pointer hover:bg-tango-darkGray"
+                    >
+                      {option.name}
+                    </CommandItem>
+                  ))
+                )}
               </CommandGroup>
             </Command>
           </div>
