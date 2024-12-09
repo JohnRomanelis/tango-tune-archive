@@ -13,10 +13,11 @@ import SongSearch from "@/components/SongSearch";
 import SongResultsTable from "@/components/SongResultsTable";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 
+// Update the TandaSong type to make spotify_id optional
 interface TandaSong {
   id: number;
   title: string;
-  spotify_id: string | null;
+  spotify_id?: string | null;
   orchestra?: { name: string };
   song_singer?: Array<{ singer: { name: string } }>;
 }
