@@ -37,7 +37,7 @@ interface TandaCardProps {
 }
 
 const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
-  if (!tanda) return null;
+  if (!tanda || !tanda.id) return null;
   
   const metadata = getTandaMetadata(tanda);
   const isOwner = currentUserId === tanda.user_id;
@@ -47,7 +47,7 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
       <SheetTrigger asChild>
         <div className="bg-tango-gray rounded-lg p-4 cursor-pointer hover:bg-tango-gray/90 relative">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold text-tango-light">{tanda.title}</h3>
+            <h3 className="text-lg font-semibold text-tango-light">{tanda.title || 'Untitled Tanda'}</h3>
             <div className="flex items-center space-x-2">
               {tanda.visibility === 'public' && <Globe className="h-4 w-4 text-tango-light" />}
               {tanda.visibility === 'shared' && <Users className="h-4 w-4 text-tango-light" />}
@@ -76,27 +76,30 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
       </SheetTrigger>
       <SheetContent side="left" className="w-[400px] sm:w-[540px] bg-tango-darkGray border-tango-gray">
         <SheetHeader>
-          <SheetTitle className="text-tango-light">{tanda.title}</SheetTitle>
+          <SheetTitle className="text-tango-light">{tanda.title || 'Untitled Tanda'}</SheetTitle>
         </SheetHeader>
         <div className="mt-6 space-y-4 text-tango-light">
           {tanda.comments && <p className="text-sm text-tango-light/80">{tanda.comments}</p>}
           <div className="space-y-4">
-            {tanda.tanda_song?.map((ts, index) => (
-              <div key={ts.song.id} className="bg-tango-gray p-4 rounded-lg">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium">{ts.song.title}</p>
-                    <p className="text-sm text-tango-light/80">
-                      {ts.song.orchestra?.name || 'Unknown Orchestra'} ({ts.song.recording_year || 'Year unknown'})
-                    </p>
-                    <p className="text-sm text-tango-light/80">
-                      {ts.song.type || 'Unknown type'} - {ts.song.style || 'Unknown style'}
-                    </p>
+            {(tanda.tanda_song || []).map((ts, index) => {
+              if (!ts?.song) return null;
+              return (
+                <div key={ts.song.id} className="bg-tango-gray p-4 rounded-lg">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium">{ts.song.title || 'Untitled Song'}</p>
+                      <p className="text-sm text-tango-light/80">
+                        {ts.song.orchestra?.name || 'Unknown Orchestra'} ({ts.song.recording_year || 'Year unknown'})
+                      </p>
+                      <p className="text-sm text-tango-light/80">
+                        {ts.song.type || 'Unknown type'} - {ts.song.style || 'Unknown style'}
+                      </p>
+                    </div>
+                    <span className="text-sm text-tango-light/60">#{index + 1}</span>
                   </div>
-                  <span className="text-sm text-tango-light/60">#{index + 1}</span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </SheetContent>
