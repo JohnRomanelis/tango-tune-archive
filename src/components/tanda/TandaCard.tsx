@@ -37,6 +37,8 @@ interface TandaCardProps {
 }
 
 const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
+  if (!tanda) return null;
+  
   const metadata = getTandaMetadata(tanda);
   const isOwner = currentUserId === tanda.user_id;
 
@@ -54,9 +56,9 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
           </div>
           <div className="text-sm text-tango-light/80 space-y-1">
             <p>{metadata.songCount} songs</p>
-            <p>Orchestras: {metadata.orchestras.join(', ')}</p>
-            <p>Types: {metadata.types.join(', ')}</p>
-            <p>Styles: {metadata.styles.join(', ')}</p>
+            <p>Orchestras: {metadata.orchestras.join(', ') || 'None'}</p>
+            <p>Types: {metadata.types.join(', ') || 'None'}</p>
+            <p>Styles: {metadata.styles.join(', ') || 'None'}</p>
             <p>Years: {metadata.yearRange}</p>
           </div>
           {isOwner && (
@@ -77,7 +79,7 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
           <SheetTitle className="text-tango-light">{tanda.title}</SheetTitle>
         </SheetHeader>
         <div className="mt-6 space-y-4 text-tango-light">
-          <p className="text-sm text-tango-light/80">{tanda.comments}</p>
+          {tanda.comments && <p className="text-sm text-tango-light/80">{tanda.comments}</p>}
           <div className="space-y-4">
             {tanda.tanda_song?.map((ts, index) => (
               <div key={ts.song.id} className="bg-tango-gray p-4 rounded-lg">
@@ -85,10 +87,10 @@ const TandaCard = ({ tanda, currentUserId, onDelete }: TandaCardProps) => {
                   <div>
                     <p className="font-medium">{ts.song.title}</p>
                     <p className="text-sm text-tango-light/80">
-                      {ts.song.orchestra?.name} ({ts.song.recording_year})
+                      {ts.song.orchestra?.name || 'Unknown Orchestra'} ({ts.song.recording_year || 'Year unknown'})
                     </p>
                     <p className="text-sm text-tango-light/80">
-                      {ts.song.type} - {ts.song.style}
+                      {ts.song.type || 'Unknown type'} - {ts.song.style || 'Unknown style'}
                     </p>
                   </div>
                   <span className="text-sm text-tango-light/60">#{index + 1}</span>
