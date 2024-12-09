@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { LogOut } from "lucide-react";
@@ -6,6 +7,15 @@ import { Button } from "@/components/ui/button";
 
 const TopNav = () => {
   const { toast } = useToast();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserEmail(user?.email || null);
+    };
+    getUserEmail();
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -48,7 +58,7 @@ const TopNav = () => {
           <div className="flex items-center">
             <div className="flex flex-col items-end">
               <span className="text-tango-light text-sm">
-                {supabase.auth.getUser().then(({ data }) => data?.user?.email)}
+                {userEmail}
               </span>
               <Button
                 variant="ghost"
