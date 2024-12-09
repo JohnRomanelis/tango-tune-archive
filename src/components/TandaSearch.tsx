@@ -101,18 +101,6 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
           placeholder="Search singer..."
         />
 
-        <TandaVisibilityFilters
-          includeMine={searchParams.includeMine || false}
-          includeShared={searchParams.includeShared || false}
-          includePublic={searchParams.includePublic || false}
-          onVisibilityChange={(type, checked) => {
-            setSearchParams(prev => ({
-              ...prev,
-              [`include${type.charAt(0).toUpperCase() + type.slice(1)}`]: checked,
-            }));
-          }}
-        />
-
         <TandaYearRange
           yearFrom={searchParams.yearFrom}
           yearTo={searchParams.yearTo}
@@ -162,6 +150,18 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
             <span className="text-sm text-tango-light">Show only instrumental tandas</span>
           </div>
         </div>
+
+        <TandaVisibilityFilters
+          includeMine={searchParams.includeMine || false}
+          includeShared={searchParams.includeShared || false}
+          includePublic={searchParams.includePublic || false}
+          onVisibilityChange={(type, checked) => {
+            setSearchParams(prev => ({
+              ...prev,
+              [`include${type.charAt(0).toUpperCase() + type.slice(1)}`]: checked,
+            }));
+          }}
+        />
       </div>
 
       <div className="flex justify-end">
