@@ -30,9 +30,9 @@ const SongResultsTable = ({
   onLikeClick,
 }: SongResultsTableProps) => {
   return (
-    <div className="rounded-md border bg-tango-gray">
+    <div className="rounded-md bg-tango-gray">
       <Table>
-        <TableHeader className="bg-tango-darkGray">
+        <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
           <TableRow>
             <TableHead className="text-tango-light w-[40px]"></TableHead>
             <TableHead className="text-tango-light">Title</TableHead>
@@ -48,9 +48,9 @@ const SongResultsTable = ({
           {songs.map((song) => (
             <TableRow
               key={song.id}
-              className={`hover:bg-tango-darkGray/50 cursor-pointer ${
-                song.spotify_id === selectedTrackId ? 'bg-tango-darkGray/30' : ''
-              }`}
+              className={`hover:bg-tango-darkGray/50 cursor-pointer transition-colors rounded-lg
+                ${song.spotify_id === selectedTrackId ? 'bg-tango-darkGray/30' : ''}
+                group`}
               onClick={() => onSongClick(song.spotify_id || null)}
             >
               <TableCell>
@@ -59,7 +59,7 @@ const SongResultsTable = ({
                     className={`h-4 w-4 ${
                       song.spotify_id === selectedTrackId
                         ? 'text-tango-red'
-                        : 'text-tango-light'
+                        : 'text-tango-light group-hover:text-tango-light/80'
                     }`}
                   />
                 )}
