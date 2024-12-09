@@ -63,7 +63,7 @@ const AutocompleteInput = ({
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        {open && filteredOptions.length > 0 && (
+        {open && (
           <div className="absolute z-10 w-full mt-1">
             <Command className="rounded-lg border shadow-md bg-tango-gray">
               <CommandInput 
