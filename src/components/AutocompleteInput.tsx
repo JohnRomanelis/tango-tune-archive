@@ -21,14 +21,12 @@ const AutocompleteInput = ({
   label,
   value,
   onChange,
-  options,
+  options = [],
   placeholder,
 }: AutocompleteInputProps) => {
-  console.log('AutocompleteInput render - options:', options);
-  
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
-  const [filteredOptions, setFilteredOptions] = useState<{ name: string }[]>([]);
+  const [filteredOptions, setFilteredOptions] = useState<{ name: string }[]>(options);
 
   // Update input value when external value changes
   useEffect(() => {
@@ -37,12 +35,10 @@ const AutocompleteInput = ({
 
   // Update filtered options when input changes or options change
   useEffect(() => {
-    console.log('Filtering options - input:', inputValue, 'options:', options);
     const safeOptions = Array.isArray(options) ? options : [];
     const filtered = safeOptions.filter((option) =>
       option.name.toLowerCase().includes(inputValue.toLowerCase())
     );
-    console.log('Filtered results:', filtered);
     setFilteredOptions(filtered);
   }, [inputValue, options]);
 
@@ -74,11 +70,10 @@ const AutocompleteInput = ({
                 onChange(value);
               }}
             />
-            <CommandGroup>
-              {filteredOptions.length === 0 ? (
-                <CommandEmpty>No results found.</CommandEmpty>
-              ) : (
-                filteredOptions.map((option) => (
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {filteredOptions.map((option) => (
                   <CommandItem
                     key={option.name}
                     value={option.name}
@@ -91,9 +86,9 @@ const AutocompleteInput = ({
                   >
                     {option.name}
                   </CommandItem>
-                ))
-              )}
-            </CommandGroup>
+                ))}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </div>
       </div>
