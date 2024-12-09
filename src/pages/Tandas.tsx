@@ -77,26 +77,35 @@ const Tandas = () => {
 
         // Handle other filters
         if (searchParams.orchestra) {
-          query = query.contains('tanda_song.song.orchestra.name', [searchParams.orchestra]);
+          query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
         }
         if (searchParams.singer) {
-          query = query.contains('tanda_song.song.song_singer.singer.name', [searchParams.singer]);
+          // First, get song IDs that match the singer
+          const { data: songIds } = await supabase
+            .from('song_singer')
+            .select('song_id')
+            .eq('singer.name', searchParams.singer);
+
+          if (songIds?.length) {
+            query = query.in('tanda_song.song.id', songIds.map(s => s.song_id));
+          } else {
+            // If no songs found with this singer, return empty result
+            return [];
+          }
         }
         if (searchParams.type) {
-          query = query.contains('tanda_song.song.type', [searchParams.type]);
+          query = query.eq('tanda_song.song.type', searchParams.type);
         }
         if (searchParams.style) {
-          query = query.contains('tanda_song.song.style', [searchParams.style]);
+          query = query.eq('tanda_song.song.style', searchParams.style);
         }
         if (searchParams.yearFrom || searchParams.yearTo) {
-          const yearConditions = [];
           if (searchParams.yearFrom) {
-            yearConditions.push(`recording_year >= ${searchParams.yearFrom}`);
+            query = query.gte('tanda_song.song.recording_year', searchParams.yearFrom);
           }
           if (searchParams.yearTo) {
-            yearConditions.push(`recording_year <= ${searchParams.yearTo}`);
+            query = query.lte('tanda_song.song.recording_year', searchParams.yearTo);
           }
-          query = query.contains('tanda_song.song', yearConditions);
         }
       }
 
