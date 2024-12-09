@@ -96,8 +96,8 @@ const Songs = () => {
                     <p>Style: {song.style}</p>
                     <p>Year: {song.recording_year || 'Unknown'}</p>
                     <p>{song.is_instrumental ? 'Instrumental' : 'Vocal'}</p>
-                    {song.song_singer && (
-                      <p>Singers: {song.song_singer.map(s => s.singer.name).join(', ')}</p>
+                    {song.song_singer && song.song_singer.length > 0 && (
+                      <p>Singers: {song.song_singer.map(s => s.singer?.name || 'Unknown').join(', ')}</p>
                     )}
                   </div>
                 </div>
