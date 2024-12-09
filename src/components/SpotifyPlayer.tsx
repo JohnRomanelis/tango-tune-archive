@@ -1,15 +1,16 @@
+import React from "react";
+
 interface SpotifyPlayerProps {
-  trackId: string | null;
+  trackId: string;
+  onClose: () => void;
 }
 
-const SpotifyPlayer = ({ trackId }: SpotifyPlayerProps) => {
-  if (!trackId) return null;
-
+const SpotifyPlayer = ({ trackId, onClose }: SpotifyPlayerProps) => {
   return (
     <div className="fixed bottom-0 left-0 w-full bg-tango-darkGray p-4 border-t border-tango-gray">
       <div className="relative">
         <button
-          onClick={() => window.history.replaceState(null, '', window.location.pathname)}
+          onClick={onClose}
           className="absolute -top-2 -right-2 bg-tango-red hover:bg-tango-red/90 text-white w-6 h-6 rounded-full flex items-center justify-center z-10"
         >
           ×
