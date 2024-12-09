@@ -27,9 +27,9 @@ const Songs = () => {
         .from("song")
         .select(`
           *,
-          orchestra (name),
-          song_singer (
-            singer (name)
+          orchestra!inner (name),
+          song_singer!inner (
+            singer!inner (name)
           )
         `);
 
@@ -62,7 +62,7 @@ const Songs = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: searchParams !== null,
   });
