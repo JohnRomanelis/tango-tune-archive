@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Playlists = () => {
   const navigate = useNavigate();
-  const { user } = useAuthRedirect();
+  const user = useAuthRedirect();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -22,7 +22,7 @@ const Playlists = () => {
   const { data: playlists, isLoading } = useQuery({
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user?.id) return [];
 
       const conditions = [];
       if (includeMine) conditions.push(`user_id.eq.${user.id}`);
@@ -49,7 +49,7 @@ const Playlists = () => {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
   const handleDeletePlaylist = async (playlistId: number) => {

@@ -18,7 +18,7 @@ interface Tanda {
 const CreatePlaylist = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuthRedirect();
+  const user = useAuthRedirect();
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -72,7 +72,7 @@ const CreatePlaylist = () => {
     }
 
     try {
-      if (!user) throw new Error("User not authenticated");
+      if (!user?.id) throw new Error("User not authenticated");
 
       const { data: playlist, error: playlistError } = await supabase
         .from('playlist')

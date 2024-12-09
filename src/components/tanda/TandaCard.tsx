@@ -5,10 +5,11 @@ interface TandaCardProps {
   tanda: any;
   currentUserId?: string | null;
   onDelete?: () => void;
-  onAdd?: () => void;
+  onAddClick?: () => void;
+  showAddButton?: boolean;
 }
 
-const TandaCard = ({ tanda, currentUserId, onDelete, onAdd }: TandaCardProps) => {
+const TandaCard = ({ tanda, currentUserId, onDelete, onAddClick, showAddButton }: TandaCardProps) => {
   const isOwner = currentUserId && tanda.user_id === currentUserId;
   const songCount = tanda.tanda_song?.length || 0;
 
@@ -31,21 +32,21 @@ const TandaCard = ({ tanda, currentUserId, onDelete, onAdd }: TandaCardProps) =>
         {songCount} {songCount === 1 ? "song" : "songs"}
       </p>
 
-      {onAdd && (
+      {showAddButton && onAddClick && (
         <Button
           variant="ghost"
           size="icon"
           className="absolute bottom-2 right-2 text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
           onClick={(e) => {
             e.stopPropagation();
-            onAdd();
+            onAddClick();
           }}
         >
           <Plus className="h-4 w-4" />
         </Button>
       )}
 
-      {isOwner && onDelete && !onAdd && (
+      {isOwner && onDelete && !showAddButton && (
         <Button
           variant="ghost"
           size="icon"
