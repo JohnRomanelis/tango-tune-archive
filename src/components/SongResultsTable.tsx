@@ -48,9 +48,7 @@ const SongResultsTable = ({
           {songs.map((song) => (
             <TableRow
               key={song.id}
-              className={`hover:bg-tango-darkGray/50 cursor-pointer transition-colors rounded-lg
-                ${song.spotify_id === selectedTrackId ? 'bg-tango-darkGray/30' : ''}
-                group`}
+              className="hover:bg-tango-darkGray/50 cursor-pointer transition-colors rounded-lg group"
               onClick={() => onSongClick(song.spotify_id || null)}
             >
               <TableCell>
