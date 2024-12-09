@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -13,7 +11,7 @@ interface AutocompleteInputProps {
   placeholder: string;
 }
 
-const AutocompleteInput = ({ label, value, onChange, options, placeholder }: AutocompleteInputProps) => {
+const AutocompleteInput = ({ label, value, onChange, options = [], placeholder }: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
 
@@ -21,7 +19,10 @@ const AutocompleteInput = ({ label, value, onChange, options, placeholder }: Aut
     setInputValue(value);
   }, [value]);
 
-  const filteredOptions = options?.filter(option =>
+  // Ensure options is always an array
+  const safeOptions = options || [];
+  
+  const filteredOptions = safeOptions.filter(option =>
     option.name.toLowerCase().includes(inputValue.toLowerCase())
   );
 
@@ -40,13 +41,13 @@ const AutocompleteInput = ({ label, value, onChange, options, placeholder }: Aut
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
         />
-        {open && inputValue && (
+        {open && inputValue && filteredOptions.length > 0 && (
           <div className="absolute z-10 w-full mt-1">
             <Command className="rounded-lg border shadow-md bg-tango-gray">
               <CommandInput placeholder={`Search ${label.toLowerCase()}...`} value={inputValue} />
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup className="max-h-48 overflow-auto">
-                {filteredOptions?.map((option) => (
+                {filteredOptions.map((option) => (
                   <CommandItem
                     key={option.name}
                     onSelect={() => {
