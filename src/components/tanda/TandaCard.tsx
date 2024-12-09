@@ -13,6 +13,11 @@ const TandaCard = ({ tanda, currentUserId, onDelete, onAddClick, showAddButton }
   const isOwner = currentUserId && tanda.user_id === currentUserId;
   const songCount = tanda.tanda_song?.length || 0;
 
+  // Get the type and style from the first song in the tanda
+  const firstSong = tanda.tanda_song?.[0]?.song;
+  const type = firstSong?.type || '-';
+  const style = firstSong?.style || '-';
+
   return (
     <div className="bg-tango-gray rounded-lg p-4 relative group hover:bg-tango-gray/90 transition-colors">
       <div className="flex justify-between items-start mb-2">
@@ -28,9 +33,17 @@ const TandaCard = ({ tanda, currentUserId, onDelete, onAddClick, showAddButton }
         <p className="text-sm text-tango-light/80 mb-4">{tanda.comments}</p>
       )}
 
-      <p className="text-sm text-tango-light/80">
-        {songCount} {songCount === 1 ? "song" : "songs"}
-      </p>
+      <div className="space-y-1 mb-4">
+        <p className="text-sm text-tango-light/80">
+          {songCount} {songCount === 1 ? "song" : "songs"}
+        </p>
+        <p className="text-sm text-tango-light/80 capitalize">
+          Type: {type}
+        </p>
+        <p className="text-sm text-tango-light/80 capitalize">
+          Style: {style}
+        </p>
+      </div>
 
       {showAddButton && onAddClick && (
         <Button
