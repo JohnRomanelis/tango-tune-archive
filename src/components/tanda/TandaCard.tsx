@@ -1,15 +1,24 @@
-import { Globe, Lock, Users, Trash, Plus } from "lucide-react";
+import { Globe, Lock, Users, Trash, Plus, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TandaCardProps {
   tanda: any;
   currentUserId?: string | null;
   onDelete?: () => void;
   onAddClick?: () => void;
+  onSongClick?: (spotify_id: string | null) => void;
   showAddButton?: boolean;
 }
 
-const TandaCard = ({ tanda, currentUserId, onDelete, onAddClick, showAddButton }: TandaCardProps) => {
+const TandaCard = ({ 
+  tanda, 
+  currentUserId, 
+  onDelete, 
+  onAddClick, 
+  onSongClick,
+  showAddButton 
+}: TandaCardProps) => {
   const isOwner = currentUserId && tanda.user_id === currentUserId;
   const songCount = tanda.tanda_song?.length || 0;
 
@@ -35,6 +44,9 @@ const TandaCard = ({ tanda, currentUserId, onDelete, onAddClick, showAddButton }
 
       <div className="space-y-1 mb-4">
         <p className="text-sm text-tango-light/80">
+          Orchestra: {tanda.tanda_song?.[0]?.song.orchestra?.name || "Unknown"}
+        </p>
+        <p className="text-sm text-tango-light/80">
           {songCount} {songCount === 1 ? "song" : "songs"}
         </p>
         <p className="text-sm text-tango-light/80 capitalize">
@@ -44,6 +56,33 @@ const TandaCard = ({ tanda, currentUserId, onDelete, onAddClick, showAddButton }
           Style: {style}
         </p>
       </div>
+
+      {onSongClick && tanda.tanda_song && (
+        <ScrollArea className="h-32 mb-4">
+          <div className="space-y-2">
+            {tanda.tanda_song
+              .sort((a: any, b: any) => a.order_in_tanda - b.order_in_tanda)
+              .map((ts: any) => (
+                <div
+                  key={ts.song.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSongClick(ts.song.spotify_id);
+                  }}
+                  className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-tango-darkGray/50 transition-colors"
+                >
+                  {ts.song.spotify_id && <PlayCircle className="h-4 w-4 text-tango-light" />}
+                  <div>
+                    <p className="text-sm font-medium text-tango-light">{ts.song.title}</p>
+                    <p className="text-xs text-tango-light/80">
+                      {ts.song.orchestra?.name} {ts.song.recording_year ? `(${ts.song.recording_year})` : ''}
+                    </p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </ScrollArea>
+      )}
 
       {showAddButton && onAddClick && (
         <Button

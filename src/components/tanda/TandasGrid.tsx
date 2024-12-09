@@ -8,6 +8,7 @@ interface TandasGridProps {
   onDelete?: (id: number) => void;
   onAddClick?: (tanda: any) => void;
   onTandaClick?: (tanda: any) => void;
+  onSongClick?: (spotify_id: string | null) => void;
   showAddButton?: boolean;
 }
 
@@ -18,6 +19,7 @@ const TandasGrid = ({
   onDelete,
   onAddClick,
   onTandaClick,
+  onSongClick,
   showAddButton = false,
 }: TandasGridProps) => {
   if (isLoading) {
@@ -45,6 +47,7 @@ const TandasGrid = ({
             currentUserId={currentUserId}
             onDelete={onDelete ? () => onDelete(tanda.id) : undefined}
             onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
+            onSongClick={onSongClick}
             showAddButton={showAddButton}
           />
         </div>

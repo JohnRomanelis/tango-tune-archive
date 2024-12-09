@@ -3,6 +3,7 @@ import TandaSearch from "@/components/TandaSearch";
 import TandasGrid from "@/components/tanda/TandasGrid";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
 
 interface TandaSearchSectionProps {
   onAddTanda: (tanda: any) => void;
@@ -11,6 +12,7 @@ interface TandaSearchSectionProps {
 
 const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProps) => {
   const [searchParams, setSearchParams] = useState(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   const { data: tandas } = useQuery({
     queryKey: ["tandas", searchParams],
@@ -38,7 +40,6 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
         `);
 
       if (searchParams) {
-        // Apply search filters similar to the Tandas page
         if (searchParams.orchestra) {
           query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
         }
@@ -48,7 +49,6 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
         if (searchParams.style) {
           query = query.eq('tanda_song.song.style', searchParams.style);
         }
-        // ... Add other filters as needed
       }
 
       const { data, error } = await query;
@@ -61,6 +61,12 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
     setSearchParams(params);
   };
 
+  const handleSongClick = (spotify_id: string | null) => {
+    if (spotify_id) {
+      setSelectedTrackId(spotify_id);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <TandaSearch onSearch={handleSearch} />
@@ -69,8 +75,15 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
         isLoading={false}
         onAddClick={onAddTanda}
         onTandaClick={onTandaClick}
+        onSongClick={handleSongClick}
         showAddButton
       />
+      {selectedTrackId && (
+        <SpotifyPlayer
+          trackId={selectedTrackId}
+          onClose={() => setSelectedTrackId(null)}
+        />
+      )}
     </div>
   );
 };
