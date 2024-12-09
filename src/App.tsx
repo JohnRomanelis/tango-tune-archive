@@ -15,11 +15,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/songs" element={<Songs />} />
-        </Routes>
+        <div className="min-h-screen bg-tango-darkGray">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/songs" element={<Songs />} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
