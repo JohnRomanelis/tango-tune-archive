@@ -21,12 +21,12 @@ const AutocompleteInput = ({
   label,
   value,
   onChange,
-  options,
+  options = [], // Provide default empty array
   placeholder,
 }: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState<{ name: string }[]>([]);
 
   // Update input value when external value changes
   useEffect(() => {
@@ -35,13 +35,13 @@ const AutocompleteInput = ({
 
   // Update filtered options when input changes or options change
   useEffect(() => {
-    if (options) {
-      setFilteredOptions(
-        options.filter((option) =>
-          option.name.toLowerCase().includes(inputValue.toLowerCase())
-        )
-      );
-    }
+    // Ensure options is an array before filtering
+    const safeOptions = Array.isArray(options) ? options : [];
+    setFilteredOptions(
+      safeOptions.filter((option) =>
+        option.name.toLowerCase().includes(inputValue.toLowerCase())
+      )
+    );
   }, [inputValue, options]);
 
   return (
