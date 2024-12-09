@@ -192,7 +192,7 @@ const Tandas = () => {
 
       <TandaDetailsDialog
         tanda={selectedTanda}
-        open={!!selectedTanda}
+        isOpen={!!selectedTanda}
         onClose={() => setSelectedTanda(null)}
       />
     </main>
