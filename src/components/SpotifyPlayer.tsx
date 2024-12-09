@@ -8,7 +8,7 @@ const SpotifyPlayer = ({ trackId }: SpotifyPlayerProps) => {
   return (
     <div className="fixed bottom-0 left-0 w-full bg-tango-darkGray p-4 border-t border-tango-gray">
       <iframe
-        src={`https://open.spotify.com/embed/track/${trackId}?utm_source=generator`}
+        src={`https://open.spotify.com/embed/track/${trackId}?utm_source=generator&autoplay=1`}
         width="100%"
         height="152"
         frameBorder="0"
