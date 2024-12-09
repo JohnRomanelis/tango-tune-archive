@@ -294,6 +294,32 @@ export type Database = {
           },
         ]
       }
+      user_song_likes: {
+        Row: {
+          liked_at: string | null
+          song_id: number
+          user_id: string
+        }
+        Insert: {
+          liked_at?: string | null
+          song_id: number
+          user_id: string
+        }
+        Update: {
+          liked_at?: string | null
+          song_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_song_likes_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "song"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

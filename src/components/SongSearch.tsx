@@ -17,6 +17,7 @@ interface SearchParams {
   isInstrumental?: boolean;
   type?: string;
   style?: string;
+  likedOnly?: boolean;
 }
 
 interface SongSearchProps {
@@ -26,7 +27,6 @@ interface SongSearchProps {
 const SongSearch = ({ onSearch }: SongSearchProps) => {
   const [searchParams, setSearchParams] = useState<SearchParams>({});
 
-  // Fetch orchestras for autocomplete
   const { data: orchestras, isLoading: orchestrasLoading } = useQuery({
     queryKey: ["orchestras"],
     queryFn: async () => {
@@ -64,6 +64,7 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
     if (searchParams.isInstrumental !== undefined) cleanedParams.isInstrumental = searchParams.isInstrumental;
     if (searchParams.type) cleanedParams.type = searchParams.type;
     if (searchParams.style) cleanedParams.style = searchParams.style;
+    if (searchParams.likedOnly) cleanedParams.likedOnly = searchParams.likedOnly;
 
     onSearch(cleanedParams);
   };
@@ -162,6 +163,17 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
               onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, isInstrumental: checked ? true : undefined }))}
             />
             <span className="text-sm text-tango-light">Show only instrumental</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Show Only Liked Songs</Label>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={searchParams.likedOnly === true}
+              onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, likedOnly: checked ? true : undefined }))}
+            />
+            <span className="text-sm text-tango-light">Show only songs I like</span>
           </div>
         </div>
       </div>
