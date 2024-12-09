@@ -32,6 +32,7 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
   };
 
   const handleSongClick = (spotify_id: string | null) => {
+    if (!spotify_id) return; // Don't do anything if there's no Spotify ID
     setSelectedTrackId(spotify_id);
   };
 
@@ -74,13 +75,17 @@ const PlaylistDetails = ({ playlist }: PlaylistDetailsProps) => {
                         <div 
                           key={ts.song.id} 
                           className={`bg-tango-gray p-2 rounded cursor-pointer hover:bg-tango-gray/80 transition-colors ${
-                            ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
+                            ts.song.spotify_id && ts.song.spotify_id === selectedTrackId ? 'ring-1 ring-tango-red' : ''
                           }`}
                           onClick={() => handleSongClick(ts.song.spotify_id)}
                         >
                           <div className="flex items-center gap-2">
                             {ts.song.spotify_id && (
-                              <PlayCircle className="h-4 w-4 text-tango-light" />
+                              <PlayCircle className={`h-4 w-4 ${
+                                ts.song.spotify_id === selectedTrackId 
+                                  ? 'text-tango-red' 
+                                  : 'text-tango-light'
+                              }`} />
                             )}
                             <div>
                               <p className="font-medium text-tango-light">
