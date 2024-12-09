@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PlaylistForm from "@/components/playlist/PlaylistForm";
 import SelectedTandasList from "@/components/playlist/SelectedTandasList";
 import TandaSearchSection from "@/components/tanda/TandaSearchSection";
-import useAuthRedirect from "@/hooks/useAuthRedirect";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface Tanda {
   id: number;
