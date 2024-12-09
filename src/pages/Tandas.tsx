@@ -15,17 +15,45 @@ const Tandas = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Check authentication status on mount and redirect if not authenticated
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setCurrentUser(user);
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please sign in to view tandas",
+        });
+        navigate("/login");
+        return;
+      }
+      
+      setCurrentUser(session.user);
     };
-    fetchUser();
-  }, []);
+
+    checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/login");
+      } else {
+        setCurrentUser(session.user);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
 
   const { data: tandas, isLoading } = useQuery({
-    queryKey: ["tandas", searchParams],
+    queryKey: ["tandas", searchParams, currentUser?.id],
     queryFn: async () => {
+      if (!currentUser) return [];
+
       let query = supabase
         .from("tanda")
         .select(`
@@ -126,6 +154,7 @@ const Tandas = () => {
 
       return data || [];
     },
+    enabled: !!currentUser, // Only run query when we have a user
   });
 
   const handleSearch = (params) => {
@@ -148,6 +177,14 @@ const Tandas = () => {
       });
     }
   };
+
+  if (!currentUser) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+      </div>
+    );
+  }
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
