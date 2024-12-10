@@ -1,5 +1,6 @@
-import { Globe, Lock, Users, Trash } from "lucide-react";
+import { Globe, Lock, Users, Trash, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Playlist {
   id: number;
@@ -35,6 +36,7 @@ const formatDuration = (totalSeconds: number) => {
 };
 
 const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
+  const navigate = useNavigate();
   const tandaCount = playlist.playlist_tanda?.length || 0;
   const duration = playlist.total_duration || 0;
 
@@ -62,17 +64,30 @@ const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
         </p>
       </div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute bottom-2 right-2 text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete();
-        }}
-      >
-        <Trash className="h-4 w-4" />
-      </Button>
+      <div className="absolute bottom-2 right-2 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/playlists/edit/${playlist.id}`);
+          }}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 };

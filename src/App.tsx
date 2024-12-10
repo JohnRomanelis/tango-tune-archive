@@ -11,6 +11,7 @@ import Tandas from "./pages/Tandas";
 import CreateTanda from "./pages/CreateTanda";
 import Playlists from "./pages/Playlists";
 import CreatePlaylist from "./pages/CreatePlaylist";
+import EditPlaylist from "./pages/EditPlaylist";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
                     <Route path="/tandas/create" element={<CreateTanda />} />
                     <Route path="/playlists" element={<Playlists />} />
                     <Route path="/playlists/create" element={<CreatePlaylist />} />
+                    <Route path="/playlists/edit/:id" element={<EditPlaylist />} />
                   </Routes>
                 </>
               }
