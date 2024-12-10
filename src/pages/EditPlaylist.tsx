@@ -34,7 +34,7 @@ const EditPlaylist = () => {
   const { data: playlist, isLoading } = useQuery({
     queryKey: ['playlist', id],
     queryFn: async () => {
-      if (!id) return null;
+      if (!id || !user) return null;
       
       const { data, error } = await supabase
         .from('playlist')
@@ -53,10 +53,13 @@ const EditPlaylist = () => {
         .eq('id', id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching playlist:', error);
+        throw error;
+      }
       return data;
     },
-    enabled: !!id
+    enabled: !!id && !!user
   });
 
   useEffect(() => {
@@ -121,6 +124,10 @@ const EditPlaylist = () => {
     try {
       if (!user?.id || !id) throw new Error("User not authenticated or invalid playlist ID");
 
+      // Convert id to number for type safety
+      const playlistId = parseInt(id, 10);
+      if (isNaN(playlistId)) throw new Error("Invalid playlist ID");
+
       // Update playlist details
       const { error: playlistError } = await supabase
         .from('playlist')
@@ -130,7 +137,7 @@ const EditPlaylist = () => {
           spotify_link: spotifyLink,
           visibility: isPublic ? 'public' : 'private'
         })
-        .eq('id', id);
+        .eq('id', playlistId);
 
       if (playlistError) throw playlistError;
 
@@ -138,13 +145,13 @@ const EditPlaylist = () => {
       const { error: deleteError } = await supabase
         .from('playlist_tanda')
         .delete()
-        .eq('playlist_id', id);
+        .eq('playlist_id', playlistId);
 
       if (deleteError) throw deleteError;
 
       // Insert new playlist_tanda entries
       const playlistTandaEntries = selectedTandas.map((tanda, index) => ({
-        playlist_id: id,
+        playlist_id: playlistId,
         tanda_id: tanda.id,
         order_in_playlist: index + 1
       }));
