@@ -31,7 +31,7 @@ const Playlists = () => {
       if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
       if (includePublic) conditions.push("visibility.eq.public");
 
-      const query = supabase
+      let query = supabase
         .from("playlist")
         .select(`
           *,
@@ -47,11 +47,18 @@ const Playlists = () => {
               )
             )
           )
-        `)
-        .or(conditions.join(","));
+        `);
+
+      // Only add OR conditions if there are any conditions to check
+      if (conditions.length > 0) {
+        query = query.or(conditions.join(","));
+      }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching playlists:', error);
+        throw error;
+      }
 
       // Calculate total duration for each playlist
       return (data || []).map(playlist => ({
