@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
 import { Loader2 } from "lucide-react";
@@ -144,11 +144,11 @@ const Songs = () => {
     },
   });
 
-  const handleSearch = (params) => {
+  const handleSearch = (params: any) => {
     setSearchParams(params);
   };
 
-  const handleSongClick = (spotify_id) => {
+  const handleSongClick = (spotify_id: string | null) => {
     if (spotify_id) {
       setSelectedTrackId(spotify_id);
     }
@@ -158,7 +158,7 @@ const Songs = () => {
     setSelectedTrackId(null);
   };
 
-  const handleLikeClick = (e, songId) => {
+  const handleLikeClick = (e: React.MouseEvent, songId: number) => {
     e.stopPropagation();
     const isLiked = likedSongs?.includes(songId) || false;
     toggleLikeMutation.mutate({ songId, isLiked });

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { AuthError } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,17 +59,6 @@ const Login = () => {
                   },
                 },
               },
-            }}
-            localization={{
-              variables: {
-                sign_up: {
-                  password_too_short: "Password must be at least 6 characters long",
-                  invalid_credentials: "Invalid email or password",
-                },
-                sign_in: {
-                  invalid_credentials: "Invalid email or password",
-                }
-              }
             }}
             theme="dark"
             providers={[]}

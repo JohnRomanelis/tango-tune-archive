@@ -27,6 +27,22 @@ const SongSearchSection = ({
 }: SongSearchSectionProps) => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
+  const { data: userRole } = useQuery({
+    queryKey: ["user-role"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data } = await supabase
+        .from("user_roles")
+        .select("roles(name)")
+        .eq("user_id", user.id)
+        .single();
+
+      return data?.roles?.name || null;
+    },
+  });
+
   const { data: likedSongs = [] } = useQuery({
     queryKey: ["likedSongs"],
     queryFn: async () => {
@@ -136,6 +152,7 @@ const SongSearchSection = ({
           songs={searchResults}
           likedSongs={likedSongs}
           selectedTrackId={selectedTrackId}
+          isModerator={userRole === 'moderator'}
           onSongClick={onSongClick}
           onLikeClick={handleLikeClick}
           onAddClick={onAddSong}
