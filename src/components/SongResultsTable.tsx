@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Heart, PlayCircle, Plus } from "lucide-react";
+import { Heart, PlayCircle, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Song {
   id: number;
@@ -18,6 +19,7 @@ interface SongResultsTableProps {
   songs: Song[];
   likedSongs?: number[];
   selectedTrackId: string | null;
+  isModerator: boolean;
   onSongClick: (spotify_id: string | null) => void;
   onLikeClick: (e: React.MouseEvent, songId: number) => void;
   onAddClick?: (song: Song) => void;
@@ -27,10 +29,13 @@ const SongResultsTable = ({
   songs,
   likedSongs = [],
   selectedTrackId,
+  isModerator,
   onSongClick,
   onLikeClick,
   onAddClick,
 }: SongResultsTableProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="rounded-md bg-tango-gray">
       <Table>
@@ -43,7 +48,7 @@ const SongResultsTable = ({
             <TableHead className="text-tango-light">Type</TableHead>
             <TableHead className="text-tango-light">Style</TableHead>
             <TableHead className="text-tango-light">Year</TableHead>
-            <TableHead className="text-tango-light w-[80px]"></TableHead>
+            <TableHead className="text-tango-light w-[120px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -111,6 +116,19 @@ const SongResultsTable = ({
                       }}
                     >
                       <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {isModerator && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-tango-red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/songs/${song.id}/edit`);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
                     </Button>
                   )}
                 </div>

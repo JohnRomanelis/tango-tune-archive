@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
 import { Loader2 } from "lucide-react";
@@ -13,6 +13,22 @@ const Songs = () => {
   const [selectedTrackId, setSelectedTrackId] = useState(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const { data: userRole } = useQuery({
+    queryKey: ["user-role"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data } = await supabase
+        .from("user_roles")
+        .select("roles(name)")
+        .eq("user_id", user.id)
+        .single();
+
+      return data?.roles?.name || null;
+    },
+  });
 
   const { data: likedSongs } = useQuery({
     queryKey: ["liked-songs"],
@@ -165,6 +181,7 @@ const Songs = () => {
             songs={songs || []}
             likedSongs={likedSongs}
             selectedTrackId={selectedTrackId}
+            isModerator={userRole === 'moderator'}
             onSongClick={handleSongClick}
             onLikeClick={handleLikeClick}
           />
