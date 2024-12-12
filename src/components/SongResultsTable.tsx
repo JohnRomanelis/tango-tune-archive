@@ -1,6 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Heart, PlayCircle, Plus } from "lucide-react";
+import { Heart, PlayCircle, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Song {
   id: number;
@@ -31,6 +34,24 @@ const SongResultsTable = ({
   onLikeClick,
   onAddClick,
 }: SongResultsTableProps) => {
+  const navigate = useNavigate();
+
+  const { data: isModerator } = useQuery({
+    queryKey: ["user-role"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { data: userRoles } = await supabase
+        .from("user_roles")
+        .select("role_id, roles(name)")
+        .eq("user_id", user.id)
+        .eq("roles.name", "moderator");
+
+      return userRoles && userRoles.length > 0;
+    },
+  });
+
   return (
     <div className="rounded-md bg-tango-gray">
       <Table>
@@ -43,7 +64,7 @@ const SongResultsTable = ({
             <TableHead className="text-tango-light">Type</TableHead>
             <TableHead className="text-tango-light">Style</TableHead>
             <TableHead className="text-tango-light">Year</TableHead>
-            <TableHead className="text-tango-light w-[80px]"></TableHead>
+            <TableHead className="text-tango-light w-[120px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -111,6 +132,19 @@ const SongResultsTable = ({
                       }}
                     >
                       <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {isModerator && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-tango-red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/songs/edit/${song.id}`);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
