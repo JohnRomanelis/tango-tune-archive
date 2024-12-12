@@ -7,6 +7,8 @@ import TopNav from "@/components/TopNav";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Songs from "./pages/Songs";
+import AddSong from "./pages/AddSong";
+import EditSong from "./pages/EditSong";
 import Tandas from "./pages/Tandas";
 import CreateTanda from "./pages/CreateTanda";
 import Playlists from "./pages/Playlists";
@@ -32,6 +34,8 @@ const App = () => (
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/songs" element={<Songs />} />
+                    <Route path="/songs/add" element={<AddSong />} />
+                    <Route path="/songs/:id/edit" element={<EditSong />} />
                     <Route path="/tandas" element={<Tandas />} />
                     <Route path="/tandas/create" element={<CreateTanda />} />
                     <Route path="/playlists" element={<Playlists />} />

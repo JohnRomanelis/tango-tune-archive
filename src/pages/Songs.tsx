@@ -2,17 +2,20 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import { useToast } from "@/components/ui/use-toast";
 import SongResultsTable from "@/components/SongResultsTable";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Songs = () => {
   const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role"],
@@ -167,7 +170,18 @@ const Songs = () => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-tango-light mb-6">Songs</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-tango-light">Songs</h1>
+          {userRole === "moderator" && (
+            <Button
+              onClick={() => navigate("/songs/add")}
+              className="bg-tango-red hover:bg-tango-red/90"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Song
+            </Button>
+          )}
+        </div>
         <SongSearch onSearch={handleSearch} />
       </div>
       
