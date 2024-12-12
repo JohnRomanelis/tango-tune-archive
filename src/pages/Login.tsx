@@ -33,10 +33,17 @@ const Login = () => {
   }, [navigate]);
 
   const showErrorToast = (error: AuthError) => {
+    let message = error.message;
+    
+    // Customize error messages for common cases
+    if (error.message.includes("weak_password")) {
+      message = "Password must be at least 6 characters long";
+    }
+
     toast({
       variant: "destructive",
       title: "Error",
-      description: error.message,
+      description: message,
     });
   };
 
@@ -49,6 +56,13 @@ const Login = () => {
         </div>
         
         <div className="bg-tango-gray p-8 rounded-lg shadow-xl">
+          <div className="mb-4 text-sm text-tango-light">
+            <p>Password requirements:</p>
+            <ul className="list-disc ml-4 mt-1">
+              <li>Minimum 6 characters long</li>
+            </ul>
+          </div>
+          
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -65,6 +79,7 @@ const Login = () => {
             theme="dark"
             providers={[]}
             redirectTo={window.location.origin}
+            onError={showErrorToast}
           />
         </div>
       </div>
