@@ -17,8 +17,6 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
   const { data: tandas } = useQuery({
     queryKey: ["tandas", searchParams],
     queryFn: async () => {
-      if (!searchParams) return [];  // Return empty array if no search params
-
       let query = supabase
         .from("tanda")
         .select(`
@@ -57,7 +55,6 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
       if (error) throw error;
       return data || [];
     },
-    enabled: !!searchParams, // Only run query when search params exist
   });
 
   const handleSearch = (params: any) => {
@@ -73,19 +70,13 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
   return (
     <div className="space-y-6">
       <TandaSearch onSearch={handleSearch} />
-      {searchParams ? (
-        <TandasGrid
-          tandas={tandas || []}
-          onAddClick={onAddTanda}
-          onTandaClick={onTandaClick}
-          onSongClick={handleSongClick}
-          showAddButton
-        />
-      ) : (
-        <div className="text-center text-tango-light py-8">
-          Use the search form above to find tandas
-        </div>
-      )}
+      <TandasGrid
+        tandas={tandas || []}
+        onAddClick={onAddTanda}
+        onTandaClick={onTandaClick}
+        onSongClick={handleSongClick}
+        showAddButton
+      />
       {selectedTrackId && (
         <SpotifyPlayer
           trackId={selectedTrackId}
