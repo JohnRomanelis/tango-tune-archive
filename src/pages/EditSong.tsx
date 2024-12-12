@@ -65,47 +65,60 @@ const EditSong = () => {
   }
 
   const handleSubmit = async (formData: any) => {
-    const { error: songError } = await supabase
-      .from("song")
-      .update({
-        title: formData.title,
-        type: formData.type,
-        style: formData.style,
-        recording_year: formData.recording_year || null,
-        is_instrumental: formData.is_instrumental,
-        orchestra_id: formData.orchestra_id || null,
-        spotify_id: formData.spotify_id || null,
-      })
-      .eq("id", id);
+    try {
+      const { error: songError } = await supabase
+        .from("song")
+        .update({
+          title: formData.title,
+          type: formData.type,
+          style: formData.style,
+          recording_year: formData.recording_year || null,
+          is_instrumental: formData.is_instrumental,
+          orchestra_id: formData.orchestra_id || null,
+          spotify_id: formData.spotify_id || null,
+          duration: formData.duration, // Make sure duration is included in the update
+        })
+        .eq("id", id);
 
-    if (songError) throw songError;
+      if (songError) throw songError;
 
-    // Delete existing singer associations
-    const { error: deleteError } = await supabase
-      .from("song_singer")
-      .delete()
-      .eq("song_id", id);
-
-    if (deleteError) throw deleteError;
-
-    // Add new singer associations
-    if (formData.singers.length > 0) {
-      const songSingerData = formData.singers.map((singerId: number) => ({
-        song_id: id,
-        singer_id: singerId,
-      }));
-
-      const { error: singerError } = await supabase
+      // Delete existing singer associations
+      const { error: deleteError } = await supabase
         .from("song_singer")
-        .insert(songSingerData);
+        .delete()
+        .eq("song_id", id);
 
-      if (singerError) throw singerError;
+      if (deleteError) throw deleteError;
+
+      // Add new singer associations
+      if (formData.singers.length > 0) {
+        const songSingerData = formData.singers.map((singerId: number) => ({
+          song_id: id,
+          singer_id: singerId,
+        }));
+
+        const { error: singerError } = await supabase
+          .from("song_singer")
+          .insert(songSingerData);
+
+        if (singerError) throw singerError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Song updated successfully",
+      });
+
+      // Redirect to songs page after successful update
+      navigate("/songs");
+    } catch (error) {
+      console.error("Error updating song:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update song",
+        variant: "destructive",
+      });
     }
-
-    toast({
-      title: "Success",
-      description: "Song updated successfully",
-    });
   };
 
   return (
