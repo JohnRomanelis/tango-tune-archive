@@ -113,6 +113,27 @@ export type Database = {
           },
         ]
       }
+      roles: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       singer: {
         Row: {
           id: number
@@ -290,6 +311,32 @@ export type Database = {
             columns: ["tanda_id"]
             isOneToOne: false
             referencedRelation: "tanda"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          assigned_at: string | null
+          role_id: number
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          role_id: number
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          role_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
             referencedColumns: ["id"]
           },
         ]
