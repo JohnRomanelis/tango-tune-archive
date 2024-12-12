@@ -32,21 +32,6 @@ const Login = () => {
     };
   }, [navigate]);
 
-  const showErrorToast = (error: AuthError) => {
-    let message = error.message;
-    
-    // Customize error messages for common cases
-    if (error.message.includes("weak_password")) {
-      message = "Password must be at least 6 characters long";
-    }
-
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: message,
-    });
-  };
-
   return (
     <div className="min-h-screen bg-tango-darkGray flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
@@ -76,10 +61,20 @@ const Login = () => {
                 },
               },
             }}
+            localization={{
+              variables: {
+                sign_up: {
+                  password_too_short: "Password must be at least 6 characters long",
+                  invalid_credentials: "Invalid email or password",
+                },
+                sign_in: {
+                  invalid_credentials: "Invalid email or password",
+                }
+              }
+            }}
             theme="dark"
             providers={[]}
             redirectTo={window.location.origin}
-            onError={showErrorToast}
           />
         </div>
       </div>
