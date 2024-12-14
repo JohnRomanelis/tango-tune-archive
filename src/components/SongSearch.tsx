@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import AutocompleteInput from "./AutocompleteInput";
 import { Loader2 } from "lucide-react";
+import SongFilters from "./song/SongFilters";
 
 interface SearchParams {
   title?: string;
@@ -39,7 +36,6 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
     },
   });
 
-  // Fetch singers for autocomplete
   const { data: singers, isLoading: singersLoading } = useQuery({
     queryKey: ["singers"],
     queryFn: async () => {
@@ -55,7 +51,6 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
   const handleSearch = () => {
     const cleanedParams: SearchParams = {};
     
-    // Only include non-empty values
     if (searchParams.title) cleanedParams.title = searchParams.title;
     if (searchParams.orchestra) cleanedParams.orchestra = searchParams.orchestra;
     if (searchParams.singer) cleanedParams.singer = searchParams.singer;
@@ -79,104 +74,12 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
 
   return (
     <div className="bg-tango-gray rounded-lg p-6 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            placeholder="Search by title..."
-            value={searchParams.title || ""}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, title: e.target.value }))}
-            className="bg-tango-darkGray text-tango-light"
-          />
-        </div>
-
-        <AutocompleteInput
-          label="Orchestra"
-          value={searchParams.orchestra || ""}
-          onChange={(value) => setSearchParams(prev => ({ ...prev, orchestra: value }))}
-          options={orchestras || []}
-          placeholder="Search orchestra..."
-        />
-
-        <AutocompleteInput
-          label="Singer"
-          value={searchParams.singer || ""}
-          onChange={(value) => setSearchParams(prev => ({ ...prev, singer: value }))}
-          options={singers || []}
-          placeholder="Search singer..."
-        />
-
-        <div className="space-y-2">
-          <Label>Year Range</Label>
-          <div className="flex space-x-2">
-            <Input
-              placeholder="From..."
-              type="number"
-              value={searchParams.yearFrom || ""}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, yearFrom: e.target.value ? Number(e.target.value) : undefined }))}
-              className="bg-tango-darkGray text-tango-light"
-            />
-            <Input
-              placeholder="To..."
-              type="number"
-              value={searchParams.yearTo || ""}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, yearTo: e.target.value ? Number(e.target.value) : undefined }))}
-              className="bg-tango-darkGray text-tango-light"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Type</Label>
-          <select
-            value={searchParams.type || ""}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, type: e.target.value }))}
-            className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
-          >
-            <option value="">All Types</option>
-            <option value="tango">Tango</option>
-            <option value="milonga">Milonga</option>
-            <option value="vals">Vals</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Style</Label>
-          <select
-            value={searchParams.style || ""}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, style: e.target.value }))}
-            className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
-          >
-            <option value="">All Styles</option>
-            <option value="rhythmic">Rhythmic</option>
-            <option value="melodic">Melodic</option>
-            <option value="dramatic">Dramatic</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Instrumental</Label>
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={searchParams.isInstrumental === true}
-              onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, isInstrumental: checked ? true : undefined }))}
-            />
-            <span className="text-sm text-tango-light">Show only instrumental</span>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Show Only Liked Songs</Label>
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={searchParams.likedOnly === true}
-              onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, likedOnly: checked ? true : undefined }))}
-            />
-            <span className="text-sm text-tango-light">Show only songs I like</span>
-          </div>
-        </div>
-      </div>
+      <SongFilters
+        searchParams={searchParams}
+        orchestras={orchestras || []}
+        singers={singers || []}
+        onParamsChange={setSearchParams}
+      />
 
       <div className="flex justify-end">
         <Button 
