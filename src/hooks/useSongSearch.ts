@@ -32,6 +32,7 @@ export const useSongSearch = (searchParams: SearchParams | null) => {
           spotify_id,
           duration,
           orchestra:orchestra_id (
+            id,
             name
           ),
           song_singer (
