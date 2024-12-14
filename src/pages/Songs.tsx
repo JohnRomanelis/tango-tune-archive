@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
 import { Loader2, Plus } from "lucide-react";
@@ -9,133 +9,32 @@ import { useToast } from "@/components/ui/use-toast";
 import SongResultsTable from "@/components/SongResultsTable";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useSongQuery } from "@/hooks/useSongQuery";
+import { useLikedSongs } from "@/hooks/useLikedSongs";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Song {
   id: number;
   title: string;
   type: "tango" | "milonga" | "vals";
   style: "rhythmic" | "melodic" | "dramatic";
-  recording_year?: number;
-  is_instrumental?: boolean;
-  spotify_id?: string | null;
-  orchestra?: { name: string } | null;
-  song_singer?: Array<{ singer: { name: string } }>;
+  recording_year: number | null;
+  is_instrumental: boolean | null;
+  spotify_id: string | null;
+  orchestra: { name: string } | null;
+  song_singer: Array<{ singer: { name: string } }>;
 }
 
 const Songs = () => {
   const [searchParams, setSearchParams] = useState(null);
-  const [selectedTrackId, setSelectedTrackId] = useState(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: userRole } = useQuery({
-    queryKey: ["user-role"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data } = await supabase
-        .from("user_roles")
-        .select("roles(name)")
-        .eq("user_id", user.id)
-        .single();
-
-      return data?.roles?.name || null;
-    },
-  });
-
-  const { data: likedSongs } = useQuery({
-    queryKey: ["liked-songs"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-      
-      const { data } = await supabase
-        .from("user_song_likes")
-        .select("song_id")
-        .eq("user_id", user.id);
-      
-      return (data || []).map(like => like.song_id);
-    },
-  });
-
-  const { data: songs, isLoading } = useQuery({
-    queryKey: ["songs", searchParams],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user && searchParams?.likedOnly) return [];
-
-      let query = supabase
-        .from("song")
-        .select(`
-          id,
-          title,
-          type,
-          style,
-          recording_year,
-          is_instrumental,
-          spotify_id,
-          orchestra:orchestra_id!inner (
-            name
-          ),
-          song_singer (
-            singer (
-              name
-            )
-          )
-        `);
-
-      if (searchParams) {
-        if (searchParams.likedOnly) {
-          const { data: likedSongIds } = await supabase
-            .from("user_song_likes")
-            .select("song_id")
-            .eq("user_id", user!.id);
-          
-          if (likedSongIds && likedSongIds.length > 0) {
-            query = query.in('id', likedSongIds.map(like => like.song_id));
-          } else {
-            return [];
-          }
-        }
-
-        if (searchParams.title) {
-          query = query.ilike('title', `%${searchParams.title}%`);
-        }
-        if (searchParams.orchestra) {
-          query = query.eq('orchestra.name', searchParams.orchestra);
-        }
-        if (searchParams.singer) {
-          query = query.eq('song_singer.singer.name', searchParams.singer);
-        }
-        if (searchParams.yearFrom) {
-          query = query.gte('recording_year', searchParams.yearFrom);
-        }
-        if (searchParams.yearTo) {
-          query = query.lte('recording_year', searchParams.yearTo);
-        }
-        if (searchParams.isInstrumental !== undefined) {
-          query = query.eq('is_instrumental', searchParams.isInstrumental);
-        }
-        if (searchParams.type) {
-          query = query.eq('type', searchParams.type);
-        }
-        if (searchParams.style) {
-          query = query.eq('style', searchParams.style);
-        }
-      }
-
-      const { data: songsData, error } = await query;
-      if (error) throw error;
-
-      return (songsData || []).map(song => ({
-        ...song,
-        orchestra: song.orchestra ? { name: song.orchestra.name } : null,
-      }));
-    },
-    enabled: searchParams !== null,
-  });
+  const { data: userRole } = useUserRole();
+  const { data: likedSongs } = useLikedSongs();
+  const { data: songs, isLoading } = useSongQuery(searchParams);
 
   const toggleLikeMutation = useMutation({
     mutationFn: async ({ songId, isLiked }: { songId: number; isLiked: boolean }) => {
