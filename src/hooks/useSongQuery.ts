@@ -55,17 +55,17 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         `);
 
       if (searchParams) {
-        if (searchParams.likedOnly && user) {
-          const { data: likedSongIds } = await supabase
-            .from("user_song_likes")
-            .select("song_id")
-            .eq("user_id", user.id);
-          
-          if (likedSongIds && likedSongIds.length > 0) {
-            query = query.in('id', likedSongIds.map(like => like.song_id));
-          } else {
-            return [];
-          }
+        // If singer is selected, join with song_singer and singer tables
+        if (searchParams.singer) {
+          query = query
+            .eq('is_instrumental', false) // Exclude instrumental songs
+            .in('id', 
+              supabase
+                .from('song_singer')
+                .select('song_id')
+                .eq('singer.name', searchParams.singer)
+                .inner_join('singer on singer.id = song_singer.singer_id')
+            );
         }
 
         if (searchParams.title) {
@@ -76,10 +76,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           query = query.eq('orchestra.name', searchParams.orchestra);
         }
 
-        if (searchParams.singer) {
-          query = query.eq('song_singer.singer.name', searchParams.singer);
-        }
-
         if (searchParams.yearFrom) {
           query = query.gte('recording_year', searchParams.yearFrom);
         }
@@ -88,16 +84,21 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           query = query.lte('recording_year', searchParams.yearTo);
         }
 
-        if (searchParams.isInstrumental !== undefined) {
-          query = query.eq('is_instrumental', searchParams.isInstrumental);
-        }
-
         if (searchParams.type) {
           query = query.eq('type', searchParams.type);
         }
 
         if (searchParams.style) {
           query = query.eq('style', searchParams.style);
+        }
+
+        if (searchParams.likedOnly && user) {
+          query = query.in('id', 
+            supabase
+              .from('user_song_likes')
+              .select('song_id')
+              .eq('user_id', user.id)
+          );
         }
       }
 
@@ -115,7 +116,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         song_singer: song.song_singer || []
       }));
 
-      return transformedSongs as unknown as Song[];
+      return transformedSongs as Song[];
     },
     enabled: searchParams !== null,
   });
