@@ -13,9 +13,21 @@ import { useSongQuery } from "@/hooks/useSongQuery";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { useUserRole } from "@/hooks/useUserRole";
 
+interface Song {
+  id: number;
+  title: string;
+  type: "tango" | "milonga" | "vals";
+  style: "rhythmic" | "melodic" | "dramatic";
+  recording_year: number | null;
+  is_instrumental: boolean | null;
+  spotify_id: string | null;
+  orchestra: { name: string } | null;
+  song_singer: Array<{ singer: { name: string } }>;
+}
+
 const Songs = () => {
   const [searchParams, setSearchParams] = useState(null);
-  const [selectedTrackId, setSelectedTrackId] = useState(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const navigate = useNavigate();
