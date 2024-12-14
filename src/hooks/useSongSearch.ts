@@ -23,10 +23,21 @@ export const useSongSearch = (searchParams: SearchParams | null) => {
       let query = supabase
         .from("song")
         .select(`
-          *,
-          orchestra (name),
+          id,
+          title,
+          type,
+          style,
+          recording_year,
+          is_instrumental,
+          spotify_id,
+          duration,
+          orchestra:orchestra_id (
+            name
+          ),
           song_singer (
-            singer (name)
+            singer (
+              name
+            )
           )
         `);
 
@@ -47,32 +58,43 @@ export const useSongSearch = (searchParams: SearchParams | null) => {
         if (searchParams.title) {
           query = query.ilike('title', `%${searchParams.title}%`);
         }
+        
         if (searchParams.orchestra) {
-          // Fix: Join with orchestra table and filter by name
           query = query.eq('orchestra.name', searchParams.orchestra);
         }
+        
         if (searchParams.singer) {
           query = query.eq('song_singer.singer.name', searchParams.singer);
         }
+        
         if (searchParams.yearFrom) {
           query = query.gte('recording_year', searchParams.yearFrom);
         }
+        
         if (searchParams.yearTo) {
           query = query.lte('recording_year', searchParams.yearTo);
         }
+        
         if (searchParams.isInstrumental !== undefined) {
           query = query.eq('is_instrumental', searchParams.isInstrumental);
         }
+        
         if (searchParams.type) {
           query = query.eq('type', searchParams.type);
         }
+        
         if (searchParams.style) {
           query = query.eq('style', searchParams.style);
         }
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Error fetching songs:', error);
+        throw error;
+      }
+
       return data || [];
     },
     enabled: searchParams !== null,
