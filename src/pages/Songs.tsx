@@ -10,6 +10,18 @@ import SongResultsTable from "@/components/SongResultsTable";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
+interface Song {
+  id: number;
+  title: string;
+  type: "tango" | "milonga" | "vals";
+  style: "rhythmic" | "melodic" | "dramatic";
+  recording_year?: number;
+  is_instrumental?: boolean;
+  spotify_id?: string | null;
+  orchestra?: { name: string } | null;
+  song_singer?: Array<{ singer: { name: string } }>;
+}
+
 const Songs = () => {
   const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState(null);
@@ -119,7 +131,7 @@ const Songs = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return data as Song[];
     },
     enabled: searchParams !== null,
   });
