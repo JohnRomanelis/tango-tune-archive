@@ -69,12 +69,20 @@ const Songs = () => {
       let query = supabase
         .from("song")
         .select(`
-          *,
+          id,
+          title,
+          type,
+          style,
+          recording_year,
+          is_instrumental,
+          spotify_id,
           orchestra:orchestra_id (
             name
           ),
           song_singer (
-            singer (name)
+            singer (
+              name
+            )
           )
         `);
 
@@ -106,7 +114,7 @@ const Songs = () => {
           if (orchestraData) {
             query = query.eq('orchestra_id', orchestraData.id);
           } else {
-            return []; // Return empty if orchestra not found
+            return [];
           }
         }
         if (searchParams.singer) {
@@ -131,7 +139,7 @@ const Songs = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Song[];
+      return (data || []) as Song[];
     },
     enabled: searchParams !== null,
   });
