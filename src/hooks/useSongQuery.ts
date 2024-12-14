@@ -44,11 +44,11 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         .order('recording_year', { ascending: false });
 
       if (searchParams) {
-        if (searchParams.likedOnly) {
+        if (searchParams.likedOnly && user) {
           const { data: likedSongIds } = await supabase
             .from("user_song_likes")
             .select("song_id")
-            .eq("user_id", user!.id);
+            .eq("user_id", user.id);
           
           if (likedSongIds && likedSongIds.length > 0) {
             query = query.in('id', likedSongIds.map(like => like.song_id));
