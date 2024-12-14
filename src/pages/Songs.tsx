@@ -76,7 +76,7 @@ const Songs = () => {
           recording_year,
           is_instrumental,
           spotify_id,
-          orchestra:orchestra_id!inner (
+          orchestra:orchestra_id (
             name
           ),
           song_singer (
@@ -131,8 +131,8 @@ const Songs = () => {
 
       return (songsData || []).map(song => ({
         ...song,
-        orchestra: song.orchestra ? { name: song.orchestra.name } : null,
-      }));
+        orchestra: song.orchestra || null,
+      })) as Song[];
     },
     enabled: searchParams !== null,
   });
