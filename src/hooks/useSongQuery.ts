@@ -37,9 +37,8 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       if (searchParams?.singer) {
         const { data: singerSongs } = await supabase
           .from('song_singer')
-          .select('song_id')
-          .eq('singer.name', searchParams.singer)
-          .not('song.is_instrumental', 'eq', true);
+          .select('song_id, singer!inner(name)')
+          .eq('singer.name', searchParams.singer);
 
         if (!singerSongs?.length) return [];
         songIds = singerSongs.map(s => s.song_id);
@@ -116,7 +115,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         throw error;
       }
 
-      // Transform the data to match the expected Song type
+      // Transform the data to match the Song type
       const transformedSongs = (songsData || []).map(song => ({
         ...song,
         orchestra: song.orchestra || null,
