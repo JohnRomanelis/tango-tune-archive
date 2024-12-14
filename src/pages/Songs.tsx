@@ -10,6 +10,18 @@ import SongResultsTable from "@/components/SongResultsTable";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
+interface Song {
+  id: number;
+  title: string;
+  type: "tango" | "milonga" | "vals";
+  style: "rhythmic" | "melodic" | "dramatic";
+  recording_year?: number;
+  is_instrumental?: boolean;
+  spotify_id?: string | null;
+  orchestra?: { name: string } | null;
+  song_singer?: Array<{ singer: { name: string } }>;
+}
+
 const Songs = () => {
   const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState(null);
@@ -57,10 +69,20 @@ const Songs = () => {
       let query = supabase
         .from("song")
         .select(`
-          *,
-          orchestra (name),
+          id,
+          title,
+          type,
+          style,
+          recording_year,
+          is_instrumental,
+          spotify_id,
+          orchestra:orchestra_id!inner (
+            name
+          ),
           song_singer (
-            singer (name)
+            singer (
+              name
+            )
           )
         `);
 
@@ -72,7 +94,7 @@ const Songs = () => {
             .eq("user_id", user!.id);
           
           if (likedSongIds && likedSongIds.length > 0) {
-            query = query.in("id", likedSongIds.map(like => like.song_id));
+            query = query.in('id', likedSongIds.map(like => like.song_id));
           } else {
             return [];
           }
@@ -104,9 +126,13 @@ const Songs = () => {
         }
       }
 
-      const { data, error } = await query;
+      const { data: songsData, error } = await query;
       if (error) throw error;
-      return data || [];
+
+      return (songsData || []).map(song => ({
+        ...song,
+        orchestra: song.orchestra ? { name: song.orchestra.name } : null,
+      }));
     },
     enabled: searchParams !== null,
   });
