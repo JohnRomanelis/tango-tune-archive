@@ -32,19 +32,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user && searchParams?.likedOnly) return [];
 
-      // First, if a singer is selected, get the song IDs for that singer
-      let songIds: number[] | null = null;
-      if (searchParams?.singer) {
-        const { data: singerSongs } = await supabase
-          .from('song_singer')
-          .select('song_id, singer!inner(name)')
-          .eq('singer.name', searchParams.singer);
-
-        if (!singerSongs?.length) return [];
-        songIds = singerSongs.map(s => s.song_id);
-      }
-
-      // Build the main query
       let query = supabase
         .from("song")
         .select(`
@@ -67,18 +54,26 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           )
         `);
 
-      // Apply filters
       if (searchParams) {
-        if (songIds !== null) {
-          query = query.in('id', songIds);
-        }
-
         if (searchParams.title) {
           query = query.ilike('title', `%${searchParams.title}%`);
         }
 
         if (searchParams.orchestra) {
           query = query.eq('orchestra.name', searchParams.orchestra);
+        }
+
+        if (searchParams.singer) {
+          const { data: singerSongs } = await supabase
+            .from('song_singer')
+            .select('song_id')
+            .eq('singer.name', searchParams.singer);
+
+          if (singerSongs?.length) {
+            query = query.in('id', singerSongs.map(s => s.song_id));
+          } else {
+            return [];
+          }
         }
 
         if (searchParams.yearFrom) {
@@ -97,6 +92,10 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           query = query.eq('style', searchParams.style);
         }
 
+        if (searchParams.isInstrumental !== undefined) {
+          query = query.eq('is_instrumental', searchParams.isInstrumental);
+        }
+
         if (searchParams.likedOnly && user) {
           const { data: likedSongs } = await supabase
             .from('user_song_likes')
@@ -108,21 +107,14 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
       }
 
-      const { data: songsData, error } = await query;
+      const { data, error } = await query;
       
       if (error) {
         console.error('Error fetching songs:', error);
         throw error;
       }
 
-      // Transform the data to match the Song type
-      const transformedSongs = (songsData || []).map(song => ({
-        ...song,
-        orchestra: song.orchestra || null,
-        song_singer: song.song_singer || []
-      })) as Song[];
-
-      return transformedSongs;
+      return (data || []) as Song[];
     },
     enabled: searchParams !== null,
   });

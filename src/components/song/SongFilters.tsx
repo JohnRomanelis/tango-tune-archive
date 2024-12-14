@@ -103,7 +103,7 @@ const SongFilters = ({ searchParams, orchestras, singers, onParamsChange }: Song
               ...searchParams, 
               isInstrumental: checked ? true : undefined 
             })}
-            className="bg-white data-[state=checked]:bg-tango-red"
+            className="data-[state=unchecked]:bg-tango-light data-[state=checked]:bg-tango-red"
           />
           <span className="text-sm text-tango-light">Show only instrumental</span>
         </div>
@@ -118,7 +118,7 @@ const SongFilters = ({ searchParams, orchestras, singers, onParamsChange }: Song
               ...searchParams, 
               likedOnly: checked ? true : undefined 
             })}
-            className="bg-white data-[state=checked]:bg-tango-red"
+            className="data-[state=unchecked]:bg-tango-light data-[state=checked]:bg-tango-red"
           />
           <span className="text-sm text-tango-light">Show only songs I like</span>
         </div>
