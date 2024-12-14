@@ -69,18 +69,8 @@ const Songs = () => {
       let query = supabase
         .from("song")
         .select(`
-          id,
-          title,
-          type,
-          style,
-          recording_year,
-          is_instrumental,
-          spotify_id,
-          orchestra:orchestra_id(name)
-        `)
-        .select(`
           *,
-          orchestra:orchestra_id!inner(name),
+          orchestra:orchestra_id(name),
           song_singer(singer(name))
         `);
 
@@ -92,14 +82,15 @@ const Songs = () => {
             .eq("user_id", user!.id);
           
           if (likedSongIds && likedSongIds.length > 0) {
-            query = query.in("id", likedSongIds.map(like => like.song_id));
+            const songIds = likedSongIds.map(like => like.song_id);
+            query = query.filter('id', 'in', songIds);
           } else {
             return [];
           }
         }
 
         if (searchParams.title) {
-          query = query.ilike('title', `%${searchParams.title}%`);
+          query = query.filter('title', 'ilike', `%${searchParams.title}%`);
         }
         if (searchParams.orchestra) {
           // First get the orchestra ID
@@ -110,28 +101,28 @@ const Songs = () => {
             .single();
           
           if (orchestraData) {
-            query = query.eq('orchestra_id', orchestraData.id);
+            query = query.filter('orchestra_id', 'eq', orchestraData.id);
           } else {
             return [];
           }
         }
         if (searchParams.singer) {
-          query = query.eq('song_singer.singer.name', searchParams.singer);
+          query = query.filter('song_singer.singer.name', 'eq', searchParams.singer);
         }
         if (searchParams.yearFrom) {
-          query = query.gte('recording_year', searchParams.yearFrom);
+          query = query.filter('recording_year', 'gte', searchParams.yearFrom);
         }
         if (searchParams.yearTo) {
-          query = query.lte('recording_year', searchParams.yearTo);
+          query = query.filter('recording_year', 'lte', searchParams.yearTo);
         }
         if (searchParams.isInstrumental !== undefined) {
-          query = query.eq('is_instrumental', searchParams.isInstrumental);
+          query = query.filter('is_instrumental', 'eq', searchParams.isInstrumental);
         }
         if (searchParams.type) {
-          query = query.eq('type', searchParams.type);
+          query = query.filter('type', 'eq', searchParams.type);
         }
         if (searchParams.style) {
-          query = query.eq('style', searchParams.style);
+          query = query.filter('style', 'eq', searchParams.style);
         }
       }
 
