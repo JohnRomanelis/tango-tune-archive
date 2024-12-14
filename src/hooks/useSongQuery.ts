@@ -13,6 +13,18 @@ export interface SearchParams {
   likedOnly?: boolean;
 }
 
+export interface Song {
+  id: number;
+  title: string;
+  type: "tango" | "milonga" | "vals";
+  style: "rhythmic" | "melodic" | "dramatic";
+  recording_year: number | null;
+  is_instrumental: boolean | null;
+  spotify_id: string | null;
+  orchestra: { id: number; name: string } | null;
+  song_singer: Array<{ singer: { id: number; name: string } }>;
+}
+
 export const useSongQuery = (searchParams: SearchParams | null) => {
   return useQuery({
     queryKey: ["songs", searchParams],
@@ -30,11 +42,11 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           recording_year,
           is_instrumental,
           spotify_id,
-          orchestra:orchestra_id!left (
+          orchestra:orchestra_id (
             id,
             name
           ),
-          song_singer!left (
+          song_singer (
             singer (
               id,
               name
@@ -97,11 +109,11 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       }
 
       // Transform the data to match the expected Song type
-      return songsData?.map(song => ({
+      return (songsData || []).map(song => ({
         ...song,
         orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
-      })) || [];
+      })) as Song[];
     },
     enabled: searchParams !== null,
   });
