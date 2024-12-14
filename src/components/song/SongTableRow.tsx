@@ -33,6 +33,14 @@ const SongTableRow = ({
   onLikeClick,
   onAddClick,
 }: SongTableRowProps) => {
+  // Safely get orchestra name
+  const orchestraName = song.orchestra?.name || 'Unknown';
+
+  // Safely get singer names
+  const singerNames = song.song_singer && song.song_singer.length > 0
+    ? song.song_singer.map(s => s.singer?.name || 'Unknown').join(', ')
+    : 'Instrumental';
+
   return (
     <TableRow
       className="hover:bg-tango-darkGray/50 cursor-pointer transition-colors rounded-lg group"
@@ -53,12 +61,10 @@ const SongTableRow = ({
         {song.title}
       </TableCell>
       <TableCell className="text-tango-light">
-        {song.orchestra?.name || 'Unknown'}
+        {orchestraName}
       </TableCell>
       <TableCell className="text-tango-light">
-        {song.song_singer && song.song_singer.length > 0
-          ? song.song_singer.map(s => s.singer.name).join(', ')
-          : 'Instrumental'}
+        {singerNames}
       </TableCell>
       <TableCell className="text-tango-light capitalize">
         {song.type}
