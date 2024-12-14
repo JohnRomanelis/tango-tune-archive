@@ -30,11 +30,11 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           recording_year,
           is_instrumental,
           spotify_id,
-          orchestra:orchestra_id (
+          orchestra:orchestra_id!left (
             id,
             name
           ),
-          song_singer!inner (
+          song_singer!left (
             singer (
               id,
               name
