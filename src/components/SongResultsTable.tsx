@@ -1,5 +1,7 @@
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import SongTableRow from "./song/SongTableRow";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Heart, PlayCircle, Plus, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Song {
   id: number;
@@ -9,8 +11,8 @@ interface Song {
   recording_year?: number;
   is_instrumental?: boolean;
   spotify_id?: string;
-  orchestra?: { id: number; name: string } | null;
-  song_singer?: Array<{ singer: { id: number; name: string } }>;
+  orchestra?: { name: string };
+  song_singer?: Array<{ singer: { name: string } }>;
 }
 
 interface SongResultsTableProps {
@@ -32,6 +34,8 @@ const SongResultsTable = ({
   onLikeClick,
   onAddClick,
 }: SongResultsTableProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="rounded-md bg-tango-gray">
       <Table>
@@ -49,16 +53,87 @@ const SongResultsTable = ({
         </TableHeader>
         <TableBody>
           {songs.map((song) => (
-            <SongTableRow
+            <TableRow
               key={song.id}
-              song={song}
-              isSelected={song.spotify_id === selectedTrackId}
-              isLiked={likedSongs.includes(song.id)}
-              isModerator={isModerator}
-              onSongClick={() => onSongClick(song.spotify_id || null)}
-              onLikeClick={(e) => onLikeClick(e, song.id)}
-              onAddClick={onAddClick ? () => onAddClick(song) : undefined}
-            />
+              className="hover:bg-tango-darkGray/50 cursor-pointer transition-colors rounded-lg group"
+              onClick={() => onSongClick(song.spotify_id || null)}
+            >
+              <TableCell>
+                {song.spotify_id && (
+                  <PlayCircle
+                    className={`h-4 w-4 ${
+                      song.spotify_id === selectedTrackId
+                        ? 'text-tango-red'
+                        : 'text-tango-light group-hover:text-tango-light/80'
+                    }`}
+                  />
+                )}
+              </TableCell>
+              <TableCell className="font-medium text-tango-light">
+                {song.title}
+              </TableCell>
+              <TableCell className="text-tango-light">
+                {song.orchestra?.name || 'Unknown'}
+              </TableCell>
+              <TableCell className="text-tango-light">
+                {song.song_singer?.map(s => s.singer.name).join(', ') || 'Instrumental'}
+              </TableCell>
+              <TableCell className="text-tango-light capitalize">
+                {song.type}
+              </TableCell>
+              <TableCell className="text-tango-light capitalize">
+                {song.style}
+              </TableCell>
+              <TableCell className="text-tango-light">
+                {song.recording_year || '-'}
+              </TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`${
+                      likedSongs.includes(song.id) ? 'text-tango-red' : 'text-gray-400'
+                    } hover:text-tango-red`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onLikeClick(e, song.id);
+                    }}
+                  >
+                    <Heart
+                      className="h-4 w-4"
+                      fill={likedSongs.includes(song.id) ? "currentColor" : "none"}
+                    />
+                  </Button>
+                  {onAddClick && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-tango-red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddClick(song);
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {isModerator && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-tango-red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/songs/${song.id}/edit`);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>
