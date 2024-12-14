@@ -76,14 +76,12 @@ const Songs = () => {
           recording_year,
           is_instrumental,
           spotify_id,
-          orchestra:orchestra_id (
-            name
-          ),
-          song_singer (
-            singer (
-              name
-            )
-          )
+          orchestra:orchestra_id(name)
+        `)
+        .select(`
+          *,
+          orchestra:orchestra_id!inner(name),
+          song_singer(singer(name))
         `);
 
       if (searchParams) {
@@ -139,7 +137,14 @@ const Songs = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []) as Song[];
+      
+      // Transform the data to match the Song interface
+      const transformedData = (data || []).map(song => ({
+        ...song,
+        orchestra: song.orchestra ? { name: song.orchestra.name } : null
+      }));
+
+      return transformedData as Song[];
     },
     enabled: searchParams !== null,
   });
