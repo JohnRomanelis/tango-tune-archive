@@ -58,7 +58,9 @@ const Songs = () => {
         .from("song")
         .select(`
           *,
-          orchestra (name),
+          orchestra:orchestra_id (
+            name
+          ),
           song_singer (
             singer (name)
           )
@@ -82,7 +84,18 @@ const Songs = () => {
           query = query.ilike('title', `%${searchParams.title}%`);
         }
         if (searchParams.orchestra) {
-          query = query.eq('orchestra.name', searchParams.orchestra);
+          // First get the orchestra ID
+          const { data: orchestraData } = await supabase
+            .from('orchestra')
+            .select('id')
+            .eq('name', searchParams.orchestra)
+            .single();
+          
+          if (orchestraData) {
+            query = query.eq('orchestra_id', orchestraData.id);
+          } else {
+            return []; // Return empty if orchestra not found
+          }
         }
         if (searchParams.singer) {
           query = query.eq('song_singer.singer.name', searchParams.singer);
