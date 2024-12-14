@@ -3,19 +3,6 @@ import { Heart, PlayCircle, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-interface Orchestra {
-  id: number;
-  name: string;
-}
-
-interface Singer {
-  name: string;
-}
-
-interface SongSinger {
-  singer: Singer;
-}
-
 interface Song {
   id: number;
   title: string;
@@ -24,8 +11,8 @@ interface Song {
   recording_year?: number;
   is_instrumental?: boolean;
   spotify_id?: string;
-  orchestra?: Orchestra | null;
-  song_singer?: SongSinger[];
+  orchestra?: { name: string };
+  song_singer?: Array<{ singer: { name: string } }>;
 }
 
 interface SongResultsTableProps {
