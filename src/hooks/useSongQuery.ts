@@ -32,20 +32,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user && searchParams?.likedOnly) return [];
 
-      // First, if a singer is selected, get the song IDs for that singer
-      let songIds: number[] | null = null;
-      if (searchParams?.singer) {
-        const { data: singerSongs } = await supabase
-          .from('song_singer')
-          .select('song_id')
-          .eq('singer.name', searchParams.singer)
-          .not('song.is_instrumental', 'eq', true);
-
-        if (!singerSongs?.length) return [];
-        songIds = singerSongs.map(s => s.song_id);
-      }
-
-      // Build the main query
       let query = supabase
         .from("song")
         .select(`
@@ -68,10 +54,18 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           )
         `);
 
-      // Apply filters
       if (searchParams) {
-        if (songIds !== null) {
-          query = query.in('id', songIds);
+        if (searchParams.likedOnly && user) {
+          const { data: likedSongIds } = await supabase
+            .from("user_song_likes")
+            .select("song_id")
+            .eq("user_id", user.id);
+          
+          if (likedSongIds && likedSongIds.length > 0) {
+            query = query.in('id', likedSongIds.map(like => like.song_id));
+          } else {
+            return [];
+          }
         }
 
         if (searchParams.title) {
@@ -82,6 +76,10 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           query = query.eq('orchestra.name', searchParams.orchestra);
         }
 
+        if (searchParams.singer) {
+          query = query.eq('song_singer.singer.name', searchParams.singer);
+        }
+
         if (searchParams.yearFrom) {
           query = query.gte('recording_year', searchParams.yearFrom);
         }
@@ -90,22 +88,16 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           query = query.lte('recording_year', searchParams.yearTo);
         }
 
+        if (searchParams.isInstrumental !== undefined) {
+          query = query.eq('is_instrumental', searchParams.isInstrumental);
+        }
+
         if (searchParams.type) {
           query = query.eq('type', searchParams.type);
         }
 
         if (searchParams.style) {
           query = query.eq('style', searchParams.style);
-        }
-
-        if (searchParams.likedOnly && user) {
-          const { data: likedSongs } = await supabase
-            .from('user_song_likes')
-            .select('song_id')
-            .eq('user_id', user.id);
-          
-          if (!likedSongs?.length) return [];
-          query = query.in('id', likedSongs.map(like => like.song_id));
         }
       }
 
@@ -121,9 +113,9 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         ...song,
         orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
-      })) as Song[];
+      }));
 
-      return transformedSongs;
+      return transformedSongs as unknown as Song[];
     },
     enabled: searchParams !== null,
   });
