@@ -13,6 +13,18 @@ import { useSongSearch } from "@/hooks/useSongSearch";
 import { useSongLikes } from "@/hooks/useSongLikes";
 import { useUserRole } from "@/hooks/useUserRole";
 
+interface Song {
+  id: number;
+  title: string;
+  type: "tango" | "milonga" | "vals";
+  style: "rhythmic" | "melodic" | "dramatic";
+  recording_year?: number;
+  is_instrumental?: boolean;
+  spotify_id?: string;
+  orchestra?: { id: number; name: string } | null;
+  song_singer?: Array<{ singer: { name: string } }>;
+}
+
 const Songs = () => {
   const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState(null);
@@ -105,7 +117,7 @@ const Songs = () => {
           </div>
         ) : (
           <SongResultsTable
-            songs={songs || []}
+            songs={songs as Song[] || []}
             likedSongs={likedSongs}
             selectedTrackId={selectedTrackId}
             isModerator={userRole === 'moderator'}

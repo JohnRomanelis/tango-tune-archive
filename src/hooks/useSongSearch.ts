@@ -61,6 +61,7 @@ export const useSongSearch = (searchParams: SearchParams | null) => {
         }
         
         if (searchParams.orchestra) {
+          // Join with orchestra table and filter by name
           query = query.eq('orchestra.name', searchParams.orchestra);
         }
         
