@@ -41,7 +41,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
             )
           )
         `)
-        .order('recording_year', { ascending: false }); // Sort by year, newest first
+        .order('recording_year', { ascending: false });
 
       if (searchParams) {
         if (searchParams.likedOnly) {
