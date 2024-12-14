@@ -32,6 +32,20 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user && searchParams?.likedOnly) return [];
 
+      // First, if a singer is selected, get the song IDs for that singer
+      let songIds: number[] | null = null;
+      if (searchParams?.singer) {
+        const { data: singerSongs } = await supabase
+          .from('song_singer')
+          .select('song_id')
+          .eq('singer.name', searchParams.singer)
+          .not('song.is_instrumental', 'eq', true);
+
+        if (!singerSongs?.length) return [];
+        songIds = singerSongs.map(s => s.song_id);
+      }
+
+      // Build the main query
       let query = supabase
         .from("song")
         .select(`
@@ -54,18 +68,10 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           )
         `);
 
+      // Apply filters
       if (searchParams) {
-        // If singer is selected, join with song_singer and singer tables
-        if (searchParams.singer) {
-          query = query
-            .eq('is_instrumental', false) // Exclude instrumental songs
-            .in('id', 
-              supabase
-                .from('song_singer')
-                .select('song_id')
-                .eq('singer.name', searchParams.singer)
-                .inner_join('singer on singer.id = song_singer.singer_id')
-            );
+        if (songIds !== null) {
+          query = query.in('id', songIds);
         }
 
         if (searchParams.title) {
@@ -93,12 +99,13 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.likedOnly && user) {
-          query = query.in('id', 
-            supabase
-              .from('user_song_likes')
-              .select('song_id')
-              .eq('user_id', user.id)
-          );
+          const { data: likedSongs } = await supabase
+            .from('user_song_likes')
+            .select('song_id')
+            .eq('user_id', user.id);
+          
+          if (!likedSongs?.length) return [];
+          query = query.in('id', likedSongs.map(like => like.song_id));
         }
       }
 
@@ -114,9 +121,9 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         ...song,
         orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
-      }));
+      })) as Song[];
 
-      return transformedSongs as Song[];
+      return transformedSongs;
     },
     enabled: searchParams !== null,
   });
