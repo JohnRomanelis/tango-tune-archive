@@ -70,8 +70,14 @@ const Songs = () => {
         .from("song")
         .select(`
           *,
-          orchestra:orchestra_id(name),
-          song_singer(singer(name))
+          orchestra:orchestra_id (
+            name
+          ),
+          song_singer (
+            singer (
+              name
+            )
+          )
         `);
 
       if (searchParams) {
@@ -126,16 +132,14 @@ const Songs = () => {
         }
       }
 
-      const { data, error } = await query;
+      const { data: songsData, error } = await query;
       if (error) throw error;
-      
-      // Transform the data to match the Song interface
-      const transformedData = (data || []).map(song => ({
-        ...song,
-        orchestra: song.orchestra ? { name: song.orchestra.name } : null
-      }));
 
-      return transformedData as Song[];
+      // Transform the data to match the Song interface
+      return (songsData || []).map(song => ({
+        ...song,
+        orchestra: song.orchestra ? { name: song.orchestra.name } : null,
+      })) as Song[];
     },
     enabled: searchParams !== null,
   });
