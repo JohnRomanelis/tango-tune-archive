@@ -109,11 +109,13 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       }
 
       // Transform the data to match the expected Song type
-      return (songsData || []).map(song => ({
+      const transformedSongs = (songsData || []).map(song => ({
         ...song,
         orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
-      })) as Song[];
+      }));
+
+      return transformedSongs as unknown as Song[];
     },
     enabled: searchParams !== null,
   });
