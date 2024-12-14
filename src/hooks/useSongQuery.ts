@@ -31,10 +31,12 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           is_instrumental,
           spotify_id,
           orchestra:orchestra_id (
+            id,
             name
           ),
           song_singer (
             singer (
+              id,
               name
             )
           )

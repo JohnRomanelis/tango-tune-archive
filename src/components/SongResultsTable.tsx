@@ -11,8 +11,8 @@ interface Song {
   recording_year?: number;
   is_instrumental?: boolean;
   spotify_id?: string;
-  orchestra?: { name: string };
-  song_singer?: Array<{ singer: { name: string } }>;
+  orchestra?: { id: number; name: string } | null;
+  song_singer?: Array<{ singer: { id: number; name: string } }>;
 }
 
 interface SongResultsTableProps {
