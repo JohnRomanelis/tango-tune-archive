@@ -60,7 +60,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.orchestra) {
-          // Filter songs by orchestra name using the orchestra relationship
           query = query.eq('orchestra.name', searchParams.orchestra);
         }
 
