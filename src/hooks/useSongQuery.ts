@@ -64,9 +64,10 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.singer) {
+          // First get the song IDs that have the specified singer
           const { data: singerSongs } = await supabase
             .from('song_singer')
-            .select('song_id')
+            .select('song_id, singer!inner(name)')
             .eq('singer.name', searchParams.singer);
 
           if (singerSongs?.length) {
@@ -115,7 +116,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       }
 
       // Transform the data to ensure it matches the Song interface
-      const transformedData = data.map(song => ({
+      const transformedData = (data || []).map(song => ({
         ...song,
         orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
