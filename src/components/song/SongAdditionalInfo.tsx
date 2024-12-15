@@ -26,6 +26,25 @@ const SongAdditionalInfo = ({
   onInstrumentalChange,
   onSpotifyIdChange,
 }: SongAdditionalInfoProps) => {
+  const handleSpotifyIdChange = (value: string) => {
+    try {
+      // Check if the input is a Spotify URL
+      if (value.includes('spotify.com/track/')) {
+        // Extract the ID from the URL
+        const match = value.match(/track\/([^?]+)/);
+        if (match && match[1]) {
+          onSpotifyIdChange(match[1]);
+          return;
+        }
+      }
+      // If not a URL or couldn't extract ID, pass the value as is
+      onSpotifyIdChange(value);
+    } catch (error) {
+      // If any error occurs, just pass the original value
+      onSpotifyIdChange(value);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -59,10 +78,13 @@ const SongAdditionalInfo = ({
         <Input
           id="spotify_id"
           value={spotifyId}
-          onChange={(e) => onSpotifyIdChange(e.target.value)}
+          onChange={(e) => handleSpotifyIdChange(e.target.value)}
           className="bg-tango-darkGray text-tango-light"
-          placeholder="Spotify track ID"
+          placeholder="Spotify track ID or URL"
         />
+        <span className="text-xs text-tango-light mt-1 block">
+          You can paste either a Spotify track ID or full URL
+        </span>
       </div>
     </div>
   );
