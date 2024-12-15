@@ -123,9 +123,9 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           name: song.orchestra.name
         } : null,
         song_singer: song.song_singer || []
-      })) as Song[];
+      }));
 
-      return transformedData;
+      return transformedData as Song[];
     },
     enabled: searchParams !== null,
   });
