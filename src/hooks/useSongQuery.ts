@@ -118,7 +118,10 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       // Transform the data to ensure it matches the Song interface
       const transformedData = (data || []).map(song => ({
         ...song,
-        orchestra: song.orchestra || null,
+        orchestra: song.orchestra ? {
+          id: song.orchestra.id,
+          name: song.orchestra.name
+        } : null,
         song_singer: song.song_singer || []
       })) as Song[];
 
