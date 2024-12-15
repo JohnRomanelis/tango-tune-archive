@@ -60,7 +60,18 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.orchestra) {
-          query = query.eq('orchestra.name', searchParams.orchestra);
+          // First get the orchestra ID for the given name
+          const { data: orchestraData } = await supabase
+            .from('orchestra')
+            .select('id')
+            .eq('name', searchParams.orchestra)
+            .single();
+
+          if (orchestraData) {
+            query = query.eq('orchestra_id', orchestraData.id);
+          } else {
+            return [];
+          }
         }
 
         if (searchParams.singer) {
