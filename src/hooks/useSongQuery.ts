@@ -114,7 +114,14 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         throw error;
       }
 
-      return (data || []) as Song[];
+      // Transform the data to ensure it matches the Song interface
+      const transformedData = data.map(song => ({
+        ...song,
+        orchestra: song.orchestra || null,
+        song_singer: song.song_singer || []
+      })) as Song[];
+
+      return transformedData;
     },
     enabled: searchParams !== null,
   });
