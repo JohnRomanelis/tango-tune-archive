@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2 } from "lucide-react";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
 import SongSearch from "@/components/SongSearch";
 import SongResultsTable from "@/components/SongResultsTable";
-import SpotifyPlayer from "@/components/SpotifyPlayer";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useSongQuery } from "@/hooks/useSongQuery";
+import { useLikedSongs } from "@/hooks/useLikedSongs";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Song {
   id: number;
@@ -25,119 +27,13 @@ const SongSearchSection = ({
   onSongClick,
   onAddSong,
 }: SongSearchSectionProps) => {
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchParams, setSearchParams] = useState(null);
+  const { data: userRole } = useUserRole();
+  const { data: likedSongs } = useLikedSongs();
+  const { data: songs, isLoading } = useSongQuery(searchParams);
 
-  const { data: userRole } = useQuery({
-    queryKey: ["user-role"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data } = await supabase
-        .from("user_roles")
-        .select("roles(name)")
-        .eq("user_id", user.id)
-        .single();
-
-      return data?.roles?.name || null;
-    },
-  });
-
-  const { data: likedSongs = [] } = useQuery({
-    queryKey: ["likedSongs"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-
-      const { data } = await supabase
-        .from("user_song_likes")
-        .select("song_id")
-        .eq("user_id", user.id);
-
-      return data?.map(like => like.song_id) || [];
-    },
-  });
-
-  const handleSearch = async (params: any) => {
-    let query = supabase
-      .from('song')
-      .select(`
-        *,
-        orchestra:orchestra_id (name),
-        song_singer (
-          singer (name)
-        )
-      `);
-
-    if (params.title) {
-      query = query.ilike('title', `%${params.title}%`);
-    }
-    if (params.orchestra) {
-      query = query.eq('orchestra.name', params.orchestra);
-    }
-    if (params.singer) {
-      query = query.contains('song_singer.singer.name', [params.singer]);
-    }
-    if (params.type) {
-      query = query.eq('type', params.type);
-    }
-    if (params.style) {
-      query = query.eq('style', params.style);
-    }
-    if (params.yearFrom) {
-      query = query.gte('recording_year', params.yearFrom);
-    }
-    if (params.yearTo) {
-      query = query.lte('recording_year', params.yearTo);
-    }
-    if (params.isInstrumental !== undefined) {
-      query = query.eq('is_instrumental', params.isInstrumental);
-    }
-    if (params.likedOnly) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: likedSongIds } = await supabase
-          .from('user_song_likes')
-          .select('song_id')
-          .eq('user_id', user.id);
-        
-        if (likedSongIds && likedSongIds.length > 0) {
-          query = query.in('id', likedSongIds.map(like => like.song_id));
-        } else {
-          setSearchResults([]);
-          return;
-        }
-      }
-    }
-
-    const { data, error } = await query;
-    if (error) {
-      console.error('Error searching songs:', error);
-      return;
-    }
-    setSearchResults(data || []);
-  };
-
-  const handleLikeClick = async (e: React.MouseEvent, songId: number) => {
-    e.stopPropagation();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const isLiked = likedSongs.includes(songId);
-
-    if (isLiked) {
-      await supabase
-        .from('user_song_likes')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('song_id', songId);
-    } else {
-      await supabase
-        .from('user_song_likes')
-        .insert([
-          { user_id: user.id, song_id: songId }
-        ]);
-    }
+  const handleSearch = (params: any) => {
+    setSearchParams(params);
   };
 
   const handleClosePlayer = () => {
@@ -145,23 +41,28 @@ const SongSearchSection = ({
   };
 
   return (
-    <div className="space-y-6 h-full">
+    <div className="space-y-6">
       <SongSearch onSearch={handleSearch} />
-      <ScrollArea className="h-[calc(100vh-400px)]">
-        <SongResultsTable
-          songs={searchResults}
-          likedSongs={likedSongs}
-          selectedTrackId={selectedTrackId}
-          isModerator={userRole === 'moderator'}
-          onSongClick={onSongClick}
-          onLikeClick={handleLikeClick}
-          onAddClick={onAddSong}
-        />
+      
+      <ScrollArea className="h-[calc(100vh-500px)]">
+        {isLoading ? (
+          <div className="flex justify-center p-6">
+            <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+          </div>
+        ) : (
+          <SongResultsTable
+            songs={songs || []}
+            likedSongs={likedSongs}
+            selectedTrackId={selectedTrackId}
+            isModerator={userRole === 'moderator'}
+            onSongClick={onSongClick}
+            onLikeClick={() => {}} // Empty function since we don't need like functionality here
+            onAddClick={onAddSong}
+          />
+        )}
       </ScrollArea>
       {selectedTrackId && (
-        <div className="fixed bottom-0 right-0 w-3/5 pr-4 sm:pr-6 lg:pr-8">
-          <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
-        </div>
+        <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
       )}
     </div>
   );
