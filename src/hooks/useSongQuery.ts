@@ -129,9 +129,9 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         ...song,
         orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
-      }));
+      })) as Song[];
 
-      return transformedSongs as Song[];
+      return transformedSongs;
     },
     enabled: searchParams !== null,
   });
