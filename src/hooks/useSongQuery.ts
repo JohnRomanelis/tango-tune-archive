@@ -125,19 +125,28 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       }
 
       // Transform the data to ensure it matches the Song interface
-      const transformedSongs = (data || []).map(song => ({
-        ...song,
-        orchestra: song.orchestra ? {
-          id: song.orchestra.id,
-          name: song.orchestra.name
-        } : null,
-        song_singer: song.song_singer?.map(ss => ({
-          singer: {
-            id: ss.singer.id,
-            name: ss.singer.name
-          }
-        })) || []
-      })) as Song[];
+      const transformedSongs = (data || []).map(song => {
+        const transformedSong: Song = {
+          id: song.id,
+          title: song.title,
+          type: song.type,
+          style: song.style,
+          recording_year: song.recording_year,
+          is_instrumental: song.is_instrumental,
+          spotify_id: song.spotify_id,
+          orchestra: song.orchestra ? {
+            id: song.orchestra.id,
+            name: song.orchestra.name
+          } : null,
+          song_singer: song.song_singer?.map(ss => ({
+            singer: {
+              id: ss.singer.id,
+              name: ss.singer.name
+            }
+          })) || []
+        };
+        return transformedSong;
+      });
 
       return transformedSongs;
     },
