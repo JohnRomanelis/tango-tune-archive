@@ -60,7 +60,17 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.orchestra) {
-          query = query.eq('orchestra.name', searchParams.orchestra);
+          const { data: orchestras } = await supabase
+            .from('orchestra')
+            .select('id')
+            .eq('name', searchParams.orchestra)
+            .single();
+
+          if (orchestras) {
+            query = query.eq('orchestra_id', orchestras.id);
+          } else {
+            return [];
+          }
         }
 
         if (searchParams.singer) {
@@ -117,10 +127,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
       // Transform the data to ensure it matches the Song interface
       const transformedSongs = (data || []).map(song => ({
         ...song,
-        orchestra: song.orchestra ? {
-          id: song.orchestra.id,
-          name: song.orchestra.name
-        } : null,
+        orchestra: song.orchestra || null,
         song_singer: song.song_singer || []
       }));
 
