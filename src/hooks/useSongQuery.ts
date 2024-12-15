@@ -60,17 +60,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.orchestra) {
-          const { data: orchestras } = await supabase
-            .from('orchestra')
-            .select('id')
-            .eq('name', searchParams.orchestra)
-            .single();
-
-          if (orchestras) {
-            query = query.eq('orchestra_id', orchestras.id);
-          } else {
-            return [];
-          }
+          query = query.eq('orchestra.name', searchParams.orchestra);
         }
 
         if (searchParams.singer) {
@@ -124,31 +114,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         throw error;
       }
 
-      // Transform the data to ensure it matches the Song interface
-      const transformedSongs = (data || []).map(song => {
-        const transformedSong: Song = {
-          id: song.id,
-          title: song.title,
-          type: song.type,
-          style: song.style,
-          recording_year: song.recording_year,
-          is_instrumental: song.is_instrumental,
-          spotify_id: song.spotify_id,
-          orchestra: song.orchestra ? {
-            id: song.orchestra.id,
-            name: song.orchestra.name
-          } : null,
-          song_singer: song.song_singer?.map(ss => ({
-            singer: {
-              id: ss.singer.id,
-              name: ss.singer.name
-            }
-          })) || []
-        };
-        return transformedSong;
-      });
-
-      return transformedSongs;
+      return (data || []) as Song[];
     },
     enabled: searchParams !== null,
   });
