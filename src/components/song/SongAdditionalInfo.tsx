@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 
 interface Orchestra {
   id: number;
@@ -64,13 +65,23 @@ const SongAdditionalInfo = ({
         </select>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="is_instrumental"
-          checked={isInstrumental}
-          onCheckedChange={onInstrumentalChange}
-        />
-        <Label htmlFor="is_instrumental">Instrumental</Label>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="is_instrumental"
+            checked={isInstrumental}
+            onCheckedChange={onInstrumentalChange}
+            className="data-[state=checked]:bg-tango-red"
+          />
+          <Label htmlFor="is_instrumental" className="flex items-center gap-2">
+            {isInstrumental ? (
+              <ToggleRight className="h-4 w-4" />
+            ) : (
+              <ToggleLeft className="h-4 w-4" />
+            )}
+            Instrumental
+          </Label>
+        </div>
       </div>
 
       <div>
