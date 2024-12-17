@@ -1,17 +1,8 @@
+import { useState, useMemo } from "react";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import SongTableRow from "./song/SongTableRow";
-
-interface Song {
-  id: number;
-  title: string;
-  type: string;
-  style: string;
-  recording_year?: number;
-  is_instrumental?: boolean;
-  spotify_id?: string;
-  orchestra?: { id: number; name: string } | null;
-  song_singer?: Array<{ singer: { id: number; name: string } }>;
-}
+import SortableTableHeader from "./song/SortableTableHeader";
+import { Song, SortField, SortConfig } from "@/types/song";
 
 interface SongResultsTableProps {
   songs: Song[];
@@ -32,23 +23,114 @@ const SongResultsTable = ({
   onLikeClick,
   onAddClick,
 }: SongResultsTableProps) => {
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    field: 'title',
+    direction: 'asc',
+  });
+
+  const handleSort = (field: SortField) => {
+    setSortConfig(current => ({
+      field,
+      direction: current.field === field && current.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const sortedSongs = useMemo(() => {
+    const sorted = [...songs].sort((a, b) => {
+      let comparison = 0;
+      const direction = sortConfig.direction === 'asc' ? 1 : -1;
+
+      // Primary sort based on selected field
+      switch (sortConfig.field) {
+        case 'title':
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case 'orchestra':
+          comparison = (a.orchestra?.name || '').localeCompare(b.orchestra?.name || '');
+          break;
+        case 'singer':
+          const singerA = a.song_singer?.[0]?.singer?.name || '';
+          const singerB = b.song_singer?.[0]?.singer?.name || '';
+          comparison = singerA.localeCompare(singerB);
+          break;
+        case 'type':
+          comparison = a.type.localeCompare(b.type);
+          break;
+        case 'style':
+          comparison = a.style.localeCompare(b.style);
+          break;
+        case 'year':
+          const yearA = a.recording_year || 0;
+          const yearB = b.recording_year || 0;
+          comparison = yearA - yearB;
+          break;
+      }
+
+      // If primary sort yields equality, sort by type
+      if (comparison === 0) {
+        comparison = a.type.localeCompare(b.type);
+        
+        // If type is also equal, sort by year
+        if (comparison === 0) {
+          const yearA = a.recording_year || 0;
+          const yearB = b.recording_year || 0;
+          comparison = yearA - yearB;
+        }
+      }
+
+      return comparison * direction;
+    });
+
+    return sorted;
+  }, [songs, sortConfig]);
+
   return (
     <div className="rounded-md bg-tango-gray">
       <Table>
         <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
           <TableRow>
             <TableHead className="text-tango-light w-[40px]"></TableHead>
-            <TableHead className="text-tango-light">Title</TableHead>
-            <TableHead className="text-tango-light">Orchestra</TableHead>
-            <TableHead className="text-tango-light">Singer</TableHead>
-            <TableHead className="text-tango-light">Type</TableHead>
-            <TableHead className="text-tango-light">Style</TableHead>
-            <TableHead className="text-tango-light">Year</TableHead>
+            <SortableTableHeader
+              field="title"
+              label="Title"
+              currentSort={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableTableHeader
+              field="orchestra"
+              label="Orchestra"
+              currentSort={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableTableHeader
+              field="singer"
+              label="Singer"
+              currentSort={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableTableHeader
+              field="type"
+              label="Type"
+              currentSort={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableTableHeader
+              field="style"
+              label="Style"
+              currentSort={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableTableHeader
+              field="year"
+              label="Year"
+              currentSort={sortConfig}
+              onSort={handleSort}
+            />
             <TableHead className="text-tango-light w-[120px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {songs.map((song) => (
+          {sortedSongs.map((song) => (
             <SongTableRow
               key={song.id}
               song={song}
