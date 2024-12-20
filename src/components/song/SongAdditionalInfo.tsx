@@ -21,8 +21,8 @@ interface SongAdditionalInfoProps {
 }
 
 const SongAdditionalInfo = ({
-  orchestras,
-  orchestraId,
+  orchestras = [],
+  orchestraId = "",
   isInstrumental,
   spotifyId,
   onOrchestraChange,
@@ -79,11 +79,11 @@ const SongAdditionalInfo = ({
               <div
                 key={orchestra.id}
                 className={`p-2 rounded-md cursor-pointer hover:bg-tango-darkGray/50 ${
-                  orchestraId === orchestra.id.toString()
+                  orchestra?.id && orchestraId === orchestra.id.toString()
                     ? "bg-tango-red/10 border-tango-red"
                     : ""
                 }`}
-                onClick={() => onOrchestraChange(orchestra.id.toString())}
+                onClick={() => orchestra?.id && onOrchestraChange(orchestra.id.toString())}
               >
                 {orchestra.name}
               </div>
