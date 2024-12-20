@@ -16,5 +16,7 @@ export const useUserRole = () => {
 
       return data?.roles?.name || null;
     },
+    retry: false,
+    enabled: true,
   });
 };
