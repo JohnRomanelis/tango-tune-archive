@@ -38,7 +38,7 @@ const SongSuggestions = () => {
             name
           ),
           suggested_song_singer (
-            singer (
+            singer:singer_id (
               id,
               name
             )
