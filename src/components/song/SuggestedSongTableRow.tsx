@@ -1,8 +1,9 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { SongSuggestion } from "@/types/song";
 
 interface SuggestedSongTableRowProps {
-  suggestion: any;
+  suggestion: SongSuggestion;
   isSelected: boolean;
   onSongClick: () => void;
   actions: React.ReactNode;
@@ -28,6 +29,10 @@ const SuggestedSongTableRow = ({
     }
   };
 
+  const singerNames = suggestion.suggested_song_singer && suggestion.suggested_song_singer.length > 0
+    ? suggestion.suggested_song_singer.map(s => s.singer.name).join(", ")
+    : suggestion.is_instrumental ? "Instrumental" : "-";
+
   return (
     <TableRow
       className={`cursor-pointer hover:bg-tango-darkGray/50 ${
@@ -42,9 +47,7 @@ const SuggestedSongTableRow = ({
         {suggestion.orchestra?.name}
       </TableCell>
       <TableCell className="text-tango-light">
-        {suggestion.suggested_song_singer
-          ?.map((s: any) => s.singer.name)
-          .join(", ") || "Instrumental"}
+        {singerNames}
       </TableCell>
       <TableCell className="text-tango-light">{suggestion.type}</TableCell>
       <TableCell className="text-tango-light">{suggestion.style}</TableCell>
