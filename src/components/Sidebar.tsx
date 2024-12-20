@@ -1,10 +1,12 @@
-import { Home, Search, Library, Music, ListMusic, PlaySquare, PlusSquare, LogOut } from "lucide-react";
+import { Home, Search, Library, Music, ListMusic, PlaySquare, PlusSquare, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Sidebar = () => {
   const { toast } = useToast();
+  const { data: userRole } = useUserRole();
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -53,6 +55,12 @@ const Sidebar = () => {
             <PlaySquare className="w-5 h-5" />
             <span>Playlists</span>
           </Link>
+          {userRole === "moderator" && (
+            <Link to="/maintenance" className="flex items-center space-x-3 text-tango-light hover:text-tango-red transition-colors">
+              <Settings className="w-5 h-5" />
+              <span>Maintenance</span>
+            </Link>
+          )}
         </div>
 
         <div className="pt-6 border-t border-tango-gray space-y-3">
