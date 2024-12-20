@@ -40,7 +40,8 @@ const SongSuggestions = () => {
           suggested_song_singer (
             singer (
               id,
-              name
+              name,
+              sex
             )
           )
         `)
