@@ -20,10 +20,10 @@ const SongSuggestions = () => {
   const queryClient = useQueryClient();
 
   const statuses: SuggestionStatus[] = [
-    ...(showPending ? ["pending" as const] : []),
-    ...(showApproved ? ["approved" as const, "approved-edited" as const] : []),
-    ...(showRejected ? ["rejected" as const] : []),
-  ];
+    ...(showPending ? ["pending"] : []),
+    ...(showApproved ? ["approved", "approved-edited"] : []),
+    ...(showRejected ? ["rejected"] : []),
+  ] as SuggestionStatus[];
 
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ["song-suggestions", statuses],
@@ -80,7 +80,6 @@ const SongSuggestions = () => {
 
   const approveSuggestionMutation = useMutation({
     mutationFn: async (suggestion: SongSuggestion) => {
-      // First, insert the song into the songs table
       const songData = {
         title: suggestion.title,
         type: suggestion.type,
@@ -94,13 +93,12 @@ const SongSuggestions = () => {
 
       const { data: song, error: songError } = await supabase
         .from("song")
-        .insert(songData)
+        .insert([songData])
         .select()
         .single();
 
       if (songError) throw songError;
 
-      // Then, insert the singer associations
       if (suggestion.suggested_song_singer?.length > 0) {
         const songSingerData = suggestion.suggested_song_singer.map(
           (s) => ({
@@ -116,7 +114,6 @@ const SongSuggestions = () => {
         if (singerError) throw singerError;
       }
 
-      // Finally, update the suggestion status
       const { error: updateError } = await supabase
         .from("suggested_song")
         .update({ 
@@ -178,15 +175,19 @@ const SongSuggestions = () => {
           <div className="flex justify-center p-6">
             <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
           </div>
-        ) : (
+        ) : suggestions && suggestions.length > 0 ? (
           <SuggestedSongsTable
-            suggestions={suggestions || []}
+            suggestions={suggestions}
             selectedTrackId={selectedTrackId}
             onSongClick={handleSongClick}
             onApprove={(suggestion) => approveSuggestionMutation.mutate(suggestion)}
             onReject={(id) => updateSuggestionMutation.mutate({ id, status: "rejected" })}
             onEdit={(id) => navigate(`/maintenance/song-suggestions/${id}/edit`)}
           />
+        ) : (
+          <div className="text-center text-tango-light p-6">
+            No suggestions found for the selected filters.
+          </div>
         )}
       </ScrollArea>
 

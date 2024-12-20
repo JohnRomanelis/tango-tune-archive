@@ -1,8 +1,19 @@
+export type SongType = "tango" | "milonga" | "vals";
+export type SongStyle = "rhythmic" | "melodic" | "dramatic";
+export type SortField = 'title' | 'orchestra' | 'singer' | 'type' | 'style' | 'year';
+export type SortDirection = 'asc' | 'desc';
+export type SuggestionStatus = 'pending' | 'approved' | 'approved-edited' | 'rejected';
+
+export interface SortConfig {
+  field: SortField;
+  direction: SortDirection;
+}
+
 export interface Song {
   id: number;
   title: string;
-  type: "tango" | "milonga" | "vals";
-  style: "rhythmic" | "melodic" | "dramatic";
+  type: SongType;
+  style: SongStyle;
   recording_year?: number;
   is_instrumental?: boolean;
   spotify_id?: string;
@@ -10,24 +21,6 @@ export interface Song {
   song_singer?: Array<{ singer: { id: number; name: string } }>;
   duration?: number;
 }
-
-export interface SongTemplate {
-  id: string;
-  title: string;
-  recording_year: string;
-  spotify_id: string;
-  duration: number;
-}
-
-export type SortField = 'title' | 'orchestra' | 'singer' | 'type' | 'style' | 'year';
-export type SortDirection = 'asc' | 'desc';
-
-export interface SortConfig {
-  field: SortField;
-  direction: SortDirection;
-}
-
-export type SuggestionStatus = 'pending' | 'approved' | 'approved-edited' | 'rejected';
 
 export interface SongSuggestion extends Omit<Song, 'id'> {
   id: number;
