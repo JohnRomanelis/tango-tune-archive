@@ -28,6 +28,18 @@ const SuggestedSongTableRow = ({
     }
   };
 
+  const getSingerNames = () => {
+    if (suggestion.is_instrumental) {
+      return "Instrumental";
+    }
+    if (suggestion.suggested_song_singer?.length > 0) {
+      return suggestion.suggested_song_singer
+        .map((s: any) => s.singer.name)
+        .join(", ");
+    }
+    return "-";
+  };
+
   return (
     <TableRow
       className={`cursor-pointer hover:bg-tango-darkGray/50 ${
@@ -42,9 +54,7 @@ const SuggestedSongTableRow = ({
         {suggestion.orchestra?.name}
       </TableCell>
       <TableCell className="text-tango-light">
-        {suggestion.suggested_song_singer
-          ?.map((s: any) => s.singer.name)
-          .join(", ") || "Instrumental"}
+        {getSingerNames()}
       </TableCell>
       <TableCell className="text-tango-light">{suggestion.type}</TableCell>
       <TableCell className="text-tango-light">{suggestion.style}</TableCell>

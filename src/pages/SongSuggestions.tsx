@@ -80,6 +80,7 @@ const SongSuggestions = () => {
 
   const approveSuggestionMutation = useMutation({
     mutationFn: async (suggestion: SongSuggestion) => {
+      // First insert the song
       const songData = {
         title: suggestion.title,
         type: suggestion.type,
@@ -99,6 +100,7 @@ const SongSuggestions = () => {
 
       if (songError) throw songError;
 
+      // Then insert the song-singer relationships
       if (suggestion.suggested_song_singer?.length > 0) {
         const songSingerData = suggestion.suggested_song_singer.map(
           (s) => ({
@@ -114,6 +116,7 @@ const SongSuggestions = () => {
         if (singerError) throw singerError;
       }
 
+      // Finally update the suggestion status
       const { error: updateError } = await supabase
         .from("suggested_song")
         .update({ 
