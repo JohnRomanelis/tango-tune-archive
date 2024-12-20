@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const TopNav = () => {
   const { toast } = useToast();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { data: userRole } = useUserRole();
 
   useEffect(() => {
     const getUserEmail = async () => {
@@ -51,6 +53,11 @@ const TopNav = () => {
               <Link to="/playlists" className="text-tango-light hover:text-tango-red transition-colors">
                 Playlists
               </Link>
+              {userRole === 'moderator' && (
+                <Link to="/maintenance" className="text-tango-light hover:text-tango-red transition-colors">
+                  Maintenance
+                </Link>
+              )}
             </nav>
           </div>
 
