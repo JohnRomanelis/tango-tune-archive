@@ -32,7 +32,7 @@ const SuggestedSongTableRow = ({
     if (suggestion.is_instrumental) {
       return "Instrumental";
     }
-    if (suggestion.suggested_song_singer?.length > 0) {
+    if (suggestion.suggested_song_singer && suggestion.suggested_song_singer.length > 0) {
       return suggestion.suggested_song_singer
         .map((s: any) => s.singer.name)
         .join(", ");
