@@ -2,14 +2,15 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 import SuggestedSongTableRow from "./SuggestedSongTableRow";
 import { Check, X, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SongSuggestion } from "@/types/song";
 
 interface SuggestedSongsTableProps {
-  suggestions: any[];
+  suggestions: SongSuggestion[];
   selectedTrackId: string | null;
   onSongClick: (spotify_id: string | null) => void;
-  onApprove: (suggestion: any) => void;
+  onApprove: (suggestion: SongSuggestion) => void;
   onReject: (id: number) => void;
-  onEdit: (id: number) => void;
+  onEdit: (suggestion: SongSuggestion) => void;
 }
 
 const SuggestedSongsTable = ({
@@ -66,7 +67,7 @@ const SuggestedSongsTable = ({
                         size="sm"
                         variant="ghost"
                         className="text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
-                        onClick={() => onEdit(suggestion.id)}
+                        onClick={() => onEdit(suggestion)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
