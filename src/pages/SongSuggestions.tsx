@@ -20,9 +20,9 @@ const SongSuggestions = () => {
   const queryClient = useQueryClient();
 
   const statuses: SuggestionStatus[] = [
-    ...(showPending ? ["pending"] : []),
-    ...(showApproved ? ["approved", "approved-edited"] : []),
-    ...(showRejected ? ["rejected"] : []),
+    ...(showPending ? ["pending" as const] : []),
+    ...(showApproved ? ["approved" as const, "approved-edited" as const] : []),
+    ...(showRejected ? ["rejected" as const] : []),
   ];
 
   const { data: suggestions, isLoading } = useQuery({
@@ -81,18 +81,20 @@ const SongSuggestions = () => {
   const approveSuggestionMutation = useMutation({
     mutationFn: async (suggestion: SongSuggestion) => {
       // First, insert the song into the songs table
+      const songData = {
+        title: suggestion.title,
+        type: suggestion.type,
+        style: suggestion.style,
+        recording_year: suggestion.recording_year,
+        is_instrumental: suggestion.is_instrumental,
+        orchestra_id: suggestion.orchestra?.id,
+        spotify_id: suggestion.spotify_id,
+        duration: suggestion.duration,
+      };
+
       const { data: song, error: songError } = await supabase
         .from("song")
-        .insert({
-          title: suggestion.title,
-          type: suggestion.type,
-          style: suggestion.style,
-          recording_year: suggestion.recording_year,
-          is_instrumental: suggestion.is_instrumental,
-          orchestra_id: suggestion.orchestra?.id,
-          spotify_id: suggestion.spotify_id,
-          duration: suggestion.duration,
-        })
+        .insert(songData)
         .select()
         .single();
 

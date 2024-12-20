@@ -1,13 +1,14 @@
 export interface Song {
   id: number;
   title: string;
-  type: string;
-  style: string;
+  type: "tango" | "milonga" | "vals";
+  style: "rhythmic" | "melodic" | "dramatic";
   recording_year?: number;
   is_instrumental?: boolean;
   spotify_id?: string;
   orchestra?: { id: number; name: string } | null;
   song_singer?: Array<{ singer: { id: number; name: string } }>;
+  duration?: number;
 }
 
 export interface SongTemplate {
@@ -34,5 +35,6 @@ export interface SongSuggestion extends Omit<Song, 'id'> {
   status: SuggestionStatus;
   created_at?: string;
   updated_at?: string;
+  duration?: number;
   suggested_song_singer?: Array<{ singer: { id: number; name: string } }>;
 }
