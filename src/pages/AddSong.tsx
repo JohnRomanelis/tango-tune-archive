@@ -3,6 +3,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import SongForm from "@/components/song/SongForm";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { ListPlus } from "lucide-react";
 
 const AddSong = () => {
   const navigate = useNavigate();
@@ -66,7 +68,6 @@ const AddSong = () => {
         description: "Song added successfully",
       });
 
-      // Redirect to songs page after successful creation
       navigate("/songs");
     } catch (error) {
       toast({
@@ -79,7 +80,17 @@ const AddSong = () => {
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <h1 className="text-3xl font-bold text-tango-light mb-6">Add New Song</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-tango-light">Add New Song</h1>
+        <Button
+          onClick={() => navigate("/songs/add-multiple")}
+          variant="outline"
+          className="gap-2"
+        >
+          <ListPlus className="h-4 w-4" />
+          Add Multiple Songs
+        </Button>
+      </div>
       <div className="bg-tango-gray rounded-lg p-6">
         <SongForm onSubmit={handleSubmit} />
       </div>

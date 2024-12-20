@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Songs from "./pages/Songs";
 import AddSong from "./pages/AddSong";
+import AddMultipleSongs from "./pages/AddMultipleSongs";
 import EditSong from "./pages/EditSong";
 import Tandas from "./pages/Tandas";
 import CreateTanda from "./pages/CreateTanda";
@@ -35,6 +36,7 @@ const App = () => (
                     <Route path="/" element={<Index />} />
                     <Route path="/songs" element={<Songs />} />
                     <Route path="/songs/add" element={<AddSong />} />
+                    <Route path="/songs/add-multiple" element={<AddMultipleSongs />} />
                     <Route path="/songs/:id/edit" element={<EditSong />} />
                     <Route path="/tandas" element={<Tandas />} />
                     <Route path="/tandas/create" element={<CreateTanda />} />
