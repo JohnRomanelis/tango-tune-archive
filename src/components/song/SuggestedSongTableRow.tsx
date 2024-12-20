@@ -32,10 +32,12 @@ const SuggestedSongTableRow = ({
     if (suggestion.is_instrumental) {
       return "Instrumental";
     }
-    if (suggestion.suggested_song_singer && suggestion.suggested_song_singer.length > 0) {
-      return suggestion.suggested_song_singer
+    
+    const singers = suggestion.suggested_song_singer;
+    if (singers && singers.length > 0) {
+      return singers
         .map((s: any) => s.singer?.name)
-        .filter((name: string | undefined) => name) // Filter out any undefined names
+        .filter(Boolean)
         .join(", ");
     }
     return "-";
@@ -52,15 +54,19 @@ const SuggestedSongTableRow = ({
         {suggestion.title}
       </TableCell>
       <TableCell className="text-tango-light">
-        {suggestion.orchestra?.name}
+        {suggestion.orchestra?.name || '-'}
       </TableCell>
       <TableCell className="text-tango-light">
         {getSingerNames()}
       </TableCell>
-      <TableCell className="text-tango-light">{suggestion.type}</TableCell>
-      <TableCell className="text-tango-light">{suggestion.style}</TableCell>
+      <TableCell className="text-tango-light capitalize">
+        {suggestion.type}
+      </TableCell>
+      <TableCell className="text-tango-light capitalize">
+        {suggestion.style}
+      </TableCell>
       <TableCell className="text-tango-light">
-        {suggestion.recording_year}
+        {suggestion.recording_year || '-'}
       </TableCell>
       <TableCell>
         <Badge
