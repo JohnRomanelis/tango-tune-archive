@@ -2,6 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ToggleLeft, ToggleRight } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useEffect } from "react";
 
 interface Orchestra {
   id: number;
@@ -27,42 +29,67 @@ const SongAdditionalInfo = ({
   onInstrumentalChange,
   onSpotifyIdChange,
 }: SongAdditionalInfoProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredOrchestras, setFilteredOrchestras] = useState(orchestras);
+
+  useEffect(() => {
+    const filtered = orchestras.filter((orchestra) =>
+      orchestra.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredOrchestras(filtered);
+  }, [searchTerm, orchestras]);
+
   const handleSpotifyIdChange = (value: string) => {
     try {
-      // Check if the input is a Spotify URL
       if (value.includes('spotify.com/track/')) {
-        // Extract the ID from the URL
         const match = value.match(/track\/([^?]+)/);
         if (match && match[1]) {
           onSpotifyIdChange(match[1]);
           return;
         }
       }
-      // If not a URL or couldn't extract ID, pass the value as is
       onSpotifyIdChange(value);
     } catch (error) {
-      // If any error occurs, just pass the original value
       onSpotifyIdChange(value);
     }
   };
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="space-y-2">
         <Label htmlFor="orchestra">Orchestra</Label>
-        <select
-          id="orchestra"
-          value={orchestraId}
-          onChange={(e) => onOrchestraChange(e.target.value)}
-          className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
-        >
-          <option value="">Select Orchestra</option>
-          {orchestras?.map((orchestra) => (
-            <option key={orchestra.id} value={orchestra.id}>
-              {orchestra.name}
-            </option>
-          ))}
-        </select>
+        <Input
+          type="text"
+          placeholder="Search orchestras..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="bg-tango-darkGray text-tango-light mb-2"
+        />
+        <ScrollArea className="h-48 bg-tango-darkGray rounded-md border border-tango-gray">
+          <div className="p-2 space-y-1">
+            <div
+              className={`p-2 rounded-md cursor-pointer ${
+                !orchestraId ? "bg-tango-red/10 border-tango-red" : ""
+              }`}
+              onClick={() => onOrchestraChange("")}
+            >
+              No Orchestra
+            </div>
+            {filteredOrchestras.map((orchestra) => (
+              <div
+                key={orchestra.id}
+                className={`p-2 rounded-md cursor-pointer hover:bg-tango-darkGray/50 ${
+                  orchestraId === orchestra.id.toString()
+                    ? "bg-tango-red/10 border-tango-red"
+                    : ""
+                }`}
+                onClick={() => onOrchestraChange(orchestra.id.toString())}
+              >
+                {orchestra.name}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
       <div className="flex items-center justify-between">
