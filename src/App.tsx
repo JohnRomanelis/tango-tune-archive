@@ -18,6 +18,7 @@ import CreatePlaylist from "./pages/CreatePlaylist";
 import EditPlaylist from "./pages/EditPlaylist";
 import Maintenance from "./pages/Maintenance";
 import SongSuggestions from "./pages/SongSuggestions";
+import EditSongSuggestion from "./pages/EditSongSuggestion";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
                     <Route path="/playlists/edit/:id" element={<EditPlaylist />} />
                     <Route path="/maintenance" element={<Maintenance />} />
                     <Route path="/maintenance/song-suggestions" element={<SongSuggestions />} />
+                    <Route path="/maintenance/song-suggestions/:id/edit" element={<EditSongSuggestion />} />
                   </Routes>
                 </>
               }
