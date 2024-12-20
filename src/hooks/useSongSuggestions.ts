@@ -15,8 +15,8 @@ export const useSongSuggestions = (statuses: SuggestionStatus[]) => {
             id,
             name
           ),
-          suggested_song_singer!inner (
-            singer!inner (
+          suggested_song_singer (
+            singer (
               id,
               name
             )
