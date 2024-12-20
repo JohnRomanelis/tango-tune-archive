@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, LightbulbIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import { useToast } from "@/components/ui/use-toast";
@@ -97,15 +97,25 @@ const Songs = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-tango-light">Songs</h1>
-          {userRole === "moderator" && (
-            <Button
-              onClick={() => navigate("/songs/add")}
-              className="bg-tango-red hover:bg-tango-red/90"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Song
-            </Button>
-          )}
+          <div className="flex gap-4">
+            {userRole === "moderator" ? (
+              <Button
+                onClick={() => navigate("/songs/add")}
+                className="bg-tango-red hover:bg-tango-red/90"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Song
+              </Button>
+            ) : (
+              <Button
+                onClick={() => navigate("/songs/suggest")}
+                className="bg-tango-red hover:bg-tango-red/90"
+              >
+                <LightbulbIcon className="h-4 w-4 mr-2" />
+                Suggest Song
+              </Button>
+            )}
+          </div>
         </div>
         <SongSearch onSearch={handleSearch} />
       </div>

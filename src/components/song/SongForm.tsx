@@ -22,9 +22,10 @@ interface SongFormProps {
     duration?: number;
   };
   onSubmit: (data: any) => Promise<void>;
+  submitButtonText?: string;
 }
 
-const SongForm = ({ initialData, onSubmit }: SongFormProps) => {
+const SongForm = ({ initialData, onSubmit, submitButtonText = "Add Song" }: SongFormProps) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
@@ -118,7 +119,7 @@ const SongForm = ({ initialData, onSubmit }: SongFormProps) => {
           Cancel
         </Button>
         <Button type="submit" className="bg-tango-red hover:bg-tango-red/90">
-          {initialData ? "Update Song" : "Add Song"}
+          {initialData ? "Update Song" : submitButtonText}
         </Button>
       </div>
     </form>
