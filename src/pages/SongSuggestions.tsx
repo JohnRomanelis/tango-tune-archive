@@ -3,12 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Toggle } from "@/components/ui/toggle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import SuggestedSongsTable from "@/components/song/SuggestedSongsTable";
-import SuggestionFilters from "@/components/song/suggestion/SuggestionFilters";
-import EditSuggestionDialog from "@/components/song/suggestion/EditSuggestionDialog";
 import { SongSuggestion, SuggestionStatus } from "@/types/song";
 
 const SongSuggestions = () => {
@@ -16,7 +15,6 @@ const SongSuggestions = () => {
   const [showApproved, setShowApproved] = useState(false);
   const [showRejected, setShowRejected] = useState(false);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
-  const [selectedSuggestion, setSelectedSuggestion] = useState<SongSuggestion | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -140,18 +138,37 @@ const SongSuggestions = () => {
     setSelectedTrackId(spotify_id);
   };
 
+  const handleClosePlayer = () => {
+    setSelectedTrackId(null);
+  };
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
       <h1 className="text-3xl font-bold text-tango-light mb-6">Song Suggestions</h1>
 
-      <SuggestionFilters
-        showPending={showPending}
-        showApproved={showApproved}
-        showRejected={showRejected}
-        onShowPendingChange={setShowPending}
-        onShowApprovedChange={setShowApproved}
-        onShowRejectedChange={setShowRejected}
-      />
+      <div className="flex gap-4 mb-6">
+        <Toggle
+          pressed={showPending}
+          onPressedChange={setShowPending}
+          className="data-[state=on]:bg-yellow-600"
+        >
+          Pending
+        </Toggle>
+        <Toggle
+          pressed={showApproved}
+          onPressedChange={setShowApproved}
+          className="data-[state=on]:bg-green-600"
+        >
+          Approved
+        </Toggle>
+        <Toggle
+          pressed={showRejected}
+          onPressedChange={setShowRejected}
+          className="data-[state=on]:bg-red-600"
+        >
+          Rejected
+        </Toggle>
+      </div>
 
       <ScrollArea className="h-[calc(100vh-300px)]">
         {isLoading ? (
@@ -165,7 +182,7 @@ const SongSuggestions = () => {
             onSongClick={handleSongClick}
             onApprove={(suggestion) => approveSuggestionMutation.mutate(suggestion)}
             onReject={(id) => updateSuggestionMutation.mutate({ id, status: "rejected" })}
-            onEdit={(suggestion) => setSelectedSuggestion(suggestion)}
+            onEdit={(id) => navigate(`/maintenance/song-suggestions/${id}/edit`)}
           />
         ) : (
           <div className="text-center text-tango-light p-6">
@@ -175,14 +192,8 @@ const SongSuggestions = () => {
       </ScrollArea>
 
       {selectedTrackId && (
-        <SpotifyPlayer trackId={selectedTrackId} onClose={() => setSelectedTrackId(null)} />
+        <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
       )}
-
-      <EditSuggestionDialog
-        suggestion={selectedSuggestion}
-        isOpen={!!selectedSuggestion}
-        onClose={() => setSelectedSuggestion(null)}
-      />
     </main>
   );
 };
