@@ -9,11 +9,6 @@ export interface SortConfig {
   direction: SortDirection;
 }
 
-export interface Singer {
-  id: number;
-  name: string;
-}
-
 export interface Song {
   id: number;
   title: string;
@@ -23,7 +18,7 @@ export interface Song {
   is_instrumental?: boolean;
   spotify_id?: string;
   orchestra?: { id: number; name: string } | null;
-  song_singer?: Array<{ singer: Singer }>;
+  song_singer?: Array<{ singer: { id: number; name: string } }>;
   duration?: number;
 }
 
@@ -35,12 +30,12 @@ export interface SongTemplate {
   duration: number;
 }
 
-export interface SongSuggestion extends Omit<Song, 'id' | 'song_singer'> {
+export interface SongSuggestion extends Omit<Song, 'id'> {
   id: number;
   user_id?: string;
   status: SuggestionStatus;
   created_at?: string;
   updated_at?: string;
   duration?: number;
-  suggested_song_singer?: Array<{ singer: Singer }>;
+  suggested_song_singer?: Array<{ singer: { id: number; name: string } }>;
 }

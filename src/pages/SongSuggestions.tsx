@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Toggle } from "@/components/ui/toggle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import SuggestedSongsTable from "@/components/song/SuggestedSongsTable";
 import { SongSuggestion, SuggestionStatus } from "@/types/song";
-import SuggestionFilters from "@/components/song/SuggestionFilters";
-import { useSongSuggestions } from "@/hooks/useSongSuggestions";
 
 const SongSuggestions = () => {
   const [showPending, setShowPending] = useState(true);
@@ -26,7 +25,37 @@ const SongSuggestions = () => {
     ...(showRejected ? ["rejected"] : []),
   ] as SuggestionStatus[];
 
-  const { data: suggestions, isLoading } = useSongSuggestions(statuses);
+  const { data: suggestions, isLoading } = useQuery({
+    queryKey: ["song-suggestions", statuses],
+    queryFn: async () => {
+      console.log("Fetching suggestions with statuses:", statuses);
+      const { data, error } = await supabase
+        .from("suggested_song")
+        .select(`
+          *,
+          orchestra:orchestra_id (
+            id,
+            name
+          ),
+          suggested_song_singer (
+            singer (
+              id,
+              name
+            )
+          )
+        `)
+        .in("status", statuses);
+
+      if (error) {
+        console.error("Error fetching suggestions:", error);
+        throw error;
+      }
+      
+      console.log("Fetched suggestions:", data);
+      return data as SongSuggestion[];
+    },
+    enabled: statuses.length > 0,
+  });
 
   const updateSuggestionMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: SuggestionStatus }) => {
@@ -51,7 +80,6 @@ const SongSuggestions = () => {
 
   const approveSuggestionMutation = useMutation({
     mutationFn: async (suggestion: SongSuggestion) => {
-      // First insert the song
       const songData = {
         title: suggestion.title,
         type: suggestion.type,
@@ -71,7 +99,6 @@ const SongSuggestions = () => {
 
       if (songError) throw songError;
 
-      // Then insert the song-singer relationships
       if (suggestion.suggested_song_singer?.length > 0) {
         const songSingerData = suggestion.suggested_song_singer.map(
           (s) => ({
@@ -87,7 +114,6 @@ const SongSuggestions = () => {
         if (singerError) throw singerError;
       }
 
-      // Finally update the suggestion status
       const { error: updateError } = await supabase
         .from("suggested_song")
         .update({ 
@@ -120,14 +146,29 @@ const SongSuggestions = () => {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
       <h1 className="text-3xl font-bold text-tango-light mb-6">Song Suggestions</h1>
 
-      <SuggestionFilters
-        showPending={showPending}
-        showApproved={showApproved}
-        showRejected={showRejected}
-        setShowPending={setShowPending}
-        setShowApproved={setShowApproved}
-        setShowRejected={setShowRejected}
-      />
+      <div className="flex gap-4 mb-6">
+        <Toggle
+          pressed={showPending}
+          onPressedChange={setShowPending}
+          className="data-[state=on]:bg-yellow-600"
+        >
+          Pending
+        </Toggle>
+        <Toggle
+          pressed={showApproved}
+          onPressedChange={setShowApproved}
+          className="data-[state=on]:bg-green-600"
+        >
+          Approved
+        </Toggle>
+        <Toggle
+          pressed={showRejected}
+          onPressedChange={setShowRejected}
+          className="data-[state=on]:bg-red-600"
+        >
+          Rejected
+        </Toggle>
+      </div>
 
       <ScrollArea className="h-[calc(100vh-300px)]">
         {isLoading ? (

@@ -28,21 +28,6 @@ const SuggestedSongTableRow = ({
     }
   };
 
-  const getSingerNames = () => {
-    if (suggestion.is_instrumental) {
-      return "Instrumental";
-    }
-    
-    const singers = suggestion.suggested_song_singer;
-    if (singers && singers.length > 0) {
-      return singers
-        .map((s: any) => s.singer?.name)
-        .filter(Boolean)
-        .join(", ");
-    }
-    return "-";
-  };
-
   return (
     <TableRow
       className={`cursor-pointer hover:bg-tango-darkGray/50 ${
@@ -54,19 +39,17 @@ const SuggestedSongTableRow = ({
         {suggestion.title}
       </TableCell>
       <TableCell className="text-tango-light">
-        {suggestion.orchestra?.name || '-'}
+        {suggestion.orchestra?.name}
       </TableCell>
       <TableCell className="text-tango-light">
-        {getSingerNames()}
+        {suggestion.suggested_song_singer
+          ?.map((s: any) => s.singer.name)
+          .join(", ") || "Instrumental"}
       </TableCell>
-      <TableCell className="text-tango-light capitalize">
-        {suggestion.type}
-      </TableCell>
-      <TableCell className="text-tango-light capitalize">
-        {suggestion.style}
-      </TableCell>
+      <TableCell className="text-tango-light">{suggestion.type}</TableCell>
+      <TableCell className="text-tango-light">{suggestion.style}</TableCell>
       <TableCell className="text-tango-light">
-        {suggestion.recording_year || '-'}
+        {suggestion.recording_year}
       </TableCell>
       <TableCell>
         <Badge
