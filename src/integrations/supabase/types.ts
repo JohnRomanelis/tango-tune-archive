@@ -230,7 +230,6 @@ export type Database = {
         Row: {
           created_at: string | null
           duration: number | null
-          feedback: string | null
           id: number
           is_instrumental: boolean | null
           orchestra_id: number | null
@@ -246,7 +245,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           duration?: number | null
-          feedback?: string | null
           id?: number
           is_instrumental?: boolean | null
           orchestra_id?: number | null
@@ -262,7 +260,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           duration?: number | null
-          feedback?: string | null
           id?: number
           is_instrumental?: boolean | null
           orchestra_id?: number | null

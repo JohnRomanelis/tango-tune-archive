@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import SuggestedSongsTable from "@/components/song/SuggestedSongsTable";
+import { SongSuggestion, SuggestionStatus } from "@/types/song";
 
 const SongSuggestions = () => {
   const [showPending, setShowPending] = useState(true);
@@ -18,7 +19,7 @@ const SongSuggestions = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const statuses = [
+  const statuses: SuggestionStatus[] = [
     ...(showPending ? ["pending"] : []),
     ...(showApproved ? ["approved", "approved-edited"] : []),
     ...(showRejected ? ["rejected"] : []),
@@ -27,24 +28,37 @@ const SongSuggestions = () => {
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ["song-suggestions", statuses],
     queryFn: async () => {
+      console.log("Fetching suggestions with statuses:", statuses);
       const { data, error } = await supabase
         .from("suggested_song")
         .select(`
           *,
-          orchestra:orchestra_id (id, name),
+          orchestra:orchestra_id (
+            id,
+            name
+          ),
           suggested_song_singer (
-            singer:singer_id (id, name)
+            singer (
+              id,
+              name
+            )
           )
         `)
         .in("status", statuses);
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error("Error fetching suggestions:", error);
+        throw error;
+      }
+      
+      console.log("Fetched suggestions:", data);
+      return data as SongSuggestion[];
     },
+    enabled: statuses.length > 0,
   });
 
   const updateSuggestionMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: SuggestionStatus }) => {
       const { error } = await supabase
         .from("suggested_song")
         .update({ 
@@ -65,7 +79,7 @@ const SongSuggestions = () => {
   });
 
   const approveSuggestionMutation = useMutation({
-    mutationFn: async (suggestion: any) => {
+    mutationFn: async (suggestion: SongSuggestion) => {
       // First, insert the song into the songs table
       const { data: song, error: songError } = await supabase
         .from("song")
@@ -75,7 +89,7 @@ const SongSuggestions = () => {
           style: suggestion.style,
           recording_year: suggestion.recording_year,
           is_instrumental: suggestion.is_instrumental,
-          orchestra_id: suggestion.orchestra_id,
+          orchestra_id: suggestion.orchestra?.id,
           spotify_id: suggestion.spotify_id,
           duration: suggestion.duration,
         })
@@ -87,7 +101,7 @@ const SongSuggestions = () => {
       // Then, insert the singer associations
       if (suggestion.suggested_song_singer?.length > 0) {
         const songSingerData = suggestion.suggested_song_singer.map(
-          (s: any) => ({
+          (s) => ({
             song_id: song.id,
             singer_id: s.singer.id,
           })

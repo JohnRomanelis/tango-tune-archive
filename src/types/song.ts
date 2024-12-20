@@ -25,3 +25,14 @@ export interface SortConfig {
   field: SortField;
   direction: SortDirection;
 }
+
+export type SuggestionStatus = 'pending' | 'approved' | 'approved-edited' | 'rejected';
+
+export interface SongSuggestion extends Omit<Song, 'id'> {
+  id: number;
+  user_id?: string;
+  status: SuggestionStatus;
+  created_at?: string;
+  updated_at?: string;
+  suggested_song_singer?: Array<{ singer: { id: number; name: string } }>;
+}
