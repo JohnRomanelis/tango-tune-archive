@@ -4,39 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUserRole } from "@/hooks/useUserRole";
-import { useNavigate } from "react-router-dom";
 
 const TopNav = () => {
   const { toast } = useToast();
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const { data: userRole, isError } = useUserRole();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      setUserEmail(session.user.email);
+    const getUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserEmail(user?.email || null);
     };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/login");
-      } else {
-        setUserEmail(session.user.email);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    getUserEmail();
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -52,10 +31,6 @@ const TopNav = () => {
       });
     }
   };
-
-  if (isError) {
-    return null;
-  }
 
   return (
     <div className="bg-tango-darkGray border-b border-tango-gray">
@@ -76,11 +51,6 @@ const TopNav = () => {
               <Link to="/playlists" className="text-tango-light hover:text-tango-red transition-colors">
                 Playlists
               </Link>
-              {userRole === "moderator" && (
-                <Link to="/maintenance" className="text-tango-light hover:text-tango-red transition-colors">
-                  Maintenance
-                </Link>
-              )}
             </nav>
           </div>
 
