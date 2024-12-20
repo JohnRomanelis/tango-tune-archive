@@ -9,16 +9,9 @@ import AutocompleteInput from "@/components/AutocompleteInput";
 import SingerSelect from "@/components/song/SingerSelect";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import DurationInput from "@/components/song/DurationInput";
-
-interface SongTemplate {
-  id: string;
-  title: string;
-  recording_year: string;
-  spotify_id: string;
-  duration: number;
-}
+import SongTemplateForm from "@/components/song/SongTemplateForm";
+import { SongTemplate } from "@/types/song";
+import { TablesInsert } from "@/integrations/supabase/types";
 
 const AddMultipleSongs = () => {
   const navigate = useNavigate();
@@ -29,8 +22,8 @@ const AddMultipleSongs = () => {
   const [orchestraId, setOrchestraId] = useState("");
   const [selectedSingers, setSelectedSingers] = useState<number[]>([]);
   const [isInstrumental, setIsInstrumental] = useState(false);
-  const [type, setType] = useState("tango");
-  const [style, setStyle] = useState("rhythmic");
+  const [type, setType] = useState<"tango" | "milonga" | "vals">("tango");
+  const [style, setStyle] = useState<"rhythmic" | "melodic" | "dramatic">("rhythmic");
 
   // Individual song templates
   const [songTemplates, setSongTemplates] = useState<SongTemplate[]>([
@@ -72,21 +65,6 @@ const AddMultipleSongs = () => {
     );
   };
 
-  const handleSpotifyIdChange = (id: string, value: string) => {
-    try {
-      if (value.includes('spotify.com/track/')) {
-        const match = value.match(/track\/([^?]+)/);
-        if (match && match[1]) {
-          handleSongTemplateChange(id, 'spotify_id', match[1]);
-          return;
-        }
-      }
-      handleSongTemplateChange(id, 'spotify_id', value);
-    } catch (error) {
-      handleSongTemplateChange(id, 'spotify_id', value);
-    }
-  };
-
   const addSongTemplate = () => {
     setSongTemplates(prev => [
       ...prev,
@@ -104,38 +82,38 @@ const AddMultipleSongs = () => {
     try {
       setIsSubmitting(true);
 
-      for (const template of songTemplates) {
-        // Insert song
-        const { data: song, error: songError } = await supabase
-          .from("song")
-          .insert({
-            title: template.title,
-            type,
-            style,
-            recording_year: template.recording_year ? parseInt(template.recording_year) : null,
-            is_instrumental: isInstrumental,
-            orchestra_id: orchestraId ? parseInt(orchestraId) : null,
-            spotify_id: template.spotify_id || null,
-            duration: template.duration || null,
-          })
-          .select()
-          .single();
+      const songsToInsert: TablesInsert<"song">[] = songTemplates.map(template => ({
+        title: template.title,
+        type,
+        style,
+        recording_year: template.recording_year ? parseInt(template.recording_year) : null,
+        is_instrumental: isInstrumental,
+        orchestra_id: orchestraId ? parseInt(orchestraId) : null,
+        spotify_id: template.spotify_id || null,
+        duration: template.duration || null,
+      }));
 
-        if (songError) throw songError;
+      const { data: songs, error: songError } = await supabase
+        .from("song")
+        .insert(songsToInsert)
+        .select();
 
-        // Insert singer associations
-        if (selectedSingers.length > 0) {
-          const songSingerData = selectedSingers.map(singerId => ({
+      if (songError) throw songError;
+
+      // Insert singer associations
+      if (selectedSingers.length > 0 && songs) {
+        const songSingerData = songs.flatMap(song => 
+          selectedSingers.map(singerId => ({
             song_id: song.id,
             singer_id: singerId,
-          }));
+          }))
+        );
 
-          const { error: singerError } = await supabase
-            .from("song_singer")
-            .insert(songSingerData);
+        const { error: singerError } = await supabase
+          .from("song_singer")
+          .insert(songSingerData);
 
-          if (singerError) throw singerError;
-        }
+        if (singerError) throw singerError;
       }
 
       toast({
@@ -194,7 +172,7 @@ const AddMultipleSongs = () => {
               <select
                 id="type"
                 value={type}
-                onChange={(e) => setType(e.target.value)}
+                onChange={(e) => setType(e.target.value as typeof type)}
                 className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
               >
                 <option value="tango">Tango</option>
@@ -208,7 +186,7 @@ const AddMultipleSongs = () => {
               <select
                 id="style"
                 value={style}
-                onChange={(e) => setStyle(e.target.value)}
+                onChange={(e) => setStyle(e.target.value as typeof style)}
                 className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
               >
                 <option value="rhythmic">Rhythmic</option>
@@ -233,54 +211,12 @@ const AddMultipleSongs = () => {
 
         {/* Song Templates */}
         <div className="space-y-6">
-          {songTemplates.map((template, index) => (
-            <div
+          {songTemplates.map((template) => (
+            <SongTemplateForm
               key={template.id}
-              className="p-4 bg-tango-darkGray rounded-lg space-y-4"
-            >
-              <h3 className="text-lg font-semibold text-tango-light">
-                Song {index + 1}
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor={`title-${template.id}`}>Title</Label>
-                  <Input
-                    id={`title-${template.id}`}
-                    value={template.title}
-                    onChange={(e) => handleSongTemplateChange(template.id, 'title', e.target.value)}
-                    className="bg-tango-gray text-tango-light"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor={`year-${template.id}`}>Recording Year</Label>
-                  <Input
-                    id={`year-${template.id}`}
-                    type="number"
-                    value={template.recording_year}
-                    onChange={(e) => handleSongTemplateChange(template.id, 'recording_year', e.target.value)}
-                    className="bg-tango-gray text-tango-light"
-                  />
-                </div>
-
-                <DurationInput
-                  durationInSeconds={template.duration}
-                  onChange={(duration) => handleSongTemplateChange(template.id, 'duration', duration)}
-                />
-
-                <div>
-                  <Label htmlFor={`spotify-${template.id}`}>Spotify ID</Label>
-                  <Input
-                    id={`spotify-${template.id}`}
-                    value={template.spotify_id}
-                    onChange={(e) => handleSpotifyIdChange(template.id, e.target.value)}
-                    className="bg-tango-gray text-tango-light"
-                    placeholder="Spotify track ID or URL"
-                  />
-                </div>
-              </div>
-            </div>
+              template={template}
+              onChange={handleSongTemplateChange}
+            />
           ))}
         </div>
 

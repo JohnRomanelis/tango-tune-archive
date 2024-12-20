@@ -10,6 +10,14 @@ export interface Song {
   song_singer?: Array<{ singer: { id: number; name: string } }>;
 }
 
+export interface SongTemplate {
+  id: string;
+  title: string;
+  recording_year: string;
+  spotify_id: string;
+  duration: number;
+}
+
 export type SortField = 'title' | 'orchestra' | 'singer' | 'type' | 'style' | 'year';
 export type SortDirection = 'asc' | 'desc';
 
