@@ -226,6 +226,95 @@ export type Database = {
           },
         ]
       }
+      suggested_song: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          feedback: string | null
+          id: number
+          is_instrumental: boolean | null
+          orchestra_id: number | null
+          recording_year: number | null
+          spotify_id: string | null
+          status: string | null
+          style: Database["public"]["Enums"]["song_style"]
+          title: string
+          type: Database["public"]["Enums"]["song_type"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          feedback?: string | null
+          id?: number
+          is_instrumental?: boolean | null
+          orchestra_id?: number | null
+          recording_year?: number | null
+          spotify_id?: string | null
+          status?: string | null
+          style: Database["public"]["Enums"]["song_style"]
+          title: string
+          type: Database["public"]["Enums"]["song_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          feedback?: string | null
+          id?: number
+          is_instrumental?: boolean | null
+          orchestra_id?: number | null
+          recording_year?: number | null
+          spotify_id?: string | null
+          status?: string | null
+          style?: Database["public"]["Enums"]["song_style"]
+          title?: string
+          type?: Database["public"]["Enums"]["song_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggested_song_orchestra_id_fkey"
+            columns: ["orchestra_id"]
+            isOneToOne: false
+            referencedRelation: "orchestra"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suggested_song_singer: {
+        Row: {
+          singer_id: number
+          suggested_song_id: number
+        }
+        Insert: {
+          singer_id: number
+          suggested_song_id: number
+        }
+        Update: {
+          singer_id?: number
+          suggested_song_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggested_song_singer_singer_id_fkey"
+            columns: ["singer_id"]
+            isOneToOne: false
+            referencedRelation: "singer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_song_singer_suggested_song_id_fkey"
+            columns: ["suggested_song_id"]
+            isOneToOne: false
+            referencedRelation: "suggested_song"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tanda: {
         Row: {
           comments: string | null
