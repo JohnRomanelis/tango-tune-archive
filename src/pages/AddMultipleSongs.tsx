@@ -5,13 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import AutocompleteInput from "@/components/AutocompleteInput";
-import SingerSelect from "@/components/song/SingerSelect";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import SongTemplateForm from "@/components/song/SongTemplateForm";
-import { SongTemplate } from "@/types/song";
+import { SongTemplate, SongType, SongStyle } from "@/types/song";
 import { TablesInsert } from "@/integrations/supabase/types";
+import SharedSongFields from "@/components/song/SharedSongFields";
+import SongTemplateForm from "@/components/song/SongTemplateForm";
 
 const AddMultipleSongs = () => {
   const navigate = useNavigate();
@@ -22,8 +19,8 @@ const AddMultipleSongs = () => {
   const [orchestraId, setOrchestraId] = useState("");
   const [selectedSingers, setSelectedSingers] = useState<number[]>([]);
   const [isInstrumental, setIsInstrumental] = useState(false);
-  const [type, setType] = useState<"tango" | "milonga" | "vals">("tango");
-  const [style, setStyle] = useState<"rhythmic" | "melodic" | "dramatic">("rhythmic");
+  const [type, setType] = useState<SongType>("tango");
+  const [style, setStyle] = useState<SongStyle>("rhythmic");
 
   // Individual song templates
   const [songTemplates, setSongTemplates] = useState<SongTemplate[]>([
@@ -100,7 +97,6 @@ const AddMultipleSongs = () => {
 
       if (songError) throw songError;
 
-      // Insert singer associations
       if (selectedSingers.length > 0 && songs) {
         const songSingerData = songs.flatMap(song => 
           selectedSingers.map(singerId => ({
@@ -133,83 +129,28 @@ const AddMultipleSongs = () => {
     }
   };
 
-  const selectedOrchestra = orchestras?.find(
-    o => o.id?.toString() === orchestraId
-  );
-
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <h1 className="text-3xl font-bold text-tango-light mb-6">Add Multiple Songs</h1>
       
       <div className="bg-tango-gray rounded-lg p-6 space-y-6">
-        {/* Shared Fields */}
-        <div className="space-y-4">
-          <AutocompleteInput
-            label="Orchestra"
-            value={selectedOrchestra?.name || ""}
-            onChange={handleOrchestraSelect}
-            options={orchestras || []}
-            placeholder="Search orchestras..."
-          />
-
-          {singers && (
-            <SingerSelect
-              singers={singers}
-              selectedSingers={selectedSingers}
-              onSingerToggle={(singerId) => {
-                setSelectedSingers(prev =>
-                  prev.includes(singerId)
-                    ? prev.filter(id => id !== singerId)
-                    : [...prev, singerId]
-                );
-              }}
-            />
-          )}
-
-          <div className="flex items-center space-x-4">
-            <div className="flex-1">
-              <Label htmlFor="type">Type</Label>
-              <select
-                id="type"
-                value={type}
-                onChange={(e) => setType(e.target.value as typeof type)}
-                className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
-              >
-                <option value="tango">Tango</option>
-                <option value="milonga">Milonga</option>
-                <option value="vals">Vals</option>
-              </select>
-            </div>
-
-            <div className="flex-1">
-              <Label htmlFor="style">Style</Label>
-              <select
-                id="style"
-                value={style}
-                onChange={(e) => setStyle(e.target.value as typeof style)}
-                className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
-              >
-                <option value="rhythmic">Rhythmic</option>
-                <option value="melodic">Melodic</option>
-                <option value="dramatic">Dramatic</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="is_instrumental"
-              checked={isInstrumental}
-              onCheckedChange={setIsInstrumental}
-              className="data-[state=checked]:bg-tango-red"
-            />
-            <Label htmlFor="is_instrumental">Instrumental</Label>
-          </div>
-        </div>
+        <SharedSongFields
+          orchestraId={orchestraId}
+          selectedSingers={selectedSingers}
+          isInstrumental={isInstrumental}
+          type={type}
+          style={style}
+          orchestras={orchestras || []}
+          singers={singers || []}
+          onOrchestraSelect={handleOrchestraSelect}
+          onSingersChange={setSelectedSingers}
+          onInstrumentalChange={setIsInstrumental}
+          onTypeChange={setType}
+          onStyleChange={setStyle}
+        />
 
         <div className="border-t border-tango-darkGray my-6"></div>
 
-        {/* Song Templates */}
         <div className="space-y-6">
           {songTemplates.map((template) => (
             <SongTemplateForm
@@ -220,7 +161,6 @@ const AddMultipleSongs = () => {
           ))}
         </div>
 
-        {/* Add Template Button */}
         <Button
           type="button"
           variant="outline"
@@ -231,7 +171,6 @@ const AddMultipleSongs = () => {
           Add Another Song
         </Button>
 
-        {/* Submit Button */}
         <div className="flex justify-end space-x-4">
           <Button
             variant="outline"

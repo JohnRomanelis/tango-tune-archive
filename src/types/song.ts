@@ -22,6 +22,14 @@ export interface Song {
   duration?: number;
 }
 
+export interface SongTemplate {
+  id: string;
+  title: string;
+  recording_year: string;
+  spotify_id: string;
+  duration: number;
+}
+
 export interface SongSuggestion extends Omit<Song, 'id'> {
   id: number;
   user_id?: string;
