@@ -34,7 +34,8 @@ const SuggestedSongTableRow = ({
     }
     if (suggestion.suggested_song_singer && suggestion.suggested_song_singer.length > 0) {
       return suggestion.suggested_song_singer
-        .map((s: any) => s.singer.name)
+        .map((s: any) => s.singer?.name)
+        .filter((name: string | undefined) => name) // Filter out any undefined names
         .join(", ");
     }
     return "-";
