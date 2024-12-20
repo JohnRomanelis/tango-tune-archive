@@ -2,8 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ToggleLeft, ToggleRight } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState, useEffect } from "react";
+import AutocompleteInput from "@/components/AutocompleteInput";
 
 interface Orchestra {
   id: number;
@@ -29,15 +28,14 @@ const SongAdditionalInfo = ({
   onInstrumentalChange,
   onSpotifyIdChange,
 }: SongAdditionalInfoProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredOrchestras, setFilteredOrchestras] = useState(orchestras);
+  const selectedOrchestra = orchestras.find(
+    (o) => o.id?.toString() === orchestraId
+  );
 
-  useEffect(() => {
-    const filtered = orchestras.filter((orchestra) =>
-      orchestra.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredOrchestras(filtered);
-  }, [searchTerm, orchestras]);
+  const handleOrchestraSelect = (orchestraName: string) => {
+    const orchestra = orchestras.find((o) => o.name === orchestraName);
+    onOrchestraChange(orchestra?.id?.toString() || "");
+  };
 
   const handleSpotifyIdChange = (value: string) => {
     try {
@@ -56,41 +54,13 @@ const SongAdditionalInfo = ({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="orchestra">Orchestra</Label>
-        <Input
-          type="text"
-          placeholder="Search orchestras..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-tango-darkGray text-tango-light mb-2"
-        />
-        <ScrollArea className="h-48 bg-tango-darkGray rounded-md border border-tango-gray">
-          <div className="p-2 space-y-1">
-            <div
-              className={`p-2 rounded-md cursor-pointer ${
-                !orchestraId ? "bg-tango-red/10 border-tango-red" : ""
-              }`}
-              onClick={() => onOrchestraChange("")}
-            >
-              No Orchestra
-            </div>
-            {filteredOrchestras.map((orchestra) => (
-              <div
-                key={orchestra.id}
-                className={`p-2 rounded-md cursor-pointer hover:bg-tango-darkGray/50 ${
-                  orchestra?.id && orchestraId === orchestra.id.toString()
-                    ? "bg-tango-red/10 border-tango-red"
-                    : ""
-                }`}
-                onClick={() => orchestra?.id && onOrchestraChange(orchestra.id.toString())}
-              >
-                {orchestra.name}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
+      <AutocompleteInput
+        label="Orchestra"
+        value={selectedOrchestra?.name || ""}
+        onChange={handleOrchestraSelect}
+        options={orchestras}
+        placeholder="Search orchestras..."
+      />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
