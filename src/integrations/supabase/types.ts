@@ -12,17 +12,17 @@ export type Database = {
       orchestra: {
         Row: {
           id: number
-          is_modern: boolean | null
+          is_modern: boolean
           name: string
         }
         Insert: {
           id?: number
-          is_modern?: boolean | null
+          is_modern?: boolean
           name: string
         }
         Update: {
           id?: number
-          is_modern?: boolean | null
+          is_modern?: boolean
           name?: string
         }
         Relationships: []
