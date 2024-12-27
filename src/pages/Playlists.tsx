@@ -15,7 +15,7 @@ const Playlists = () => {
   const [includeShared, setIncludeShared] = useState(false);
   const [includePublic, setIncludePublic] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<number | null>(null);
-  const [searchTrigger, setSearchTrigger] = useState(0); // Add trigger for manual search
+  const [searchTrigger, setSearchTrigger] = useState(0);
   const user = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -82,14 +82,7 @@ const Playlists = () => {
       }
 
       const { data, error } = await query;
-      console.log("Final query result:", { data, error });
-      
-      if (error) {
-        console.error('Error fetching playlists:', error);
-        throw error;
-      }
 
-      // Calculate total duration for each playlist
       return (data || []).map(playlist => ({
         ...playlist,
         total_duration: playlist.playlist_tanda?.reduce((total: number, pt: any) => {
@@ -100,7 +93,7 @@ const Playlists = () => {
         }, 0) || 0
       }));
     },
-    enabled: !!user?.id && searchTrigger > 0, // Only run query when search is triggered
+    enabled: !!user?.id && searchTrigger > 0,
   });
 
   const handleDeletePlaylist = async (playlistId: number) => {
@@ -132,7 +125,7 @@ const Playlists = () => {
   };
 
   const handleSearch = () => {
-    setSearchTrigger(prev => prev + 1); // Increment trigger to force new search
+    setSearchTrigger(prev => prev + 1);
   };
 
   if (isLoading) {
@@ -193,6 +186,7 @@ const Playlists = () => {
             <PlaylistsGrid
               playlists={playlists || []}
               onDeletePlaylist={handleDeletePlaylist}
+              onSelectPlaylist={setSelectedPlaylistId}
             />
           )}
         </div>
