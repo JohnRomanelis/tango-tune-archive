@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,6 +8,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const TopNav = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const { data: userRole } = useUserRole();
 
@@ -20,16 +21,26 @@ const TopNav = () => {
   }, []);
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error signing out",
+          description: error.message,
+        });
+      } else {
+        toast({
+          title: "Signed out successfully",
+        });
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Error during sign out:", error);
       toast({
         variant: "destructive",
         title: "Error signing out",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Signed out successfully",
+        description: "An unexpected error occurred",
       });
     }
   };
