@@ -1,6 +1,5 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ToggleLeft, ToggleRight } from "lucide-react";
 
 interface PlaylistVisibilityFiltersProps {
   includeMine: boolean;
@@ -24,18 +23,8 @@ const PlaylistVisibilityFilters = ({
               checked={includeMine}
               onCheckedChange={(checked) => onVisibilityChange("mine", checked)}
             />
-            <Label className="text-tango-light flex items-center gap-2">
-              {includeMine ? (
-                <>
-                  <ToggleRight className="h-4 w-4 text-tango-red" />
-                  My Playlists
-                </>
-              ) : (
-                <>
-                  <ToggleLeft className="h-4 w-4" />
-                  My Playlists
-                </>
-              )}
+            <Label className="text-tango-light">
+              My Playlists
             </Label>
           </div>
         </div>
@@ -46,18 +35,8 @@ const PlaylistVisibilityFilters = ({
               checked={includeShared}
               onCheckedChange={(checked) => onVisibilityChange("shared", checked)}
             />
-            <Label className="text-tango-light flex items-center gap-2">
-              {includeShared ? (
-                <>
-                  <ToggleRight className="h-4 w-4 text-tango-red" />
-                  Shared with me
-                </>
-              ) : (
-                <>
-                  <ToggleLeft className="h-4 w-4" />
-                  Shared with me
-                </>
-              )}
+            <Label className="text-tango-light">
+              Shared with me
             </Label>
           </div>
         </div>
@@ -68,18 +47,8 @@ const PlaylistVisibilityFilters = ({
               checked={includePublic}
               onCheckedChange={(checked) => onVisibilityChange("public", checked)}
             />
-            <Label className="text-tango-light flex items-center gap-2">
-              {includePublic ? (
-                <>
-                  <ToggleRight className="h-4 w-4 text-tango-red" />
-                  Public Playlists
-                </>
-              ) : (
-                <>
-                  <ToggleLeft className="h-4 w-4" />
-                  Public Playlists
-                </>
-              )}
+            <Label className="text-tango-light">
+              Public Playlists
             </Label>
           </div>
         </div>

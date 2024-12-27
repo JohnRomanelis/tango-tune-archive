@@ -2,7 +2,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import AutocompleteInput from "@/components/AutocompleteInput";
-import { ToggleLeft, ToggleRight } from "lucide-react";
 
 interface SongFiltersProps {
   searchParams: any;
@@ -105,18 +104,8 @@ const SongFilters = ({ searchParams, orchestras, singers, onParamsChange }: Song
               isInstrumental: checked ? true : undefined 
             })}
           />
-          <span className="text-sm text-tango-light flex items-center gap-2">
-            {searchParams.isInstrumental ? (
-              <>
-                <ToggleRight className="h-4 w-4 text-tango-red" />
-                Instrumental Only
-              </>
-            ) : (
-              <>
-                <ToggleLeft className="h-4 w-4" />
-                All Songs
-              </>
-            )}
+          <span className="text-sm text-tango-light">
+            {searchParams.isInstrumental ? "Instrumental Only" : "All Songs"}
           </span>
         </div>
       </div>
@@ -131,18 +120,8 @@ const SongFilters = ({ searchParams, orchestras, singers, onParamsChange }: Song
               likedOnly: checked ? true : undefined 
             })}
           />
-          <span className="text-sm text-tango-light flex items-center gap-2">
-            {searchParams.likedOnly ? (
-              <>
-                <ToggleRight className="h-4 w-4 text-tango-red" />
-                Liked Songs Only
-              </>
-            ) : (
-              <>
-                <ToggleLeft className="h-4 w-4" />
-                All Songs
-              </>
-            )}
+          <span className="text-sm text-tango-light">
+            {searchParams.likedOnly ? "Liked Songs Only" : "All Songs"}
           </span>
         </div>
       </div>

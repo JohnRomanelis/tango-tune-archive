@@ -1,7 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ToggleLeft, ToggleRight } from "lucide-react";
 import AutocompleteInput from "@/components/AutocompleteInput";
 
 interface Orchestra {
@@ -70,12 +69,7 @@ const SongAdditionalInfo = ({
             onCheckedChange={onInstrumentalChange}
             className="data-[state=checked]:bg-tango-red"
           />
-          <Label htmlFor="is_instrumental" className="flex items-center gap-2">
-            {isInstrumental ? (
-              <ToggleRight className="h-4 w-4" />
-            ) : (
-              <ToggleLeft className="h-4 w-4" />
-            )}
+          <Label htmlFor="is_instrumental" className="text-tango-light">
             Instrumental
           </Label>
         </div>
