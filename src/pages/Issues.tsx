@@ -31,12 +31,10 @@ type Issue = {
   description: string;
   status: IssueStatus;
   created_at: string;
+  user_id: string;
   issue_type: {
     name: string;
   };
-  user: {
-    email: string;
-  } | null;
 };
 
 const Issues = () => {
@@ -61,9 +59,6 @@ const Issues = () => {
           *,
           issue_type (
             name
-          ),
-          user:user_id (
-            email
           )
         `)
         .order('created_at', { ascending: false });
@@ -141,7 +136,7 @@ const Issues = () => {
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-tango-light">Type</TableHead>
               <TableHead className="text-tango-light">Description</TableHead>
-              <TableHead className="text-tango-light">Submitted By</TableHead>
+              <TableHead className="text-tango-light">User ID</TableHead>
               <TableHead className="text-tango-light">Date</TableHead>
               <TableHead className="text-tango-light">Status</TableHead>
             </TableRow>
@@ -156,7 +151,7 @@ const Issues = () => {
                   {issue.description}
                 </TableCell>
                 <TableCell className="text-tango-light">
-                  {issue.user?.email || 'Unknown'}
+                  {issue.user_id}
                 </TableCell>
                 <TableCell className="text-tango-light">
                   {format(new Date(issue.created_at), 'MMM d, yyyy')}
