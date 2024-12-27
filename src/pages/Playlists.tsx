@@ -160,7 +160,6 @@ const Playlists = () => {
               includeShared={includeShared}
               includePublic={includePublic}
               onVisibilityChange={(type, checked) => {
-                console.log("Visibility change:", { type, checked });
                 switch (type) {
                   case "mine":
                     setIncludeMine(checked);
@@ -175,7 +174,7 @@ const Playlists = () => {
               }}
             />
             <Button 
-              onClick={handleSearch}
+              onClick={() => setSearchTrigger(prev => prev + 1)}
               className="w-full bg-tango-red hover:bg-tango-red/90"
             >
               Search Playlists
@@ -187,6 +186,7 @@ const Playlists = () => {
               playlists={playlists || []}
               onDeletePlaylist={handleDeletePlaylist}
               onSelectPlaylist={setSelectedPlaylistId}
+              currentUserId={user?.id}
             />
           )}
         </div>
