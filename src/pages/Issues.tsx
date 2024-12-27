@@ -34,7 +34,7 @@ type Issue = {
   issue_type: {
     name: string;
   };
-  profiles: {
+  user: {
     email: string;
   } | null;
 };
@@ -53,7 +53,7 @@ const Issues = () => {
   const { data: issues, isLoading: issuesLoading, error } = useQuery({
     queryKey: ["issues"],
     queryFn: async () => {
-      console.log("Fetching issues, user role:", userRole); // Debug log
+      console.log("Fetching issues, user role:", userRole);
 
       const { data, error } = await supabase
         .from("issue")
@@ -62,22 +62,38 @@ const Issues = () => {
           issue_type (
             name
           ),
-          profiles:user_id (
+          user:user_id (
             email
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error("Error fetching issues:", error); // Debug log
+        console.error("Error fetching issues:", error);
         throw error;
       }
 
-      console.log("Fetched issues:", data); // Debug log
+      console.log("Fetched issues:", data);
       return data as Issue[];
     },
     enabled: userRole === 'moderator',
   });
+
+  const updateIssueStatus = async (issueId: number, newStatus: IssueStatus) => {
+    const { error } = await supabase
+      .from('issue')
+      .update({ status: newStatus })
+      .eq('id', issueId);
+
+    if (error) {
+      console.error('Error updating issue status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error updating issue status",
+        description: "Please try again later",
+      });
+    }
+  };
 
   useEffect(() => {
     if (error) {
@@ -140,7 +156,7 @@ const Issues = () => {
                   {issue.description}
                 </TableCell>
                 <TableCell className="text-tango-light">
-                  {issue.profiles?.email || 'Unknown'}
+                  {issue.user?.email || 'Unknown'}
                 </TableCell>
                 <TableCell className="text-tango-light">
                   {format(new Date(issue.created_at), 'MMM d, yyyy')}
