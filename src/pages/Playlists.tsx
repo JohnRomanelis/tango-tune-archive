@@ -24,37 +24,12 @@ const Playlists = () => {
   const { data: playlists, isLoading } = useQuery({
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
     queryFn: async () => {
-      console.log("Query params:", { includeMine, includeShared, includePublic, userId: user?.id });
-      
       if (!user?.id) return [];
 
-      // Build visibility conditions
-      const visibilityConditions = [];
-      
-      if (includeMine) {
-        visibilityConditions.push(`user_id.eq.${user.id}`);
-      }
-      
-      if (includeShared) {
-        const { data: sharedPlaylists, error: sharedError } = await supabase
-          .from('playlist_shared')
-          .select('playlist_id')
-          .eq('user_id', user.id);
-        
-        console.log("Shared playlists query result:", { sharedPlaylists, sharedError });
-        
-        if (sharedPlaylists?.length) {
-          const sharedIds = sharedPlaylists.map(sp => sp.playlist_id);
-          visibilityConditions.push(`id.in.(${sharedIds.join(',')})`);
-        }
-      }
-      
-      if (includePublic) {
-        // Changed to include all public playlists
-        visibilityConditions.push('visibility.eq.public');
-      }
-
-      console.log("Visibility conditions:", visibilityConditions);
+      const conditions = [];
+      if (includeMine) conditions.push(`user_id.eq.${user.id}`);
+      if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
+      if (includePublic) conditions.push("visibility.eq.public");
 
       let query = supabase
         .from("playlist")
@@ -75,16 +50,11 @@ const Playlists = () => {
         `);
 
       // Only add OR conditions if there are any conditions to check
-      if (visibilityConditions.length > 0) {
-        query = query.or(visibilityConditions.join(','));
-      } else {
-        console.log("No filters active, returning empty array");
-        return [];
+      if (conditions.length > 0) {
+        query = query.or(conditions.join(","));
       }
 
       const { data, error } = await query;
-      console.log("Final query result:", { data, error });
-      
       if (error) {
         console.error('Error fetching playlists:', error);
         throw error;
@@ -163,7 +133,6 @@ const Playlists = () => {
             includeShared={includeShared}
             includePublic={includePublic}
             onVisibilityChange={(type, checked) => {
-              console.log("Visibility change:", { type, checked });
               switch (type) {
                 case "mine":
                   setIncludeMine(checked);
