@@ -7,6 +7,7 @@ import { Plus, Loader2, Columns } from "lucide-react";
 import PlaylistsGrid from "@/components/playlist/PlaylistsGrid";
 import PlaylistVisibilityFilters from "@/components/playlist/PlaylistVisibilityFilters";
 import PlaylistDetails from "@/components/playlist/PlaylistDetails";
+import PlaylistCard from "@/components/playlist/PlaylistCard";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -24,6 +25,11 @@ const Playlists = () => {
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
     queryFn: async () => {
       if (!user?.id) return [];
+
+      const conditions = [];
+      if (includeMine) conditions.push(`user_id.eq.${user.id}`);
+      if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
+      if (includePublic) conditions.push("visibility.eq.public");
 
       let query = supabase
         .from("playlist")
@@ -43,38 +49,12 @@ const Playlists = () => {
           )
         `);
 
-      const conditions = [];
-
-      if (includeMine) {
-        conditions.push(`user_id.eq.${user.id}`);
-      }
-
-      if (includeShared) {
-        const { data: sharedPlaylists } = await supabase
-          .from('playlist_shared')
-          .select('playlist_id')
-          .eq('user_id', user.id);
-        
-        if (sharedPlaylists?.length) {
-          const sharedIds = sharedPlaylists.map(sp => sp.playlist_id);
-          conditions.push(`id.in.(${sharedIds.join(',')})`);
-        }
-      }
-
-      if (includePublic) {
-        conditions.push(`visibility.eq.public`);
-      }
-
-      // Apply filters if any conditions exist
+      // Only add OR conditions if there are any conditions to check
       if (conditions.length > 0) {
-        query = query.or(conditions.join(','));
-      } else {
-        // If no filters are active, return empty array
-        return [];
+        query = query.or(conditions.join(","));
       }
 
       const { data, error } = await query;
-      
       if (error) {
         console.error('Error fetching playlists:', error);
         throw error;
@@ -167,10 +147,24 @@ const Playlists = () => {
             }}
           />
 
-          <PlaylistsGrid
-            playlists={playlists || []}
-            onDeletePlaylist={handleDeletePlaylist}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            {playlists?.map((playlist) => (
+              <div
+                key={playlist.id}
+                className={`cursor-pointer ${
+                  selectedPlaylistId === playlist.id
+                    ? "ring-2 ring-tango-red"
+                    : ""
+                }`}
+                onClick={() => setSelectedPlaylistId(playlist.id)}
+              >
+                <PlaylistCard
+                  playlist={playlist}
+                  onDelete={() => handleDeletePlaylist(playlist.id)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="w-1/2">
