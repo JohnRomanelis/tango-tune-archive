@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      issue: {
+        Row: {
+          created_at: string
+          description: string
+          id: number
+          status: Database["public"]["Enums"]["issue_status"]
+          type_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: number
+          status?: Database["public"]["Enums"]["issue_status"]
+          type_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: number
+          status?: Database["public"]["Enums"]["issue_status"]
+          type_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "issue_type"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_type: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       orchestra: {
         Row: {
           id: number
@@ -462,6 +521,7 @@ export type Database = {
     }
     Enums: {
       gender: "male" | "female"
+      issue_status: "pending" | "resolved" | "rejected"
       song_style: "rhythmic" | "melodic" | "dramatic"
       song_type: "tango" | "milonga" | "vals"
       visibility: "private" | "public" | "shared"

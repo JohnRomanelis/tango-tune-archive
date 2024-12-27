@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Music, Archive, List } from "lucide-react";
+import { Loader2, Music, Archive, List, MessageSquare } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -80,6 +79,19 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
           </Card>
+        </Link>
+      </div>
+
+      <div className="mt-12 text-center">
+        <p className="text-tango-light/80 mb-4">
+          Something is not working properly or you have a suggestion for TandaBase?
+        </p>
+        <Link 
+          to="/report-issue" 
+          className="inline-flex items-center text-tango-red hover:text-tango-red/90 transition-colors"
+        >
+          <MessageSquare className="w-4 h-4 mr-2" />
+          Let us know and help us improve
         </Link>
       </div>
     </main>

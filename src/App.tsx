@@ -19,6 +19,7 @@ import EditPlaylist from "./pages/EditPlaylist";
 import Maintenance from "./pages/Maintenance";
 import SongSuggestions from "./pages/SongSuggestions";
 import EditSongSuggestion from "./pages/EditSongSuggestion";
+import ReportIssue from "./pages/ReportIssue";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                     <Route path="/maintenance" element={<Maintenance />} />
                     <Route path="/maintenance/song-suggestions" element={<SongSuggestions />} />
                     <Route path="/maintenance/song-suggestions/:id/edit" element={<EditSongSuggestion />} />
+                    <Route path="/report-issue" element={<ReportIssue />} />
                   </Routes>
                 </>
               }
