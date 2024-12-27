@@ -7,7 +7,6 @@ import { Plus, Loader2, Columns } from "lucide-react";
 import PlaylistsGrid from "@/components/playlist/PlaylistsGrid";
 import PlaylistVisibilityFilters from "@/components/playlist/PlaylistVisibilityFilters";
 import PlaylistDetails from "@/components/playlist/PlaylistDetails";
-import PlaylistCard from "@/components/playlist/PlaylistCard";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -25,11 +24,6 @@ const Playlists = () => {
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
     queryFn: async () => {
       if (!user?.id) return [];
-
-      const conditions = [];
-      if (includeMine) conditions.push(`user_id.eq.${user.id}`);
-      if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
-      if (includePublic) conditions.push("visibility.eq.public");
 
       let query = supabase
         .from("playlist")
@@ -49,12 +43,30 @@ const Playlists = () => {
           )
         `);
 
-      // Only add OR conditions if there are any conditions to check
-      if (conditions.length > 0) {
-        query = query.or(conditions.join(","));
+      // Build filter based on visibility settings
+      if (includeMine && !includeShared && !includePublic) {
+        // Only my playlists
+        query = query.eq('user_id', user.id);
+      } else if (!includeMine && includeShared && !includePublic) {
+        // Only shared playlists
+        query = query.eq('visibility', 'shared').neq('user_id', user.id);
+      } else if (!includeMine && !includeShared && includePublic) {
+        // Only public playlists from others
+        query = query.eq('visibility', 'public').neq('user_id', user.id);
+      } else {
+        // Multiple filters
+        const conditions = [];
+        if (includeMine) conditions.push(`user_id.eq.${user.id}`);
+        if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
+        if (includePublic) conditions.push("visibility.eq.public");
+        
+        if (conditions.length > 0) {
+          query = query.or(conditions.join(','));
+        }
       }
 
       const { data, error } = await query;
+      
       if (error) {
         console.error('Error fetching playlists:', error);
         throw error;
