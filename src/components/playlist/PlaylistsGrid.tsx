@@ -5,6 +5,7 @@ import { formatDuration } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PlaylistsGridProps {
   playlists: any[];
@@ -16,6 +17,7 @@ interface PlaylistsGridProps {
 const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentUserId }: PlaylistsGridProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleDuplicatePlaylist = async (playlist: any) => {
     try {
@@ -49,13 +51,16 @@ const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentU
         if (tandaError) throw tandaError;
       }
 
+      // Invalidate the playlists query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["playlists"] });
+
       toast({
         title: "Success",
         description: "Playlist duplicated successfully!",
       });
 
-      // Refresh the playlists list
-      window.location.reload();
+      // Navigate to the playlists page
+      navigate('/playlists');
     } catch (error) {
       console.error('Error duplicating playlist:', error);
       toast({
