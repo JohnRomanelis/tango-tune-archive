@@ -26,10 +26,28 @@ const Playlists = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const conditions = [];
-      if (includeMine) conditions.push(`user_id.eq.${user.id}`);
-      if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
-      if (includePublic) conditions.push("visibility.eq.public");
+      // Build visibility conditions similar to tanda search
+      const visibilityConditions = [];
+      
+      if (includeMine) {
+        visibilityConditions.push(`user_id.eq.${user.id}`);
+      }
+      
+      if (includeShared) {
+        const { data: sharedPlaylists } = await supabase
+          .from('playlist_shared')
+          .select('playlist_id')
+          .eq('user_id', user.id);
+        
+        if (sharedPlaylists?.length) {
+          const sharedIds = sharedPlaylists.map(sp => sp.playlist_id);
+          visibilityConditions.push(`id.in.(${sharedIds.join(',')})`);
+        }
+      }
+      
+      if (includePublic) {
+        visibilityConditions.push('visibility.eq.public');
+      }
 
       let query = supabase
         .from("playlist")
@@ -50,8 +68,11 @@ const Playlists = () => {
         `);
 
       // Only add OR conditions if there are any conditions to check
-      if (conditions.length > 0) {
-        query = query.or(conditions.join(","));
+      if (visibilityConditions.length > 0) {
+        query = query.or(visibilityConditions.join(','));
+      } else {
+        // If no filters are active, return empty array
+        return [];
       }
 
       const { data, error } = await query;
