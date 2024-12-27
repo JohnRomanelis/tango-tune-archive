@@ -21,14 +21,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
-import { Database } from "@/integrations/supabase/types";
-
-type IssueStatus = Database["public"]["Enums"]["issue_status"];
 
 type Issue = {
   id: number;
   description: string;
-  status: IssueStatus;
+  status: string;
   created_at: string;
   issue_type: {
     name: string;
@@ -67,7 +64,7 @@ const Issues = () => {
     },
   });
 
-  const updateIssueStatus = async (issueId: number, newStatus: IssueStatus) => {
+  const updateIssueStatus = async (issueId: number, newStatus: string) => {
     const { error } = await supabase
       .from('issue')
       .update({ status: newStatus })
@@ -90,10 +87,12 @@ const Issues = () => {
     );
   }
 
-  const getStatusColor = (status: IssueStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-500/10 text-yellow-500';
+      case 'in_progress':
+        return 'bg-blue-500/10 text-blue-500';
       case 'resolved':
         return 'bg-green-500/10 text-green-500';
       case 'rejected':
@@ -136,17 +135,18 @@ const Issues = () => {
                 <TableCell>
                   <Select
                     defaultValue={issue.status}
-                    onValueChange={(value) => updateIssueStatus(issue.id, value as IssueStatus)}
+                    onValueChange={(value) => updateIssueStatus(issue.id, value)}
                   >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue>
                         <Badge className={getStatusColor(issue.status)} variant="outline">
-                          {issue.status}
+                          {issue.status.replace('_', ' ')}
                         </Badge>
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-tango-darkGray border-tango-gray">
                       <SelectItem value="pending" className="text-yellow-500">Pending</SelectItem>
+                      <SelectItem value="in_progress" className="text-blue-500">In Progress</SelectItem>
                       <SelectItem value="resolved" className="text-green-500">Resolved</SelectItem>
                       <SelectItem value="rejected" className="text-red-500">Rejected</SelectItem>
                     </SelectContent>
