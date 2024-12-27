@@ -7,7 +7,6 @@ import { Plus, Loader2, Columns } from "lucide-react";
 import PlaylistsGrid from "@/components/playlist/PlaylistsGrid";
 import PlaylistVisibilityFilters from "@/components/playlist/PlaylistVisibilityFilters";
 import PlaylistDetails from "@/components/playlist/PlaylistDetails";
-import PlaylistCard from "@/components/playlist/PlaylistCard";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -50,7 +49,6 @@ const Playlists = () => {
       }
       
       if (includePublic) {
-        // Changed to include all public playlists
         visibilityConditions.push('visibility.eq.public');
       }
 
@@ -178,24 +176,10 @@ const Playlists = () => {
             }}
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            {playlists?.map((playlist) => (
-              <div
-                key={playlist.id}
-                className={`cursor-pointer ${
-                  selectedPlaylistId === playlist.id
-                    ? "ring-2 ring-tango-red"
-                    : ""
-                }`}
-                onClick={() => setSelectedPlaylistId(playlist.id)}
-              >
-                <PlaylistCard
-                  playlist={playlist}
-                  onDelete={() => handleDeletePlaylist(playlist.id)}
-                />
-              </div>
-            ))}
-          </div>
+          <PlaylistsGrid
+            playlists={playlists || []}
+            onDeletePlaylist={handleDeletePlaylist}
+          />
         </div>
 
         <div className="w-1/2">
