@@ -23,11 +23,19 @@ const PlaylistVisibilityFilters = ({
             <Switch
               checked={includeMine}
               onCheckedChange={(checked) => onVisibilityChange("mine", checked)}
-              className="data-[state=checked]:bg-tango-red"
             />
             <Label className="text-tango-light flex items-center gap-2">
-              {includeMine ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-              My Playlists
+              {includeMine ? (
+                <>
+                  <ToggleRight className="h-4 w-4 text-tango-red" />
+                  My Playlists
+                </>
+              ) : (
+                <>
+                  <ToggleLeft className="h-4 w-4" />
+                  My Playlists
+                </>
+              )}
             </Label>
           </div>
         </div>
@@ -37,11 +45,19 @@ const PlaylistVisibilityFilters = ({
             <Switch
               checked={includeShared}
               onCheckedChange={(checked) => onVisibilityChange("shared", checked)}
-              className="data-[state=checked]:bg-tango-red"
             />
             <Label className="text-tango-light flex items-center gap-2">
-              {includeShared ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-              Shared with me
+              {includeShared ? (
+                <>
+                  <ToggleRight className="h-4 w-4 text-tango-red" />
+                  Shared with me
+                </>
+              ) : (
+                <>
+                  <ToggleLeft className="h-4 w-4" />
+                  Shared with me
+                </>
+              )}
             </Label>
           </div>
         </div>
@@ -51,11 +67,19 @@ const PlaylistVisibilityFilters = ({
             <Switch
               checked={includePublic}
               onCheckedChange={(checked) => onVisibilityChange("public", checked)}
-              className="data-[state=checked]:bg-tango-red"
             />
             <Label className="text-tango-light flex items-center gap-2">
-              {includePublic ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-              Public Playlists
+              {includePublic ? (
+                <>
+                  <ToggleRight className="h-4 w-4 text-tango-red" />
+                  Public Playlists
+                </>
+              ) : (
+                <>
+                  <ToggleLeft className="h-4 w-4" />
+                  Public Playlists
+                </>
+              )}
             </Label>
           </div>
         </div>

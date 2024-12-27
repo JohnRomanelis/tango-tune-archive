@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import AutocompleteInput from "@/components/AutocompleteInput";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 
 interface SongFiltersProps {
   searchParams: any;
@@ -103,9 +104,20 @@ const SongFilters = ({ searchParams, orchestras, singers, onParamsChange }: Song
               ...searchParams, 
               isInstrumental: checked ? true : undefined 
             })}
-            className="data-[state=unchecked]:bg-tango-light data-[state=checked]:bg-tango-red"
           />
-          <span className="text-sm text-tango-light">Show only instrumental</span>
+          <span className="text-sm text-tango-light flex items-center gap-2">
+            {searchParams.isInstrumental ? (
+              <>
+                <ToggleRight className="h-4 w-4 text-tango-red" />
+                Instrumental Only
+              </>
+            ) : (
+              <>
+                <ToggleLeft className="h-4 w-4" />
+                All Songs
+              </>
+            )}
+          </span>
         </div>
       </div>
 
@@ -118,9 +130,20 @@ const SongFilters = ({ searchParams, orchestras, singers, onParamsChange }: Song
               ...searchParams, 
               likedOnly: checked ? true : undefined 
             })}
-            className="data-[state=unchecked]:bg-tango-light data-[state=checked]:bg-tango-red"
           />
-          <span className="text-sm text-tango-light">Show only songs I like</span>
+          <span className="text-sm text-tango-light flex items-center gap-2">
+            {searchParams.likedOnly ? (
+              <>
+                <ToggleRight className="h-4 w-4 text-tango-red" />
+                Liked Songs Only
+              </>
+            ) : (
+              <>
+                <ToggleLeft className="h-4 w-4" />
+                All Songs
+              </>
+            )}
+          </span>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 
 interface TandaVisibilityFiltersProps {
   includeMine: boolean;
@@ -19,42 +20,69 @@ const TandaVisibilityFilters = ({
       <Label>Include:</Label>
       <div className="space-y-2">
         <div className="flex items-center space-x-2">
-          <Checkbox
-            id="mine"
+          <Switch
             checked={includeMine}
-            onCheckedChange={(checked) => onVisibilityChange('mine', checked as boolean)}
+            onCheckedChange={(checked) => onVisibilityChange('mine', checked)}
           />
           <label
             htmlFor="mine"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-tango-light"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-tango-light flex items-center gap-2"
           >
-            My Tandas
+            {includeMine ? (
+              <>
+                <ToggleRight className="h-4 w-4 text-tango-red" />
+                My Tandas
+              </>
+            ) : (
+              <>
+                <ToggleLeft className="h-4 w-4" />
+                My Tandas
+              </>
+            )}
           </label>
         </div>
         <div className="flex items-center space-x-2">
-          <Checkbox
-            id="shared"
+          <Switch
             checked={includeShared}
-            onCheckedChange={(checked) => onVisibilityChange('shared', checked as boolean)}
+            onCheckedChange={(checked) => onVisibilityChange('shared', checked)}
           />
           <label
             htmlFor="shared"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-tango-light"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-tango-light flex items-center gap-2"
           >
-            Shared with Me
+            {includeShared ? (
+              <>
+                <ToggleRight className="h-4 w-4 text-tango-red" />
+                Shared with Me
+              </>
+            ) : (
+              <>
+                <ToggleLeft className="h-4 w-4" />
+                Shared with Me
+              </>
+            )}
           </label>
         </div>
         <div className="flex items-center space-x-2">
-          <Checkbox
-            id="public"
+          <Switch
             checked={includePublic}
-            onCheckedChange={(checked) => onVisibilityChange('public', checked as boolean)}
+            onCheckedChange={(checked) => onVisibilityChange('public', checked)}
           />
           <label
             htmlFor="public"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-tango-light"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-tango-light flex items-center gap-2"
           >
-            Public Tandas
+            {includePublic ? (
+              <>
+                <ToggleRight className="h-4 w-4 text-tango-red" />
+                Public Tandas
+              </>
+            ) : (
+              <>
+                <ToggleLeft className="h-4 w-4" />
+                Public Tandas
+              </>
+            )}
           </label>
         </div>
       </div>
