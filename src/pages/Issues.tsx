@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 type IssueStatus = Database["public"]["Enums"]["issue_status"];
 
@@ -33,12 +34,15 @@ type Issue = {
   issue_type: {
     name: string;
   };
-  user_email: string;
+  profiles: {
+    email: string;
+  } | null;
 };
 
 const Issues = () => {
-  const { data: userRole } = useUserRole();
+  const { data: userRole, isLoading: roleLoading } = useUserRole();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (userRole && userRole !== 'moderator') {
@@ -46,9 +50,11 @@ const Issues = () => {
     }
   }, [userRole, navigate]);
 
-  const { data: issues, isLoading } = useQuery({
+  const { data: issues, isLoading: issuesLoading, error } = useQuery({
     queryKey: ["issues"],
     queryFn: async () => {
+      console.log("Fetching issues, user role:", userRole); // Debug log
+
       const { data, error } = await supabase
         .from("issue")
         .select(`
@@ -56,38 +62,44 @@ const Issues = () => {
           issue_type (
             name
           ),
-          user_email: user_id (
+          profiles:user_id (
             email
           )
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching issues:", error); // Debug log
+        throw error;
+      }
+
+      console.log("Fetched issues:", data); // Debug log
       return data as Issue[];
     },
+    enabled: userRole === 'moderator',
   });
 
-  const updateIssueStatus = async (issueId: number, newStatus: IssueStatus) => {
-    const { error } = await supabase
-      .from('issue')
-      .update({ status: newStatus })
-      .eq('id', issueId);
-
+  useEffect(() => {
     if (error) {
-      console.error('Error updating issue status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error fetching issues",
+        description: "Please try again later",
+      });
+      console.error("Query error:", error);
     }
-  };
+  }, [error, toast]);
 
-  if (!userRole) {
-    return null;
-  }
-
-  if (isLoading) {
+  if (roleLoading || issuesLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
       </div>
     );
+  }
+
+  if (!userRole) {
+    return null;
   }
 
   const getStatusColor = (status: IssueStatus) => {
@@ -128,7 +140,7 @@ const Issues = () => {
                   {issue.description}
                 </TableCell>
                 <TableCell className="text-tango-light">
-                  {issue.user_email}
+                  {issue.profiles?.email || 'Unknown'}
                 </TableCell>
                 <TableCell className="text-tango-light">
                   {format(new Date(issue.created_at), 'MMM d, yyyy')}
