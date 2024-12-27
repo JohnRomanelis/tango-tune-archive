@@ -23,14 +23,17 @@ const Maintenance = () => {
       <h1 className="text-3xl font-bold text-tango-light mb-8">Maintenance</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-tango-darkGray border-tango-gray hover:border-tango-red transition-colors cursor-pointer">
+        <Card 
+          className="bg-tango-darkGray border-tango-gray hover:border-tango-red transition-colors cursor-pointer"
+          onClick={() => navigate('/maintenance/issues')}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-tango-light">
               <MessageSquare className="h-5 w-5" />
               General Issues
             </CardTitle>
             <CardDescription className="text-tango-light/70">
-              Handle general issues and requests (Coming soon)
+              Handle general issues and requests from users
             </CardDescription>
           </CardHeader>
         </Card>
