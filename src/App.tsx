@@ -17,6 +17,7 @@ import Playlists from "./pages/Playlists";
 import CreatePlaylist from "./pages/CreatePlaylist";
 import EditPlaylist from "./pages/EditPlaylist";
 import Maintenance from "./pages/Maintenance";
+import Issues from "./pages/Issues";
 import SongSuggestions from "./pages/SongSuggestions";
 import EditSongSuggestion from "./pages/EditSongSuggestion";
 import ReportIssue from "./pages/ReportIssue";
@@ -50,6 +51,7 @@ const App = () => (
                     <Route path="/playlists/create" element={<CreatePlaylist />} />
                     <Route path="/playlists/edit/:id" element={<EditPlaylist />} />
                     <Route path="/maintenance" element={<Maintenance />} />
+                    <Route path="/maintenance/issues" element={<Issues />} />
                     <Route path="/maintenance/song-suggestions" element={<SongSuggestions />} />
                     <Route path="/maintenance/song-suggestions/:id/edit" element={<EditSongSuggestion />} />
                     <Route path="/report-issue" element={<ReportIssue />} />
