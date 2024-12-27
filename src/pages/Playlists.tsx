@@ -7,7 +7,6 @@ import { Plus, Loader2, Columns } from "lucide-react";
 import PlaylistsGrid from "@/components/playlist/PlaylistsGrid";
 import PlaylistVisibilityFilters from "@/components/playlist/PlaylistVisibilityFilters";
 import PlaylistDetails from "@/components/playlist/PlaylistDetails";
-import PlaylistCard from "@/components/playlist/PlaylistCard";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -24,9 +23,11 @@ const Playlists = () => {
   const { data: playlists, isLoading } = useQuery({
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
     queryFn: async () => {
+      console.log("Query params:", { includeMine, includeShared, includePublic, userId: user?.id });
+      
       if (!user?.id) return [];
 
-      // Build visibility conditions similar to tanda search
+      // Build visibility conditions
       const visibilityConditions = [];
       
       if (includeMine) {
@@ -34,10 +35,12 @@ const Playlists = () => {
       }
       
       if (includeShared) {
-        const { data: sharedPlaylists } = await supabase
+        const { data: sharedPlaylists, error: sharedError } = await supabase
           .from('playlist_shared')
           .select('playlist_id')
           .eq('user_id', user.id);
+        
+        console.log("Shared playlists query result:", { sharedPlaylists, sharedError });
         
         if (sharedPlaylists?.length) {
           const sharedIds = sharedPlaylists.map(sp => sp.playlist_id);
@@ -46,8 +49,11 @@ const Playlists = () => {
       }
       
       if (includePublic) {
+        // Changed to include all public playlists
         visibilityConditions.push('visibility.eq.public');
       }
+
+      console.log("Visibility conditions:", visibilityConditions);
 
       let query = supabase
         .from("playlist")
@@ -71,11 +77,13 @@ const Playlists = () => {
       if (visibilityConditions.length > 0) {
         query = query.or(visibilityConditions.join(','));
       } else {
-        // If no filters are active, return empty array
+        console.log("No filters active, returning empty array");
         return [];
       }
 
       const { data, error } = await query;
+      console.log("Final query result:", { data, error });
+      
       if (error) {
         console.error('Error fetching playlists:', error);
         throw error;
@@ -154,6 +162,7 @@ const Playlists = () => {
             includeShared={includeShared}
             includePublic={includePublic}
             onVisibilityChange={(type, checked) => {
+              console.log("Visibility change:", { type, checked });
               switch (type) {
                 case "mine":
                   setIncludeMine(checked);
