@@ -15,13 +15,14 @@ const Playlists = () => {
   const [includeShared, setIncludeShared] = useState(false);
   const [includePublic, setIncludePublic] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<number | null>(null);
+  const [searchTrigger, setSearchTrigger] = useState(0); // Add trigger for manual search
   const user = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: playlists, isLoading } = useQuery({
-    queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id }],
+    queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id, searchTrigger }],
     queryFn: async () => {
       console.log("Query params:", { includeMine, includeShared, includePublic, userId: user?.id });
       
@@ -92,14 +93,14 @@ const Playlists = () => {
       return (data || []).map(playlist => ({
         ...playlist,
         total_duration: playlist.playlist_tanda?.reduce((total: number, pt: any) => {
-          const tandaDuration = pt.tanda.tanda_song?.reduce((tandaTotal: number, ts: any) => {
-            return tandaTotal + (ts.song.duration || 0);
+          const tandaDuration = pt.tanda?.tanda_song?.reduce((tandaTotal: number, ts: any) => {
+            return tandaTotal + (ts.song?.duration || 0);
           }, 0) || 0;
           return total + tandaDuration;
         }, 0) || 0
       }));
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && searchTrigger > 0, // Only run query when search is triggered
   });
 
   const handleDeletePlaylist = async (playlistId: number) => {
@@ -130,6 +131,10 @@ const Playlists = () => {
     }
   };
 
+  const handleSearch = () => {
+    setSearchTrigger(prev => prev + 1); // Increment trigger to force new search
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -156,30 +161,40 @@ const Playlists = () => {
 
       <div className="flex gap-6">
         <div className="w-1/2 space-y-6">
-          <PlaylistVisibilityFilters
-            includeMine={includeMine}
-            includeShared={includeShared}
-            includePublic={includePublic}
-            onVisibilityChange={(type, checked) => {
-              console.log("Visibility change:", { type, checked });
-              switch (type) {
-                case "mine":
-                  setIncludeMine(checked);
-                  break;
-                case "shared":
-                  setIncludeShared(checked);
-                  break;
-                case "public":
-                  setIncludePublic(checked);
-                  break;
-              }
-            }}
-          />
+          <div className="space-y-4">
+            <PlaylistVisibilityFilters
+              includeMine={includeMine}
+              includeShared={includeShared}
+              includePublic={includePublic}
+              onVisibilityChange={(type, checked) => {
+                console.log("Visibility change:", { type, checked });
+                switch (type) {
+                  case "mine":
+                    setIncludeMine(checked);
+                    break;
+                  case "shared":
+                    setIncludeShared(checked);
+                    break;
+                  case "public":
+                    setIncludePublic(checked);
+                    break;
+                }
+              }}
+            />
+            <Button 
+              onClick={handleSearch}
+              className="w-full bg-tango-red hover:bg-tango-red/90"
+            >
+              Search Playlists
+            </Button>
+          </div>
 
-          <PlaylistsGrid
-            playlists={playlists || []}
-            onDeletePlaylist={handleDeletePlaylist}
-          />
+          {searchTrigger > 0 && (
+            <PlaylistsGrid
+              playlists={playlists || []}
+              onDeletePlaylist={handleDeletePlaylist}
+            />
+          )}
         </div>
 
         <div className="w-1/2">
