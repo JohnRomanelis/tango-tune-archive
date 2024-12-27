@@ -26,7 +26,8 @@ const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentU
           title: `${playlist.title} - copy`,
           description: playlist.description,
           spotify_link: playlist.spotify_link,
-          visibility: 'private'
+          visibility: 'private',
+          user_id: currentUserId
         })
         .select()
         .single();
