@@ -8,6 +8,7 @@ import SelectedTandasList from "@/components/playlist/SelectedTandasList";
 import TandaSearchSection from "@/components/tanda/TandaSearchSection";
 import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { updateTandasVisibility } from "@/utils/playlistUtils";
 
 interface Tanda {
   id: number;
@@ -101,6 +102,10 @@ const CreatePlaylist = () => {
         .insert(playlistTandaEntries);
 
       if (playlistTandaError) throw playlistTandaError;
+
+      if (isPublic) {
+        await updateTandasVisibility(playlist.id, 'public');
+      }
 
       toast({
         title: "Success",

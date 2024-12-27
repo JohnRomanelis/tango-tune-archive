@@ -2,6 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
+import PublicPlaylistWarningDialog from "./PublicPlaylistWarningDialog";
 
 interface PlaylistFormProps {
   title: string;
@@ -24,6 +26,31 @@ const PlaylistForm = ({
   onSpotifyLinkChange,
   onVisibilityChange,
 }: PlaylistFormProps) => {
+  const [showWarning, setShowWarning] = useState(false);
+  const [pendingVisibilityChange, setPendingVisibilityChange] = useState(false);
+
+  const handleVisibilityToggle = (checked: boolean) => {
+    if (checked) {
+      setShowWarning(true);
+      setPendingVisibilityChange(true);
+    } else {
+      onVisibilityChange(false);
+    }
+  };
+
+  const handleWarningConfirm = () => {
+    setShowWarning(false);
+    if (pendingVisibilityChange) {
+      onVisibilityChange(true);
+      setPendingVisibilityChange(false);
+    }
+  };
+
+  const handleWarningCancel = () => {
+    setShowWarning(false);
+    setPendingVisibilityChange(false);
+  };
+
   return (
     <div className="bg-tango-gray rounded-lg p-6 space-y-4">
       <h2 className="text-2xl font-bold text-tango-light mb-4">Create New Playlist</h2>
@@ -66,13 +93,19 @@ const PlaylistForm = ({
         <div className="flex items-center space-x-2">
           <Switch
             checked={isPublic}
-            onCheckedChange={onVisibilityChange}
+            onCheckedChange={handleVisibilityToggle}
           />
           <span className="text-sm text-tango-light">
             {isPublic ? 'Public' : 'Private'}
           </span>
         </div>
       </div>
+
+      <PublicPlaylistWarningDialog
+        isOpen={showWarning}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
+      />
     </div>
   );
 };

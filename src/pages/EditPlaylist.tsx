@@ -10,6 +10,7 @@ import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { updateTandasVisibility } from "@/utils/playlistUtils";
 
 interface Tanda {
   id: number;
@@ -124,11 +125,9 @@ const EditPlaylist = () => {
     try {
       if (!user?.id || !id) throw new Error("User not authenticated or invalid playlist ID");
 
-      // Convert id to number for type safety
       const playlistId = parseInt(id, 10);
       if (isNaN(playlistId)) throw new Error("Invalid playlist ID");
 
-      // Update playlist details
       const { error: playlistError } = await supabase
         .from('playlist')
         .update({
@@ -141,7 +140,6 @@ const EditPlaylist = () => {
 
       if (playlistError) throw playlistError;
 
-      // Delete existing playlist_tanda entries
       const { error: deleteError } = await supabase
         .from('playlist_tanda')
         .delete()
@@ -149,7 +147,6 @@ const EditPlaylist = () => {
 
       if (deleteError) throw deleteError;
 
-      // Insert new playlist_tanda entries
       const playlistTandaEntries = selectedTandas.map((tanda, index) => ({
         playlist_id: playlistId,
         tanda_id: tanda.id,
@@ -161,6 +158,10 @@ const EditPlaylist = () => {
         .insert(playlistTandaEntries);
 
       if (playlistTandaError) throw playlistTandaError;
+
+      if (isPublic) {
+        await updateTandasVisibility(playlistId, 'public');
+      }
 
       toast({
         title: "Success",
