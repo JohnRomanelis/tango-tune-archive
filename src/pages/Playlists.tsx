@@ -55,8 +55,13 @@ const Playlists = () => {
       }
 
       if (includePublic) {
-        // Include public playlists but exclude user's own public playlists
-        conditions.push(`(visibility.eq.public,user_id.neq.${user.id})`);
+        conditions.push(`visibility.eq.public`);
+        if (includeMine) {
+          // If we're also showing user's playlists, no need to exclude them
+        } else {
+          // If we're only showing public playlists, exclude user's own
+          query = query.neq('user_id', user.id);
+        }
       }
 
       // Apply filters if any conditions exist
