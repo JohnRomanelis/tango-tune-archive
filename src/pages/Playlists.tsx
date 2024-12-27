@@ -43,26 +43,28 @@ const Playlists = () => {
           )
         `);
 
-      // Build filter based on visibility settings
-      if (includeMine && !includeShared && !includePublic) {
-        // Only my playlists
-        query = query.eq('user_id', user.id);
-      } else if (!includeMine && includeShared && !includePublic) {
-        // Only shared playlists
-        query = query.eq('visibility', 'shared').neq('user_id', user.id);
-      } else if (!includeMine && !includeShared && includePublic) {
-        // Only public playlists from others
-        query = query.eq('visibility', 'public').neq('user_id', user.id);
+      // Build filter conditions array
+      const conditions = [];
+
+      if (includeMine) {
+        conditions.push(`user_id.eq.${user.id}`);
+      }
+
+      if (includeShared) {
+        conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
+      }
+
+      if (includePublic) {
+        // Include public playlists but exclude user's own public playlists
+        conditions.push(`(visibility.eq.public,user_id.neq.${user.id})`);
+      }
+
+      // Apply filters if any conditions exist
+      if (conditions.length > 0) {
+        query = query.or(conditions.join(','));
       } else {
-        // Multiple filters
-        const conditions = [];
-        if (includeMine) conditions.push(`user_id.eq.${user.id}`);
-        if (includeShared) conditions.push(`id.in.(select playlist_id from playlist_shared where user_id.eq.${user.id})`);
-        if (includePublic) conditions.push("visibility.eq.public");
-        
-        if (conditions.length > 0) {
-          query = query.or(conditions.join(','));
-        }
+        // If no filters are active, return empty array
+        return [];
       }
 
       const { data, error } = await query;
