@@ -100,6 +100,15 @@ const Tandas = () => {
         );
       }
 
+      // Filter instrumental tandas
+      if (searchParams?.isInstrumental) {
+        filteredData = filteredData.filter(tanda =>
+          tanda.tanda_song.every(ts =>
+            ts.song.song_singer.length === 0 || ts.song.is_instrumental === true
+          )
+        );
+      }
+
       return filteredData;
     },
     enabled: !!user?.id,

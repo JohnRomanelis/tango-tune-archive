@@ -61,7 +61,7 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
     const cleanedParams: SearchParams = {};
     
     if (searchParams.orchestra) cleanedParams.orchestra = searchParams.orchestra;
-    if (searchParams.singer) cleanedParams.singer = searchParams.singer;
+    if (searchParams.singer && !searchParams.isInstrumental) cleanedParams.singer = searchParams.singer;
     if (searchParams.yearFrom) cleanedParams.yearFrom = Number(searchParams.yearFrom);
     if (searchParams.yearTo) cleanedParams.yearTo = Number(searchParams.yearTo);
     if (searchParams.isInstrumental !== undefined) cleanedParams.isInstrumental = searchParams.isInstrumental;
@@ -99,6 +99,7 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
           onChange={(value) => setSearchParams(prev => ({ ...prev, singer: value }))}
           options={singers || []}
           placeholder="Search singer..."
+          disabled={searchParams.isInstrumental}
         />
 
         <TandaYearRange
@@ -145,7 +146,14 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
           <div className="flex items-center space-x-2">
             <Switch
               checked={searchParams.isInstrumental === true}
-              onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, isInstrumental: checked ? true : undefined }))}
+              onCheckedChange={(checked) => {
+                setSearchParams(prev => ({ 
+                  ...prev, 
+                  isInstrumental: checked ? true : undefined,
+                  // Clear singer when switching to instrumental
+                  singer: checked ? undefined : prev.singer 
+                }));
+              }}
             />
             <span className="text-sm text-tango-light">Show only instrumental tandas</span>
           </div>
