@@ -78,16 +78,29 @@ const Tandas = () => {
       const { data, error } = await query;
       if (error) throw error;
 
+      let filteredData = data || [];
+
       // Filter tandas based on orchestra after fetching
-      if (searchParams?.orchestra && data) {
-        return data.filter(tanda => 
+      if (searchParams?.orchestra && filteredData) {
+        filteredData = filteredData.filter(tanda => 
           tanda.tanda_song.some(ts => 
             ts.song.orchestra?.name.toLowerCase() === searchParams.orchestra.toLowerCase()
           )
         );
       }
 
-      return data || [];
+      // Filter tandas based on singer after fetching
+      if (searchParams?.singer && filteredData) {
+        filteredData = filteredData.filter(tanda =>
+          tanda.tanda_song.some(ts =>
+            ts.song.song_singer.some(ss =>
+              ss.singer.name.toLowerCase() === searchParams.singer.toLowerCase()
+            )
+          )
+        );
+      }
+
+      return filteredData;
     },
     enabled: !!user?.id,
   });
