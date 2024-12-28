@@ -16,6 +16,7 @@ interface AutocompleteInputProps {
   onChange: (value: string) => void;
   options: { name: string }[];
   placeholder?: string;
+  disabled?: boolean;
 }
 
 const AutocompleteInput = ({
@@ -24,6 +25,7 @@ const AutocompleteInput = ({
   onChange,
   options = [],
   placeholder,
+  disabled = false,
 }: AutocompleteInputProps) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -54,12 +56,13 @@ const AutocompleteInput = ({
             setInputValue(newValue);
             onChange(newValue);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => !disabled && setOpen(true)}
           onBlur={() => {
             setTimeout(() => setOpen(false), 200);
           }}
           placeholder={placeholder}
           className="bg-tango-darkGray text-tango-light"
+          disabled={disabled}
         />
         <div className={`absolute z-10 w-full mt-1 ${!open && 'hidden'}`}>
           <Command className="rounded-lg border shadow-md bg-tango-gray">
@@ -70,6 +73,7 @@ const AutocompleteInput = ({
                 setInputValue(value);
                 onChange(value);
               }}
+              disabled={disabled}
             />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
