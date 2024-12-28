@@ -41,9 +41,9 @@ const Tandas = () => {
 
       if (searchParams) {
         const userId = user?.id;
+        const visibilityConditions = [];
 
         // Handle visibility filters
-        const visibilityConditions = [];
         if (searchParams.includeMine && userId) {
           visibilityConditions.push(`user_id.eq.${userId}`);
         }
@@ -67,9 +67,6 @@ const Tandas = () => {
         }
 
         // Apply other filters
-        if (searchParams.orchestra) {
-          query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
-        }
         if (searchParams.type) {
           query = query.eq('tanda_song.song.type', searchParams.type);
         }
@@ -80,6 +77,16 @@ const Tandas = () => {
 
       const { data, error } = await query;
       if (error) throw error;
+
+      // Filter tandas based on orchestra after fetching
+      if (searchParams?.orchestra && data) {
+        return data.filter(tanda => 
+          tanda.tanda_song.some(ts => 
+            ts.song.orchestra?.name.toLowerCase() === searchParams.orchestra.toLowerCase()
+          )
+        );
+      }
+
       return data || [];
     },
     enabled: !!user?.id,
