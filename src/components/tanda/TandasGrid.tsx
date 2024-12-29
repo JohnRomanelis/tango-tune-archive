@@ -55,7 +55,7 @@ const TandasGrid = ({
   };
 
   const handleEditTanda = (tanda: any) => {
-    navigate(`/tandas/edit/${tanda.id}`);
+    navigate(`/tandas/${tanda.id}/edit`);
   };
 
   return (
