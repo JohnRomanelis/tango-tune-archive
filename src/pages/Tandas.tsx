@@ -109,6 +109,21 @@ const Tandas = () => {
         );
       }
 
+      // Filter tandas based on year range
+      if (searchParams?.yearFrom || searchParams?.yearTo) {
+        filteredData = filteredData.filter(tanda =>
+          tanda.tanda_song.some(ts => {
+            const year = ts.song.recording_year;
+            if (!year) return false;
+            
+            const isAfterStart = !searchParams.yearFrom || year >= searchParams.yearFrom;
+            const isBeforeEnd = !searchParams.yearTo || year <= searchParams.yearTo;
+            
+            return isAfterStart && isBeforeEnd;
+          })
+        );
+      }
+
       return filteredData;
     },
     enabled: !!user?.id,
