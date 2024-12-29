@@ -154,11 +154,12 @@ const EditTanda = () => {
 
       if (deleteError) throw deleteError;
 
-      // Insert new tanda_song entries
+      // Insert new tanda_song entries with correct types
       const tandaSongEntries = selectedSongs.map(song => ({
-        tanda_id: id,
-        song_id: song.id,
-        order_in_tanda: song.order_in_tanda
+        tanda_id: Number(id), // Convert string id to number
+        song_id: Number(song.id), // Ensure song_id is a number
+        order_in_tanda: Number(song.order_in_tanda), // Ensure order is a number
+        is_active: true // Add the is_active field
       }));
 
       const { error: tandaSongError } = await supabase
