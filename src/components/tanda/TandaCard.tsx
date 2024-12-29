@@ -1,4 +1,4 @@
-import { Globe, Lock, Users, Trash, Plus, PlayCircle } from "lucide-react";
+import { Globe, Lock, Users, Trash, Plus, PlayCircle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -8,6 +8,7 @@ interface TandaCardProps {
   onDelete?: () => void;
   onAddClick?: () => void;
   onSongClick?: (spotify_id: string | null) => void;
+  onEditClick?: () => void;
   showAddButton?: boolean;
 }
 
@@ -17,6 +18,7 @@ const TandaCard = ({
   onDelete, 
   onAddClick, 
   onSongClick,
+  onEditClick,
   showAddButton 
 }: TandaCardProps) => {
   const isOwner = currentUserId && tanda.user_id === currentUserId;
@@ -31,10 +33,25 @@ const TandaCard = ({
     <div className="bg-tango-gray rounded-lg p-4 relative group hover:bg-tango-gray/90 transition-colors">
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-lg font-semibold text-tango-light">{tanda.title}</h3>
-        <div className="text-tango-light">
-          {tanda.visibility === "private" && <Lock className="h-4 w-4" />}
-          {tanda.visibility === "public" && <Globe className="h-4 w-4" />}
-          {tanda.visibility === "shared" && <Users className="h-4 w-4" />}
+        <div className="flex items-center gap-2">
+          <div className="text-tango-light">
+            {tanda.visibility === "private" && <Lock className="h-4 w-4" />}
+            {tanda.visibility === "public" && <Globe className="h-4 w-4" />}
+            {tanda.visibility === "shared" && <Users className="h-4 w-4" />}
+          </div>
+          {isOwner && onEditClick && !showAddButton && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-tango-light opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditClick();
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 

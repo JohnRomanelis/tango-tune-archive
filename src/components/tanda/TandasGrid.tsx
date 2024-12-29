@@ -4,6 +4,7 @@ import TandaDetailsDialog from "./TandaDetailsDialog";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface TandasGridProps {
   tandas: any[];
@@ -26,6 +27,7 @@ const TandasGrid = ({
 }: TandasGridProps) => {
   const [selectedTanda, setSelectedTanda] = useState<any>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleDeleteTanda = async (tandaId: number) => {
     try {
@@ -52,6 +54,10 @@ const TandasGrid = ({
     }
   };
 
+  const handleEditTanda = (tanda: any) => {
+    navigate(`/tandas/edit/${tanda.id}`);
+  };
+
   return (
     <>
       <ScrollArea className="h-[calc(100vh-300px)]">
@@ -68,6 +74,7 @@ const TandasGrid = ({
                 onDelete={() => handleDeleteTanda(tanda.id)}
                 onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
                 onSongClick={onSongClick}
+                onEditClick={() => handleEditTanda(tanda)}
                 showAddButton={showAddButton}
               />
             </div>
