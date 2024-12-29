@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import AutocompleteInput from "./AutocompleteInput";
 import TandaVisibilityFilters from "./tanda/TandaVisibilityFilters";
 import TandaYearRange from "./tanda/TandaYearRange";
@@ -27,6 +28,7 @@ interface TandaSearchProps {
 }
 
 const TandaSearch = ({ onSearch }: TandaSearchProps) => {
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useState<SearchParams>({
     includeMine: true,
     includeShared: false,
@@ -66,7 +68,7 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
     if (searchParams.yearTo) cleanedParams.yearTo = Number(searchParams.yearTo);
     if (searchParams.isInstrumental !== undefined) cleanedParams.isInstrumental = searchParams.isInstrumental;
     if (searchParams.type) cleanedParams.type = searchParams.type;
-    if (searchParams.style) cleanedParams.style = searchParams.style;
+    if (searchParams.style && searchParams.type === 'tango') cleanedParams.style = searchParams.style;
     cleanedParams.includeMine = searchParams.includeMine;
     cleanedParams.includeShared = searchParams.includeShared;
     cleanedParams.includePublic = searchParams.includePublic;
@@ -117,7 +119,20 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
           <Label>Type</Label>
           <select
             value={searchParams.type || ""}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, type: e.target.value }))}
+            onChange={(e) => {
+              const newType = e.target.value;
+              setSearchParams(prev => ({ 
+                ...prev, 
+                type: newType,
+                // Clear style if type is not tango
+                style: newType !== 'tango' ? undefined : prev.style
+              }));
+              if (newType && newType !== 'tango') {
+                toast({
+                  description: "Style selection is only available for Tango type",
+                });
+              }
+            }}
             className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
           >
             <option value="">All Types</option>
@@ -133,6 +148,7 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
             value={searchParams.style || ""}
             onChange={(e) => setSearchParams(prev => ({ ...prev, style: e.target.value }))}
             className="w-full bg-tango-darkGray text-tango-light rounded-md border border-input px-3 py-2"
+            disabled={searchParams.type !== 'tango'}
           >
             <option value="">All Styles</option>
             <option value="rhythmic">Rhythmic</option>

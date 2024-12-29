@@ -65,14 +65,6 @@ const Tandas = () => {
         if (visibilityConditions.length > 0) {
           query = query.or(visibilityConditions.join(','));
         }
-
-        // Apply other filters
-        if (searchParams.type) {
-          query = query.eq('tanda_song.song.type', searchParams.type);
-        }
-        if (searchParams.style) {
-          query = query.eq('tanda_song.song.style', searchParams.style);
-        }
       }
 
       const { data, error } = await query;
@@ -106,6 +98,20 @@ const Tandas = () => {
           tanda.tanda_song.every(ts =>
             ts.song.song_singer.length === 0 || ts.song.is_instrumental === true
           )
+        );
+      }
+
+      // Filter tandas based on type
+      if (searchParams?.type) {
+        filteredData = filteredData.filter(tanda =>
+          tanda.tanda_song.some(ts => ts.song.type === searchParams.type)
+        );
+      }
+
+      // Filter tandas based on style (only if type is tango)
+      if (searchParams?.style && searchParams.type === 'tango') {
+        filteredData = filteredData.filter(tanda =>
+          tanda.tanda_song.some(ts => ts.song.style === searchParams.style)
         );
       }
 
