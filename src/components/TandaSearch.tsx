@@ -172,18 +172,14 @@ const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void })
         />
 
         <div className="space-y-2">
-          <Label>Liked Tandas</Label>
+          <Label>Filter by Likes</Label>
           <div className="flex items-center space-x-2">
             <Switch
               checked={searchParams.includeLiked === true}
               onCheckedChange={(checked) => {
                 setSearchParams(prev => ({ 
                   ...prev, 
-                  includeLiked: checked,
-                  // When showing only liked tandas, disable other visibility filters
-                  includeMine: checked ? false : prev.includeMine,
-                  includeShared: checked ? false : prev.includeShared,
-                  includePublic: checked ? false : prev.includePublic
+                  includeLiked: checked
                 }));
               }}
             />

@@ -63,19 +63,6 @@ export const useTandasQuery = (searchParams: TandaSearchParams | null, userId: s
             visibilityConditions.push(`id.in.(${sharedIds.join(',')})`);
           }
         }
-        if (searchParams.includeLiked) {
-          const { data: likedTandas } = await supabase
-            .from('user_tanda_likes')
-            .select('tanda_id')
-            .eq('user_id', userId);
-
-          if (likedTandas?.length) {
-            const likedIds = likedTandas.map(lt => lt.tanda_id);
-            visibilityConditions.push(`id.in.(${likedIds.join(',')})`);
-          } else {
-            return [];
-          }
-        }
 
         if (visibilityConditions.length > 0) {
           query = query.or(visibilityConditions.join(','));
@@ -139,6 +126,21 @@ export const useTandasQuery = (searchParams: TandaSearchParams | null, userId: s
               return isAfterStart && isBeforeEnd;
             })
           );
+        }
+
+        // Filter by liked tandas if requested
+        if (searchParams.includeLiked) {
+          const { data: likedTandas } = await supabase
+            .from('user_tanda_likes')
+            .select('tanda_id')
+            .eq('user_id', userId);
+
+          if (likedTandas?.length) {
+            const likedIds = likedTandas.map(lt => lt.tanda_id);
+            filteredData = filteredData.filter(tanda => likedIds.includes(tanda.id));
+          } else {
+            return [];
+          }
         }
 
         return filteredData;
