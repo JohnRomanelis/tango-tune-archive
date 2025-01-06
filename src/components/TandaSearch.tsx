@@ -9,30 +9,15 @@ import { useToast } from "@/components/ui/use-toast";
 import AutocompleteInput from "./AutocompleteInput";
 import TandaVisibilityFilters from "./tanda/TandaVisibilityFilters";
 import TandaYearRange from "./tanda/TandaYearRange";
+import { SearchParams } from "@/types/tanda";
 
-interface SearchParams {
-  orchestra?: string;
-  singer?: string;
-  yearFrom?: number;
-  yearTo?: number;
-  isInstrumental?: boolean;
-  type?: string;
-  style?: string;
-  includeMine?: boolean;
-  includeShared?: boolean;
-  includePublic?: boolean;
-}
-
-interface TandaSearchProps {
-  onSearch: (params: SearchParams) => void;
-}
-
-const TandaSearch = ({ onSearch }: TandaSearchProps) => {
+const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void }) => {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useState<SearchParams>({
     includeMine: true,
     includeShared: false,
     includePublic: false,
+    includeLiked: false,
   });
 
   const { data: orchestras, isLoading: orchestrasLoading } = useQuery({
@@ -179,6 +164,7 @@ const TandaSearch = ({ onSearch }: TandaSearchProps) => {
           includeMine={searchParams.includeMine || false}
           includeShared={searchParams.includeShared || false}
           includePublic={searchParams.includePublic || false}
+          includeLiked={searchParams.includeLiked || false}
           onVisibilityChange={(type, checked) => {
             setSearchParams(prev => ({
               ...prev,

@@ -13,6 +13,8 @@ interface TandasGridProps {
   onAddClick?: (tanda: any) => void;
   onTandaClick?: (tanda: any) => void;
   onSongClick?: (spotify_id: string | null) => void;
+  onLikeClick?: (tandaId: number, isLiked: boolean) => void;
+  likedTandaIds?: number[];
   showAddButton?: boolean;
 }
 
@@ -23,6 +25,8 @@ const TandasGrid = ({
   onAddClick,
   onTandaClick,
   onSongClick,
+  onLikeClick,
+  likedTandaIds = [],
   showAddButton 
 }: TandasGridProps) => {
   const [selectedTanda, setSelectedTanda] = useState<any>(null);
@@ -75,6 +79,8 @@ const TandasGrid = ({
                 onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
                 onSongClick={onSongClick}
                 onEditClick={() => handleEditTanda(tanda)}
+                onLikeClick={onLikeClick ? () => onLikeClick(tanda.id, likedTandaIds.includes(tanda.id)) : undefined}
+                isLiked={likedTandaIds.includes(tanda.id)}
                 showAddButton={showAddButton}
               />
             </div>

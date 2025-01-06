@@ -533,6 +533,32 @@ export type Database = {
           },
         ]
       }
+      user_tanda_likes: {
+        Row: {
+          liked_at: string
+          tanda_id: number
+          user_id: string
+        }
+        Insert: {
+          liked_at?: string
+          tanda_id: number
+          user_id: string
+        }
+        Update: {
+          liked_at?: string
+          tanda_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tanda_likes_tanda_id_fkey"
+            columns: ["tanda_id"]
+            isOneToOne: false
+            referencedRelation: "tanda"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

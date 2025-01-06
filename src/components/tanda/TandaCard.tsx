@@ -1,4 +1,4 @@
-import { Globe, Lock, Users, Trash, Plus, PlayCircle, Pencil } from "lucide-react";
+import { Globe, Lock, Users, Trash, Plus, PlayCircle, Pencil, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TandaCardProps {
@@ -8,6 +8,8 @@ interface TandaCardProps {
   onAddClick?: () => void;
   onSongClick?: (spotify_id: string | null) => void;
   onEditClick?: () => void;
+  onLikeClick?: () => void;
+  isLiked?: boolean;
   showAddButton?: boolean;
 }
 
@@ -18,6 +20,8 @@ const TandaCard = ({
   onAddClick, 
   onSongClick,
   onEditClick,
+  onLikeClick,
+  isLiked = false,
   showAddButton 
 }: TandaCardProps) => {
   const isOwner = currentUserId && tanda.user_id === currentUserId;
@@ -38,6 +42,21 @@ const TandaCard = ({
             {tanda.visibility === "public" && <Globe className="h-4 w-4" />}
             {tanda.visibility === "shared" && <Users className="h-4 w-4" />}
           </div>
+          {onLikeClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`text-tango-light hover:text-tango-red transition-colors ${
+                isLiked ? "text-tango-red" : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onLikeClick();
+              }}
+            >
+              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+            </Button>
+          )}
           {isOwner && onEditClick && !showAddButton && (
             <Button
               variant="ghost"
