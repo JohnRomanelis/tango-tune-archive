@@ -1,40 +1,46 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
-interface User {
-  id: string;
-  email: string;
-}
-
-export function useAuthRedirect() {
+export const useAuthRedirect = () => {
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
-
-  const { data: session, isLoading } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      return session;
-    },
-    retry: false,
-  });
+  const { toast } = useToast();
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please sign in to continue",
+        });
+        navigate("/login");
+        return;
+      }
+      
+      setUser(session.user);
+    };
+
+    checkAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         navigate("/login");
+        setUser(null);
+      } else {
+        setUser(session.user);
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
-  return {
-    isLoading,
-    user: session?.user as User | null
-  };
-}
+  return user;
+};
