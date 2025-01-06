@@ -6,24 +6,32 @@ import { User } from "@supabase/supabase-js";
 
 export const useAuthRedirect = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error || !session) {
-        toast({
-          variant: "destructive",
-          title: "Authentication required",
-          description: "Please sign in to continue",
-        });
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          toast({
+            variant: "destructive",
+            title: "Authentication required",
+            description: "Please sign in to continue",
+          });
+          navigate("/login");
+          return;
+        }
+        
+        setUser(session.user);
+      } catch (error) {
+        console.error('Error checking auth:', error);
         navigate("/login");
-        return;
+      } finally {
+        setIsLoading(false);
       }
-      
-      setUser(session.user);
     };
 
     checkAuth();
@@ -42,5 +50,5 @@ export const useAuthRedirect = () => {
     };
   }, [navigate, toast]);
 
-  return user;
+  return { user, isLoading };
 };

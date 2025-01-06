@@ -22,6 +22,7 @@ import Issues from "./pages/Issues";
 import SongSuggestions from "./pages/SongSuggestions";
 import EditSongSuggestion from "./pages/EditSongSuggestion";
 import ReportIssue from "./pages/ReportIssue";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
                     <Route path="/maintenance/song-suggestions" element={<SongSuggestions />} />
                     <Route path="/maintenance/song-suggestions/:id/edit" element={<EditSongSuggestion />} />
                     <Route path="/report-issue" element={<ReportIssue />} />
+                    <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </>
               }
