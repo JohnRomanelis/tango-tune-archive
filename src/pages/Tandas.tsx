@@ -10,9 +10,9 @@ import SpotifyPlayer from "@/components/SpotifyPlayer";
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
-  const user = useAuthRedirect();
+  const { user, isLoading: authLoading } = useAuthRedirect();
 
-  const { data: tandas, isLoading, refetch } = useQuery({
+  const { data: tandas, isLoading: tandasLoading, refetch } = useQuery({
     queryKey: ["tandas", searchParams, user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -40,7 +40,7 @@ const Tandas = () => {
         `);
 
       if (searchParams) {
-        const userId = user?.id;
+        const userId = user.id;
         const visibilityConditions = [];
 
         // Handle visibility filters
@@ -139,7 +139,7 @@ const Tandas = () => {
     setSelectedTrackId(spotify_id);
   };
 
-  if (!user) {
+  if (authLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
         <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
@@ -151,14 +151,14 @@ const Tandas = () => {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
       <TandasHeader onSearch={setSearchParams} />
       
-      {isLoading ? (
+      {tandasLoading ? (
         <div className="flex justify-center items-center h-[calc(100vh-300px)]">
           <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
         </div>
       ) : (
         <TandasGrid
           tandas={tandas || []}
-          currentUserId={user.id}
+          currentUserId={user?.id}
           onTandaDeleted={refetch}
           onSongClick={handleSongClick}
         />
