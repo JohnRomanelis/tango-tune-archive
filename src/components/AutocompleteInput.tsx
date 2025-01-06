@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import AutocompleteList from "./autocomplete/AutocompleteList";
 
 interface AutocompleteInputProps {
   label: string;
@@ -63,39 +56,21 @@ const AutocompleteInput = ({
           disabled={disabled}
         />
         <div className={`absolute z-50 w-full mt-1 ${!open && 'hidden'}`}>
-          <Command className="rounded-lg border border-tango-border shadow-lg bg-tango-menuBg">
-            <CommandInput 
-              placeholder={`Search ${label.toLowerCase()}...`}
-              value={inputValue}
-              onValueChange={(value) => {
-                setInputValue(value);
-                onChange(value);
-              }}
-              className="border-b border-tango-border"
-              disabled={disabled}
-            />
-            <CommandList className="max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-tango-border scrollbar-track-transparent">
-              <CommandEmpty className="py-2 px-4 text-sm text-tango-light/70">
-                No results found.
-              </CommandEmpty>
-              <CommandGroup>
-                {filteredOptions.map((option) => (
-                  <CommandItem
-                    key={option.name}
-                    value={option.name}
-                    onSelect={(value) => {
-                      onChange(value);
-                      setInputValue(value);
-                      setOpen(false);
-                    }}
-                    className="cursor-pointer px-4 py-2 text-tango-light hover:bg-tango-menuHover transition-colors"
-                  >
-                    {option.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
+          <AutocompleteList
+            inputValue={inputValue}
+            options={filteredOptions}
+            onSelect={(value) => {
+              onChange(value);
+              setInputValue(value);
+              setOpen(false);
+            }}
+            onInputChange={(value) => {
+              setInputValue(value);
+              onChange(value);
+            }}
+            label={label}
+            disabled={disabled}
+          />
         </div>
       </div>
     </div>
