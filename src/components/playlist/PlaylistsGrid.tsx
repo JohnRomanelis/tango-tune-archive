@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit, Copy } from "lucide-react";
+import { Trash2, Edit, Copy, Heart } from "lucide-react";
 import { formatDuration } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,16 +12,24 @@ interface PlaylistsGridProps {
   onDeletePlaylist: (id: number) => void;
   onSelectPlaylist?: (id: number) => void;
   currentUserId?: string;
+  likedPlaylistIds: number[];
+  onLikeToggle: (id: number) => void;
 }
 
-const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentUserId }: PlaylistsGridProps) => {
+const PlaylistsGrid = ({ 
+  playlists, 
+  onDeletePlaylist, 
+  onSelectPlaylist, 
+  currentUserId,
+  likedPlaylistIds,
+  onLikeToggle
+}: PlaylistsGridProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const handleDuplicatePlaylist = async (playlist: any) => {
     try {
-      // First, create a new playlist
       const { data: newPlaylist, error: playlistError } = await supabase
         .from('playlist')
         .insert({
@@ -36,7 +44,6 @@ const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentU
 
       if (playlistError) throw playlistError;
 
-      // Then, copy all tandas from the original playlist
       if (playlist.playlist_tanda && playlist.playlist_tanda.length > 0) {
         const playlistTandaEntries = playlist.playlist_tanda.map((pt: any) => ({
           playlist_id: newPlaylist.id,
@@ -51,7 +58,6 @@ const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentU
         if (tandaError) throw tandaError;
       }
 
-      // Invalidate the playlists query to refresh the data
       queryClient.invalidateQueries({ queryKey: ["playlists"] });
 
       toast({
@@ -59,7 +65,6 @@ const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentU
         description: "Playlist duplicated successfully!",
       });
 
-      // Navigate to the playlists page
       navigate('/playlists');
     } catch (error) {
       console.error('Error duplicating playlist:', error);
@@ -88,6 +93,21 @@ const PlaylistsGrid = ({ playlists, onDeletePlaylist, onSelectPlaylist, currentU
                 </CardDescription>
               </div>
               <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`${likedPlaylistIds.includes(playlist.id) ? 'text-tango-red' : 'text-tango-light'} opacity-0 group-hover:opacity-100 hover:text-tango-red transition-all`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLikeToggle(playlist.id);
+                  }}
+                  title={likedPlaylistIds.includes(playlist.id) ? "Unlike playlist" : "Like playlist"}
+                >
+                  <Heart 
+                    className="h-4 w-4" 
+                    fill={likedPlaylistIds.includes(playlist.id) ? "currentColor" : "none"} 
+                  />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"

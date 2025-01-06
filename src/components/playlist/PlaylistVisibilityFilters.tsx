@@ -5,13 +5,15 @@ interface PlaylistVisibilityFiltersProps {
   includeMine: boolean;
   includeShared: boolean;
   includePublic: boolean;
-  onVisibilityChange: (type: "mine" | "shared" | "public", checked: boolean) => void;
+  likedOnly: boolean;
+  onVisibilityChange: (type: "mine" | "shared" | "public" | "liked", checked: boolean) => void;
 }
 
 const PlaylistVisibilityFilters = ({
   includeMine,
   includeShared,
   includePublic,
+  likedOnly,
   onVisibilityChange,
 }: PlaylistVisibilityFiltersProps) => {
   return (
@@ -49,6 +51,18 @@ const PlaylistVisibilityFilters = ({
             />
             <Label className="text-tango-light">
               Public Playlists
+            </Label>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between sm:justify-start gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={likedOnly}
+              onCheckedChange={(checked) => onVisibilityChange("liked", checked)}
+            />
+            <Label className="text-tango-light">
+              Liked Playlists Only
             </Label>
           </div>
         </div>

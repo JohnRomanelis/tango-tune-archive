@@ -1,6 +1,9 @@
-import { Globe, Lock, Users, Trash, Pencil } from "lucide-react";
+import { Globe, Lock, Users, Trash, Pencil, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Playlist {
   id: number;
@@ -20,6 +23,8 @@ interface Playlist {
 interface PlaylistCardProps {
   playlist: Playlist;
   onDelete: () => void;
+  isLiked: boolean;
+  onLikeToggle: () => void;
 }
 
 const formatDuration = (totalSeconds: number) => {
@@ -35,7 +40,7 @@ const formatDuration = (totalSeconds: number) => {
   return parts.join(' ');
 };
 
-const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
+const PlaylistCard = ({ playlist, onDelete, isLiked, onLikeToggle }: PlaylistCardProps) => {
   const navigate = useNavigate();
   const tandaCount = playlist.playlist_tanda?.length || 0;
   const duration = playlist.total_duration || 0;
@@ -67,6 +72,17 @@ const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
       </div>
 
       <div className="absolute bottom-2 right-2 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`${isLiked ? 'text-tango-red' : 'text-tango-light'} opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onLikeToggle();
+          }}
+        >
+          <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
+        </Button>
         <Button
           variant="ghost"
           size="icon"

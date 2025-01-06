@@ -9,20 +9,23 @@ import PlaylistVisibilityFilters from "@/components/playlist/PlaylistVisibilityF
 import PlaylistDetails from "@/components/playlist/PlaylistDetails";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useToast } from "@/components/ui/use-toast";
+import { useLikedPlaylists } from "@/hooks/useLikedPlaylists";
 
 const Playlists = () => {
   const [includeMine, setIncludeMine] = useState(true);
   const [includeShared, setIncludeShared] = useState(false);
   const [includePublic, setIncludePublic] = useState(false);
+  const [likedOnly, setLikedOnly] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<number | null>(null);
   const [searchTrigger, setSearchTrigger] = useState(0);
   const { user, isLoading: authLoading } = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: likedPlaylistIds = [] } = useLikedPlaylists();
 
   const { data: playlists, isLoading } = useQuery({
-    queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id, searchTrigger }],
+    queryKey: ["playlists", { includeMine, includeShared, includePublic, likedOnly, userId: user?.id, searchTrigger }],
     queryFn: async () => {
       if (!user?.id) return [];
 
@@ -34,7 +37,7 @@ const Playlists = () => {
       }
       
       if (includeShared) {
-        const { data: sharedPlaylists, error: sharedError } = await supabase
+        const { data: sharedPlaylists } = await supabase
           .from('playlist_shared')
           .select('playlist_id')
           .eq('user_id', user.id);
@@ -73,9 +76,9 @@ const Playlists = () => {
         return [];
       }
 
-      const { data, error } = await query;
+      const { data } = await query;
 
-      return (data || []).map(playlist => ({
+      let filteredData = (data || []).map(playlist => ({
         ...playlist,
         total_duration: playlist.playlist_tanda?.reduce((total: number, pt: any) => {
           const tandaDuration = pt.tanda?.tanda_song?.reduce((tandaTotal: number, ts: any) => {
@@ -84,6 +87,12 @@ const Playlists = () => {
           return total + tandaDuration;
         }, 0) || 0
       }));
+
+      if (likedOnly) {
+        filteredData = filteredData.filter(playlist => likedPlaylistIds.includes(playlist.id));
+      }
+
+      return filteredData;
     },
     enabled: !!user?.id && searchTrigger > 0,
   });
@@ -116,8 +125,38 @@ const Playlists = () => {
     }
   };
 
-  const handleSearch = () => {
-    setSearchTrigger(prev => prev + 1);
+  const handleLikeToggle = async (playlistId: number) => {
+    try {
+      if (likedPlaylistIds.includes(playlistId)) {
+        await supabase
+          .from('user_playlist_likes')
+          .delete()
+          .eq('playlist_id', playlistId)
+          .eq('user_id', user?.id);
+      } else {
+        await supabase
+          .from('user_playlist_likes')
+          .insert({
+            playlist_id: playlistId,
+            user_id: user?.id
+          });
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ["liked-playlists"] });
+      toast({
+        title: likedPlaylistIds.includes(playlistId) ? "Playlist unliked" : "Playlist liked",
+        description: likedPlaylistIds.includes(playlistId) 
+          ? "Playlist removed from your likes"
+          : "Playlist added to your likes",
+      });
+    } catch (error) {
+      console.error("Error toggling playlist like:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update playlist like status",
+      });
+    }
   };
 
   if (authLoading) {
@@ -155,6 +194,7 @@ const Playlists = () => {
               includeMine={includeMine}
               includeShared={includeShared}
               includePublic={includePublic}
+              likedOnly={likedOnly}
               onVisibilityChange={(type, checked) => {
                 switch (type) {
                   case "mine":
@@ -165,6 +205,9 @@ const Playlists = () => {
                     break;
                   case "public":
                     setIncludePublic(checked);
+                    break;
+                  case "liked":
+                    setLikedOnly(checked);
                     break;
                 }
               }}
@@ -183,6 +226,8 @@ const Playlists = () => {
               onDeletePlaylist={handleDeletePlaylist}
               onSelectPlaylist={setSelectedPlaylistId}
               currentUserId={user?.id}
+              likedPlaylistIds={likedPlaylistIds}
+              onLikeToggle={handleLikeToggle}
             />
           )}
         </div>
