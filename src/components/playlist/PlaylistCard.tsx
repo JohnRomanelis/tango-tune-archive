@@ -55,12 +55,12 @@ const PlaylistCard = ({ playlist, onDelete }: PlaylistCardProps) => {
         <p className="text-sm text-tango-light/80 mb-4">{playlist.description}</p>
       )}
 
-      <div className="space-y-2 bg-tango-darkGray rounded p-2">
+      <div className="bg-tango-darkGray rounded p-3 mt-2 border border-tango-border">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-tango-light">
             {tandaCount} {tandaCount === 1 ? "tanda" : "tandas"}
           </span>
-          <span className="text-sm font-medium text-tango-red">
+          <span className="text-sm font-semibold text-tango-red bg-tango-gray px-2 py-1 rounded">
             {formatDuration(duration)}
           </span>
         </div>
