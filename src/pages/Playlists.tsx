@@ -16,7 +16,7 @@ const Playlists = () => {
   const [includePublic, setIncludePublic] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<number | null>(null);
   const [searchTrigger, setSearchTrigger] = useState(0);
-  const user = useAuthRedirect();
+  const { user, isLoading: authLoading } = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -24,8 +24,6 @@ const Playlists = () => {
   const { data: playlists, isLoading } = useQuery({
     queryKey: ["playlists", { includeMine, includeShared, includePublic, userId: user?.id, searchTrigger }],
     queryFn: async () => {
-      console.log("Query params:", { includeMine, includeShared, includePublic, userId: user?.id });
-      
       if (!user?.id) return [];
 
       // Build visibility conditions
@@ -41,8 +39,6 @@ const Playlists = () => {
           .select('playlist_id')
           .eq('user_id', user.id);
         
-        console.log("Shared playlists query result:", { sharedPlaylists, sharedError });
-        
         if (sharedPlaylists?.length) {
           const sharedIds = sharedPlaylists.map(sp => sp.playlist_id);
           visibilityConditions.push(`id.in.(${sharedIds.join(',')})`);
@@ -52,8 +48,6 @@ const Playlists = () => {
       if (includePublic) {
         visibilityConditions.push('visibility.eq.public');
       }
-
-      console.log("Visibility conditions:", visibilityConditions);
 
       let query = supabase
         .from("playlist")
@@ -73,11 +67,9 @@ const Playlists = () => {
           )
         `);
 
-      // Only add OR conditions if there are any conditions to check
       if (visibilityConditions.length > 0) {
         query = query.or(visibilityConditions.join(','));
       } else {
-        console.log("No filters active, returning empty array");
         return [];
       }
 
@@ -128,12 +120,16 @@ const Playlists = () => {
     setSearchTrigger(prev => prev + 1);
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

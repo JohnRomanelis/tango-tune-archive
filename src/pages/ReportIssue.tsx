@@ -32,7 +32,7 @@ const formSchema = z.object({
 });
 
 const ReportIssue = () => {
-  const user = useAuthRedirect();
+  const { user, isLoading: authLoading } = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -83,15 +83,20 @@ const ReportIssue = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    if (!user?.id) return;
     submitIssueMutation.mutate(values);
   };
 
-  if (isLoadingTypes) {
+  if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

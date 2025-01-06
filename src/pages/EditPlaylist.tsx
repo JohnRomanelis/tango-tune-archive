@@ -23,7 +23,7 @@ const EditPlaylist = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
-  const user = useAuthRedirect();
+  const { user, isLoading: authLoading } = useAuthRedirect();
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -35,7 +35,7 @@ const EditPlaylist = () => {
   const { data: playlist, isLoading } = useQuery({
     queryKey: ['playlist', id],
     queryFn: async () => {
-      if (!id || !user) return null;
+      if (!id || !user?.id) return null;
       
       const { data, error } = await supabase
         .from('playlist')
@@ -60,7 +60,7 @@ const EditPlaylist = () => {
       }
       return data;
     },
-    enabled: !!id && !!user
+    enabled: !!id && !!user?.id
   });
 
   useEffect(() => {
@@ -102,6 +102,18 @@ const EditPlaylist = () => {
 
     setSelectedTandas(items);
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const handleUpdatePlaylist = async () => {
     if (!title) {
@@ -178,14 +190,6 @@ const EditPlaylist = () => {
       });
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
-        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
-      </div>
-    );
-  }
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
