@@ -1,10 +1,9 @@
 import { useState } from "react";
 import TandaSearch from "@/components/TandaSearch";
 import TandasGrid from "@/components/tanda/TandasGrid";
-import { useTandasQuery } from "@/hooks/useTandasQuery";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
-import { useAuth } from "@supabase/auth-helpers-react";
-import { SearchParams } from "@/types/tanda";
 
 interface TandaSearchSectionProps {
   onAddTanda: (tanda: any) => void;
@@ -12,13 +11,53 @@ interface TandaSearchSectionProps {
 }
 
 const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProps) => {
-  const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
+  const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
-  const user = useAuth();
 
-  const { data: tandas } = useTandasQuery(searchParams, user?.id);
+  const { data: tandas } = useQuery({
+    queryKey: ["tandas", searchParams],
+    queryFn: async () => {
+      let query = supabase
+        .from("tanda")
+        .select(`
+          *,
+          tanda_song (
+            order_in_tanda,
+            song (
+              id,
+              title,
+              type,
+              style,
+              recording_year,
+              is_instrumental,
+              spotify_id,
+              orchestra (name),
+              song_singer (
+                singer (name)
+              )
+            )
+          )
+        `);
 
-  const handleSearch = (params: SearchParams) => {
+      if (searchParams) {
+        if (searchParams.orchestra) {
+          query = query.ilike('tanda_song.song.orchestra.name', `%${searchParams.orchestra}%`);
+        }
+        if (searchParams.type) {
+          query = query.eq('tanda_song.song.type', searchParams.type);
+        }
+        if (searchParams.style) {
+          query = query.eq('tanda_song.song.style', searchParams.style);
+        }
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const handleSearch = (params: any) => {
     setSearchParams(params);
   };
 
