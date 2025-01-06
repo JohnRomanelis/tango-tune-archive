@@ -3,7 +3,7 @@ import TandaSearch from "@/components/TandaSearch";
 import TandasGrid from "@/components/tanda/TandasGrid";
 import { useTandasQuery } from "@/hooks/useTandasQuery";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useAuth } from "@supabase/auth-helpers-react";
 import { SearchParams } from "@/types/tanda";
 
 interface TandaSearchSectionProps {
@@ -14,9 +14,9 @@ interface TandaSearchSectionProps {
 const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProps) => {
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
-  const session = useSession();
+  const user = useAuth();
 
-  const { data: tandas } = useTandasQuery(searchParams, session?.user?.id);
+  const { data: tandas } = useTandasQuery(searchParams, user?.id);
 
   const handleSearch = (params: SearchParams) => {
     setSearchParams(params);
