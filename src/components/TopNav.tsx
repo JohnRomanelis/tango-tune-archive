@@ -2,22 +2,38 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { LogOut } from "lucide-react";
+import { User, Settings, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const TopNav = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const { data: userRole } = useUserRole();
 
   useEffect(() => {
-    const getUserEmail = async () => {
+    const getUsername = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUserEmail(user?.email || null);
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setUsername(profile.username);
+        }
+      }
     };
-    getUserEmail();
+    getUsername();
   }, []);
 
   const handleLogout = async () => {
@@ -72,22 +88,43 @@ const TopNav = () => {
             </nav>
           </div>
 
-          {/* Right side - User info and logout */}
+          {/* Right side - User info and dropdown */}
           <div className="flex items-center">
-            <div className="flex flex-col items-end">
-              <span className="text-tango-light text-sm">
-                {userEmail}
+            <div className="flex flex-col items-end mr-4">
+              <span className="text-tango-light text-sm font-medium">
+                {username}
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-tango-light hover:text-tango-red transition-colors flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-tango-light hover:text-tango-red transition-colors"
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-48 bg-tango-menuBg border-tango-border"
+              >
+                <DropdownMenuItem
+                  className="text-tango-light hover:bg-tango-menuHover cursor-pointer"
+                  onClick={() => navigate('/settings')}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-tango-light hover:bg-tango-menuHover cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
