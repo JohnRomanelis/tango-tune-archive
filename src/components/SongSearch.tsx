@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import SongFilters from "./song/SongFilters";
+import AdvancedSearchOptions from "./song/AdvancedSearchOptions";
 
 interface SearchParams {
   title?: string;
@@ -15,6 +16,7 @@ interface SearchParams {
   type?: string;
   style?: string;
   likedOnly?: boolean;
+  alsoPlayedBy?: string;
 }
 
 interface SongSearchProps {
@@ -60,6 +62,7 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
     if (searchParams.type) cleanedParams.type = searchParams.type;
     if (searchParams.style) cleanedParams.style = searchParams.style;
     if (searchParams.likedOnly) cleanedParams.likedOnly = searchParams.likedOnly;
+    if (searchParams.alsoPlayedBy) cleanedParams.alsoPlayedBy = searchParams.alsoPlayedBy;
 
     onSearch(cleanedParams);
   };
@@ -79,6 +82,13 @@ const SongSearch = ({ onSearch }: SongSearchProps) => {
         orchestras={orchestras || []}
         singers={singers || []}
         onParamsChange={setSearchParams}
+      />
+
+      <AdvancedSearchOptions
+        orchestras={orchestras || []}
+        onAdvancedSearchChange={(advancedParams) => {
+          setSearchParams(prev => ({ ...prev, ...advancedParams }));
+        }}
       />
 
       <div className="flex justify-end">

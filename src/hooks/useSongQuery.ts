@@ -11,6 +11,7 @@ export interface SearchParams {
   type?: string;
   style?: string;
   likedOnly?: boolean;
+  alsoPlayedBy?: string;
 }
 
 export interface Song {
@@ -71,6 +72,27 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
             query = query.eq('orchestra_id', orchestraData.id);
           } else {
             return [];
+          }
+        }
+
+        if (searchParams.alsoPlayedBy) {
+          // Get songs with the same title played by the specified orchestra
+          const { data: orchestraData } = await supabase
+            .from('orchestra')
+            .select('id')
+            .eq('name', searchParams.alsoPlayedBy)
+            .single();
+
+          if (orchestraData) {
+            const { data: relatedSongs } = await supabase
+              .from('song')
+              .select('title')
+              .eq('orchestra_id', orchestraData.id);
+
+            if (relatedSongs?.length) {
+              const titles = relatedSongs.map(s => s.title);
+              query = query.in('title', titles);
+            }
           }
         }
 
