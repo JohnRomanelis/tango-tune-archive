@@ -9,6 +9,7 @@ import TandaSearchSection from "@/components/tanda/TandaSearchSection";
 import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { updateTandasVisibility } from "@/utils/playlistUtils";
+import { Loader2 } from "lucide-react";
 
 interface Tanda {
   id: number;
@@ -20,7 +21,7 @@ interface Tanda {
 const CreatePlaylist = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const user = useAuthRedirect();
+  const { user, isLoading } = useAuthRedirect();
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -28,6 +29,18 @@ const CreatePlaylist = () => {
   const [selectedTandas, setSelectedTandas] = useState<Tanda[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const [selectedTandaForDialog, setSelectedTandaForDialog] = useState<any>(null);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const handleAddTanda = (tanda: Tanda) => {
     if (selectedTandas.some(t => t.id === tanda.id)) {
@@ -75,8 +88,6 @@ const CreatePlaylist = () => {
     }
 
     try {
-      if (!user?.id) throw new Error("User not authenticated");
-
       const { data: playlist, error: playlistError } = await supabase
         .from('playlist')
         .insert({
