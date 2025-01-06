@@ -1,57 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Music, Archive, List, MessageSquare } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const Index = () => {
+  const { user, isLoading } = useAuthRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { data: session, isLoading: sessionLoading, error: sessionError } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        throw error;
-      }
-      return session;
-    },
-    retry: false,
-  });
-
-  useEffect(() => {
-    if (sessionError) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please sign in again",
-      });
-      navigate("/login");
-      return;
-    }
-
-    if (!sessionLoading && !session) {
-      navigate("/login");
-    }
-  }, [session, sessionLoading, sessionError, navigate, toast]);
-
-  // Set up auth state change listener
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/login");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
-
-  if (sessionLoading) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
@@ -59,7 +20,7 @@ const Index = () => {
     );
   }
 
-  if (!session) {
+  if (!user) {
     return null;
   }
 
