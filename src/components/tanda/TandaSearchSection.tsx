@@ -17,7 +17,15 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const session = useSession();
   
-  const { data: tandas, isLoading } = useTandasQuery(searchParams, session?.user?.id);
+  // Initialize search with default visibility settings
+  const initializedParams = searchParams ? {
+    ...searchParams,
+    includeMine: searchParams.includeMine ?? true,
+    includeShared: searchParams.includeShared ?? false,
+    includePublic: searchParams.includePublic ?? false,
+  } : null;
+  
+  const { data: tandas, isLoading } = useTandasQuery(initializedParams, session?.user?.id);
 
   const handleSearch = (params: SearchParams) => {
     setSearchParams(params);
@@ -40,6 +48,7 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
       ) : (
         <TandasGrid
           tandas={tandas || []}
+          currentUserId={session?.user?.id}
           onAddClick={onAddTanda}
           onTandaClick={onTandaClick}
           onSongClick={handleSongClick}
