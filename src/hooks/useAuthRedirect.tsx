@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
 export const useAuthRedirect = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,7 +23,7 @@ export const useAuthRedirect = () => {
         return;
       }
       
-      setUser(session.user);
+      setIsLoading(false);
     };
 
     checkAuth();
@@ -31,9 +31,6 @@ export const useAuthRedirect = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         navigate("/login");
-        setUser(null);
-      } else {
-        setUser(session.user);
       }
     });
 
@@ -42,5 +39,5 @@ export const useAuthRedirect = () => {
     };
   }, [navigate, toast]);
 
-  return user;
+  return { isLoading };
 };

@@ -16,7 +16,7 @@ import EditPlaylist from "./pages/EditPlaylist";
 import Issues from "./pages/Issues";
 import ReportIssue from "./pages/ReportIssue";
 import Settings from "./pages/Settings";
-import useAuthRedirect from "./hooks/useAuthRedirect";
+import { useAuthRedirect } from "./hooks/useAuthRedirect";
 import { Toaster } from "./components/ui/toaster";
 import "./App.css";
 
