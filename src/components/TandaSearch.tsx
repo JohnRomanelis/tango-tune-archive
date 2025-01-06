@@ -57,6 +57,7 @@ const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void })
     cleanedParams.includeMine = searchParams.includeMine;
     cleanedParams.includeShared = searchParams.includeShared;
     cleanedParams.includePublic = searchParams.includePublic;
+    cleanedParams.includeLiked = searchParams.includeLiked;
 
     onSearch(cleanedParams);
   };
@@ -109,7 +110,6 @@ const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void })
               setSearchParams(prev => ({ 
                 ...prev, 
                 type: newType,
-                // Clear style if type is not tango
                 style: newType !== 'tango' ? undefined : prev.style
               }));
               if (newType && newType !== 'tango') {
@@ -151,7 +151,6 @@ const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void })
                 setSearchParams(prev => ({ 
                   ...prev, 
                   isInstrumental: checked ? true : undefined,
-                  // Clear singer when switching to instrumental
                   singer: checked ? undefined : prev.singer 
                 }));
               }}
@@ -164,7 +163,6 @@ const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void })
           includeMine={searchParams.includeMine || false}
           includeShared={searchParams.includeShared || false}
           includePublic={searchParams.includePublic || false}
-          includeLiked={searchParams.includeLiked || false}
           onVisibilityChange={(type, checked) => {
             setSearchParams(prev => ({
               ...prev,
@@ -172,6 +170,26 @@ const TandaSearch = ({ onSearch }: { onSearch: (params: SearchParams) => void })
             }));
           }}
         />
+
+        <div className="space-y-2">
+          <Label>Liked Tandas</Label>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={searchParams.includeLiked === true}
+              onCheckedChange={(checked) => {
+                setSearchParams(prev => ({ 
+                  ...prev, 
+                  includeLiked: checked,
+                  // When showing only liked tandas, disable other visibility filters
+                  includeMine: checked ? false : prev.includeMine,
+                  includeShared: checked ? false : prev.includeShared,
+                  includePublic: checked ? false : prev.includePublic
+                }));
+              }}
+            />
+            <span className="text-sm text-tango-light">Show only liked tandas</span>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-end">

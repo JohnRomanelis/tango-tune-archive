@@ -19,7 +19,7 @@ const TandaVisibilityFilters = ({
   return (
     <div className="space-y-4">
       <Label>Visibility</Label>
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-2">
         <div className="flex items-center space-x-2">
           <Switch
             checked={includeMine}
@@ -40,13 +40,6 @@ const TandaVisibilityFilters = ({
             onCheckedChange={(checked) => onVisibilityChange("public", checked)}
           />
           <span className="text-sm text-tango-light">Show public tandas</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={includeLiked}
-            onCheckedChange={(checked) => onVisibilityChange("liked", checked)}
-          />
-          <span className="text-sm text-tango-light">Show liked tandas</span>
         </div>
       </div>
     </div>
