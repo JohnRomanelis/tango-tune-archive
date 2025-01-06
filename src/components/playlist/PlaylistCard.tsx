@@ -75,7 +75,7 @@ const PlaylistCard = ({ playlist, onDelete, isLiked, onLikeToggle }: PlaylistCar
         <Button
           variant="ghost"
           size="icon"
-          className={`${isLiked ? 'text-tango-red' : 'text-tango-light'} opacity-0 group-hover:opacity-100 hover:text-tango-red transition-opacity`}
+          className={`${isLiked ? 'text-tango-red' : 'text-tango-light'} hover:text-tango-red`}
           onClick={(e) => {
             e.stopPropagation();
             onLikeToggle();
