@@ -30,6 +30,9 @@ const CreatePlaylist = () => {
   const [isPublic, setIsPublic] = useState(false);
   const [selectedTandaForDialog, setSelectedTandaForDialog] = useState<any>(null);
 
+  // Add debug logs for auth state
+  console.log("CreatePlaylist auth state:", { user, isLoading });
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">

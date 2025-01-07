@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -30,6 +30,15 @@ const TandaSearchContainer = ({
   const session = useSession();
   const { toast } = useToast();
 
+  // Add debug logs for session state
+  useEffect(() => {
+    console.log("Session state:", {
+      session,
+      userId: session?.user?.id,
+      isAuthenticated: !!session?.user
+    });
+  }, [session]);
+
   const { data: tandas, isLoading, error } = useTandasQuery(
     searchTrigger > 0 ? searchParams : null,
     session?.user?.id,
@@ -46,7 +55,29 @@ const TandaSearchContainer = ({
     setSelectedTrackId(spotify_id);
   };
 
+  // Add debug logs for component state
+  useEffect(() => {
+    console.log("TandaSearchContainer state:", {
+      searchParams,
+      searchTrigger,
+      hasSession: !!session,
+      userId: session?.user?.id,
+      tandasCount: tandas?.length
+    });
+  }, [searchParams, searchTrigger, session, tandas]);
+
+  // Early return if loading session
+  if (!session && isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+      </div>
+    );
+  }
+
+  // Check for session and user
   if (!session?.user?.id) {
+    console.log("No authenticated user found");
     return (
       <div className="flex justify-center items-center h-[calc(100vh-300px)] text-tango-light">
         Please log in to search tandas
