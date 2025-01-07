@@ -15,27 +15,38 @@ interface TandaSearchSectionProps {
 const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProps) => {
   const [searchParams, setSearchParams] = useState<SearchParams>({
     includeMine: true,
-    includePublic: true,
-    includeShared: true
+    includeShared: false,
+    includePublic: false
   });
   const [searchTrigger, setSearchTrigger] = useState(0);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const session = useSession();
 
-  const { data: tandas, isLoading } = useTandasQuery(
+  // Effect to log search results when they change
+  useEffect(() => {
+    if (searchTrigger > 0) {
+      console.log("Search triggered with params:", searchParams);
+      console.log("Current user ID:", session?.user?.id);
+    }
+  }, [searchTrigger, searchParams, session?.user?.id]);
+
+  const { data: tandas, isLoading, error } = useTandasQuery(
     searchTrigger > 0 ? searchParams : null, 
     session?.user?.id
   );
 
-  // Effect to log search results when they change
+  // Effect to log query results
   useEffect(() => {
     if (searchTrigger > 0) {
-      console.log("Search params:", searchParams);
-      console.log("Search results:", tandas);
+      console.log("Query completed. Results:", tandas);
+      if (error) {
+        console.error("Query error:", error);
+      }
     }
-  }, [tandas, searchParams, searchTrigger]);
+  }, [tandas, error, searchTrigger]);
 
   const handleSearch = (params: SearchParams) => {
+    console.log("Search initiated with params:", params);
     setSearchParams(params);
     setSearchTrigger(prev => prev + 1);
   };
@@ -57,6 +68,10 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
       ) : isLoading ? (
         <div className="flex justify-center items-center h-[calc(100vh-300px)]">
           <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+        </div>
+      ) : error ? (
+        <div className="flex justify-center items-center h-[calc(100vh-300px)] text-tango-red">
+          Error loading tandas: {error.message}
         </div>
       ) : tandas && tandas.length > 0 ? (
         <TandasGrid
