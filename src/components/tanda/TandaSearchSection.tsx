@@ -32,7 +32,8 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
 
   const { data: tandas, isLoading, error } = useTandasQuery(
     searchTrigger > 0 ? searchParams : null, 
-    session?.user?.id
+    session?.user?.id,
+    searchTrigger
   );
 
   // Effect to log query results

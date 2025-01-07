@@ -15,7 +15,11 @@ interface TandaSearchParams {
   includeLiked?: boolean;
 }
 
-export const useTandasQuery = (searchParams: TandaSearchParams | null, userId: string | undefined) => {
+export const useTandasQuery = (
+  searchParams: TandaSearchParams | null, 
+  userId: string | undefined,
+  searchTrigger: number
+) => {
   return useQuery({
     queryKey: ["tandas", searchParams, userId],
     queryFn: async () => {
