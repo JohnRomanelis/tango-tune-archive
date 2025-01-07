@@ -6,6 +6,7 @@ import SpotifyPlayer from "@/components/SpotifyPlayer";
 import { useTandasQuery } from "@/hooks/useTandasQuery";
 import { Loader2 } from "lucide-react";
 import { SearchParams } from "@/types/tanda";
+import { useToast } from "@/components/ui/use-toast";
 
 interface TandaSearchSectionProps {
   onAddTanda: (tanda: any) => void;
@@ -16,19 +17,13 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
   const [searchParams, setSearchParams] = useState<SearchParams>({
     includeMine: true,
     includeShared: false,
-    includePublic: false
+    includePublic: false,
+    includeLiked: false
   });
   const [searchTrigger, setSearchTrigger] = useState(0);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const session = useSession();
-
-  // Effect to log search results when they change
-  useEffect(() => {
-    if (searchTrigger > 0) {
-      console.log("Search triggered with params:", searchParams);
-      console.log("Current user ID:", session?.user?.id);
-    }
-  }, [searchTrigger, searchParams, session?.user?.id]);
+  const { toast } = useToast();
 
   const { data: tandas, isLoading, error } = useTandasQuery(
     searchTrigger > 0 ? searchParams : null, 
@@ -36,18 +31,31 @@ const TandaSearchSection = ({ onAddTanda, onTandaClick }: TandaSearchSectionProp
     searchTrigger
   );
 
-  // Effect to log query results
   useEffect(() => {
+    // Log search activity for debugging
+    if (searchTrigger > 0) {
+      console.log("Search initiated with params:", searchParams);
+      console.log("Current user ID:", session?.user?.id);
+    }
+  }, [searchTrigger, searchParams, session?.user?.id]);
+
+  useEffect(() => {
+    // Log query results for debugging
     if (searchTrigger > 0) {
       console.log("Query completed. Results:", tandas);
       if (error) {
         console.error("Query error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch tandas. Please try again.",
+        });
       }
     }
-  }, [tandas, error, searchTrigger]);
+  }, [tandas, error, searchTrigger, toast]);
 
   const handleSearch = (params: SearchParams) => {
-    console.log("Search initiated with params:", params);
+    console.log("Search triggered with params:", params);
     setSearchParams(params);
     setSearchTrigger(prev => prev + 1);
   };
