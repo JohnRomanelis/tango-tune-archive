@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import PlaylistForm from "@/components/playlist/PlaylistForm";
 import SelectedTandasList from "@/components/playlist/SelectedTandasList";
-import TandaSearchContainer from "@/components/tanda/TandaSearchContainer";
+import TandaSearchSection from "@/components/tanda/TandaSearchSection";
 import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { updateTandasVisibility } from "@/utils/playlistUtils";
@@ -23,14 +23,6 @@ const CreatePlaylist = () => {
   const { toast } = useToast();
   const { user, isLoading } = useAuthRedirect();
   
-  // Debug logs
-  useEffect(() => {
-    console.log("CreatePlaylist auth state:", { user, isLoading });
-    if (!user) {
-      console.log("No authenticated user found");
-    }
-  }, [user, isLoading]);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [spotifyLink, setSpotifyLink] = useState("");
@@ -174,7 +166,7 @@ const CreatePlaylist = () => {
         </div>
 
         <div className="w-3/5">
-          <TandaSearchContainer
+          <TandaSearchSection
             onAddTanda={handleAddTanda}
             onTandaClick={setSelectedTandaForDialog}
           />

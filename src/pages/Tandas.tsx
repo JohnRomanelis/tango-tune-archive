@@ -13,12 +13,11 @@ import { useLikedTandas } from "@/hooks/useLikedTandas";
 const Tandas = () => {
   const [searchParams, setSearchParams] = useState(null);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
-  const [searchTrigger, setSearchTrigger] = useState(0);
   const { user, isLoading: authLoading } = useAuthRedirect();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: tandas, isLoading: tandasLoading } = useTandasQuery(searchParams, user?.id, searchTrigger);
+  const { data: tandas, isLoading: tandasLoading } = useTandasQuery(searchParams, user?.id);
   const { data: likedTandas } = useLikedTandas(user?.id);
 
   const likeMutation = useMutation({
@@ -61,11 +60,6 @@ const Tandas = () => {
     setSelectedTrackId(spotify_id);
   };
 
-  const handleSearch = (params: any) => {
-    setSearchParams(params);
-    setSearchTrigger(prev => prev + 1);
-  };
-
   if (authLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
@@ -76,7 +70,7 @@ const Tandas = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
-      <TandasHeader onSearch={handleSearch} />
+      <TandasHeader onSearch={setSearchParams} />
       
       {tandasLoading ? (
         <div className="flex justify-center items-center h-[calc(100vh-300px)]">
