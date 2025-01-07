@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import PlaylistForm from "@/components/playlist/PlaylistForm";
 import SelectedTandasList from "@/components/playlist/SelectedTandasList";
-import TandaSearchContainer from "@/components/tanda/TandaSearchContainer";
+import TandaSearchSection from "@/components/tanda/TandaSearchSection";
 import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { updateTandasVisibility } from "@/utils/playlistUtils";
@@ -29,9 +29,6 @@ const CreatePlaylist = () => {
   const [selectedTandas, setSelectedTandas] = useState<Tanda[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const [selectedTandaForDialog, setSelectedTandaForDialog] = useState<any>(null);
-
-  // Add debug logs for auth state
-  console.log("CreatePlaylist auth state:", { user, isLoading });
 
   if (isLoading) {
     return (
@@ -169,10 +166,9 @@ const CreatePlaylist = () => {
         </div>
 
         <div className="w-3/5">
-          <TandaSearchContainer
+          <TandaSearchSection
             onAddTanda={handleAddTanda}
             onTandaClick={setSelectedTandaForDialog}
-            showAddButton
           />
         </div>
       </div>
