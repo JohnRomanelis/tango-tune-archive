@@ -25,7 +25,13 @@ const TandaSearchContainer = ({ onAddTanda, onTandaClick }: TandaSearchContainer
   const hasSession = !!session?.user;
   const userId = session?.user?.id;
 
-  // Debug logs
+  const { data: tandas, isLoading } = useTandasQuery(
+    searchTrigger > 0 ? searchParams : null,
+    userId,
+    searchTrigger
+  );
+
+  // Debug logs - moved after tandas declaration
   useEffect(() => {
     console.log("TandaSearchContainer state:", {
       searchParams,
@@ -40,12 +46,6 @@ const TandaSearchContainer = ({ onAddTanda, onTandaClick }: TandaSearchContainer
       isAuthenticated: !!session?.user
     });
   }, [searchParams, searchTrigger, session, userId, tandas?.length]);
-
-  const { data: tandas, isLoading } = useTandasQuery(
-    searchTrigger > 0 ? searchParams : null,
-    userId,
-    searchTrigger
-  );
 
   const handleSearch = (params: SearchParams) => {
     console.log("Search triggered with params:", params);
