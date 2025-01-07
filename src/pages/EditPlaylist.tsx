@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import PlaylistForm from "@/components/playlist/PlaylistForm";
 import SelectedTandasList from "@/components/playlist/SelectedTandasList";
-import TandaSearchSection from "@/components/tanda/TandaSearchSection";
+import TandaSearchContainer from "@/components/tanda/TandaSearchContainer";
 import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useQuery } from "@tanstack/react-query";
@@ -77,6 +77,18 @@ const EditPlaylist = () => {
     }
   }, [playlist]);
 
+  if (authLoading || isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   const handleAddTanda = (tanda: Tanda) => {
     if (selectedTandas.some(t => t.id === tanda.id)) {
       toast({
@@ -102,18 +114,6 @@ const EditPlaylist = () => {
 
     setSelectedTandas(items);
   };
-
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
-        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
 
   const handleUpdatePlaylist = async () => {
     if (!title) {
@@ -223,9 +223,10 @@ const EditPlaylist = () => {
         </div>
 
         <div className="w-3/5">
-          <TandaSearchSection
+          <TandaSearchContainer
             onAddTanda={handleAddTanda}
             onTandaClick={setSelectedTandaForDialog}
+            showAddButton
           />
         </div>
       </div>

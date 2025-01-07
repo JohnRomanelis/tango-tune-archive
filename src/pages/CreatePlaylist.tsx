@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import PlaylistForm from "@/components/playlist/PlaylistForm";
 import SelectedTandasList from "@/components/playlist/SelectedTandasList";
-import TandaSearchSection from "@/components/tanda/TandaSearchSection";
+import TandaSearchContainer from "@/components/tanda/TandaSearchContainer";
 import TandaDetailsDialog from "@/components/tanda/TandaDetailsDialog";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { updateTandasVisibility } from "@/utils/playlistUtils";
@@ -166,9 +166,10 @@ const CreatePlaylist = () => {
         </div>
 
         <div className="w-3/5">
-          <TandaSearchSection
+          <TandaSearchContainer
             onAddTanda={handleAddTanda}
             onTandaClick={setSelectedTandaForDialog}
+            showAddButton
           />
         </div>
       </div>
