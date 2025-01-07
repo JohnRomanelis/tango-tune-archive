@@ -31,7 +31,6 @@ const TandaSearchContainer = ({ onAddTanda, onTandaClick }: TandaSearchContainer
     searchTrigger
   );
 
-  // Debug logs - moved after tandas declaration
   useEffect(() => {
     console.log("TandaSearchContainer state:", {
       searchParams,
