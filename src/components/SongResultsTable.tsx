@@ -40,6 +40,7 @@ const SongResultsTable = ({
       let comparison = 0;
       const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
+      // Primary sort based on selected field
       switch (sortConfig.field) {
         case 'title':
           comparison = a.title.localeCompare(b.title);
@@ -65,8 +66,11 @@ const SongResultsTable = ({
           break;
       }
 
+      // If primary sort yields equality, sort by type
       if (comparison === 0) {
         comparison = a.type.localeCompare(b.type);
+        
+        // If type is also equal, sort by year
         if (comparison === 0) {
           const yearA = a.recording_year || 0;
           const yearB = b.recording_year || 0;
@@ -83,11 +87,8 @@ const SongResultsTable = ({
   return (
     <div className="rounded-md bg-tango-gray">
       {/* Top scrollbar container */}
-      <div 
-        className="overflow-x-auto bg-tango-darkGray border-b border-tango-gray/20 h-3"
-        style={{ scrollbarGutter: 'stable' }}
-      >
-        <div className="min-w-[800px]" /> {/* Spacer to create scrollbar */}
+      <div className="overflow-x-auto bg-tango-darkGray border-b border-tango-gray/20">
+        <div className="min-w-[800px] h-2" /> {/* Spacer to create scrollbar */}
       </div>
       
       {/* Table container with synchronized scroll */}
