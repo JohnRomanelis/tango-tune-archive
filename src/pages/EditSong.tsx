@@ -31,12 +31,12 @@ const EditSong = () => {
     queryKey: ["song", id],
     queryFn: async () => {
       if (!id) throw new Error("Song ID is required");
-      const parsedId = parseId(id);
+      const songId = parseId(id);
       
       const { data: songData, error: songError } = await supabase
         .from("song")
         .select("*")
-        .eq("id", parsedId)
+        .eq("id", songId)
         .single();
 
       if (songError) throw songError;
@@ -44,7 +44,7 @@ const EditSong = () => {
       const { data: singerData, error: singerError } = await supabase
         .from("song_singer")
         .select("singer_id")
-        .eq("song_id", parsedId);
+        .eq("song_id", songId);
 
       if (singerError) throw singerError;
 
@@ -70,6 +70,9 @@ const EditSong = () => {
 
   const handleSubmit = async (formData: any) => {
     try {
+      if (!id) throw new Error("Song ID is required");
+      const songId = parseId(id);
+
       const { error: songError } = await supabase
         .from("song")
         .update({
@@ -80,24 +83,22 @@ const EditSong = () => {
           is_instrumental: formData.is_instrumental,
           orchestra_id: formData.orchestra_id || null,
           spotify_id: formData.spotify_id || null,
-          duration: formData.duration, // Make sure duration is included in the update
+          duration: formData.duration,
         })
-        .eq("id", parsedId);
+        .eq("id", songId);
 
       if (songError) throw songError;
 
-      // Delete existing singer associations
       const { error: deleteError } = await supabase
         .from("song_singer")
         .delete()
-        .eq("song_id", parsedId);
+        .eq("song_id", songId);
 
       if (deleteError) throw deleteError;
 
-      // Add new singer associations
       if (formData.singers.length > 0) {
         const songSingerData = formData.singers.map((singerId: number) => ({
-          song_id: parsedId,
+          song_id: songId,
           singer_id: singerId,
         }));
 
@@ -113,7 +114,6 @@ const EditSong = () => {
         description: "Song updated successfully",
       });
 
-      // Redirect to songs page after successful update
       navigate("/songs");
     } catch (error) {
       console.error("Error updating song:", error);

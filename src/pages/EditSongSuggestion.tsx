@@ -31,7 +31,7 @@ const EditSongSuggestion = () => {
     queryKey: ["song-suggestion", id],
     queryFn: async () => {
       if (!id) throw new Error("Suggestion ID is required");
-      const parsedId = parseId(id);
+      const suggestionId = parseId(id);
       
       const { data: suggestionData, error: suggestionError } = await supabase
         .from("suggested_song")
@@ -41,7 +41,7 @@ const EditSongSuggestion = () => {
             singer_id
           )
         `)
-        .eq("id", parsedId)
+        .eq("id", suggestionId)
         .single();
 
       if (suggestionError) throw suggestionError;
@@ -98,13 +98,16 @@ const EditSongSuggestion = () => {
         if (singerError) throw singerError;
       }
 
+      if (!id) throw new Error("Suggestion ID is required");
+      const suggestionId = parseId(id);
+
       const { error: updateError } = await supabase
         .from("suggested_song")
         .update({ 
           status: "approved-edited",
           updated_at: new Date().toISOString()
         })
-        .eq("id", id);
+        .eq("id", suggestionId);
 
       if (updateError) throw updateError;
 
