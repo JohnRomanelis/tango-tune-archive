@@ -20,6 +20,7 @@ import EditPlaylist from "./pages/EditPlaylist";
 import Maintenance from "./pages/Maintenance";
 import Issues from "./pages/Issues";
 import Orchestras from "./pages/Orchestras";
+import Singers from "./pages/Singers";
 import SongSuggestions from "./pages/SongSuggestions";
 import EditSongSuggestion from "./pages/EditSongSuggestion";
 import ReportIssue from "./pages/ReportIssue";
