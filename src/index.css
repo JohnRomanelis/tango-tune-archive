@@ -8,20 +8,21 @@
 }
 
 /* Custom scrollbar styles */
-.scrollbar-thin::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: #4A4A4A;
   border-radius: 3px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: #555555;
 }
 
@@ -45,4 +46,28 @@
 
 .command-item {
   @apply text-tango-light hover:bg-tango-menuHover cursor-pointer transition-colors;
+}
+
+/* ScrollArea component styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #4A4A4A transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #4A4A4A;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #555555;
 }

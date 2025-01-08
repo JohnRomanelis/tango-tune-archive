@@ -86,64 +86,80 @@ const SongResultsTable = ({
 
   return (
     <div className="rounded-md bg-tango-gray">
-      <Table>
-        <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
-          <TableRow>
-            <TableHead className="text-tango-light w-[40px]"></TableHead>
-            <SortableTableHeader
-              field="title"
-              label="Title"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="orchestra"
-              label="Orchestra"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="singer"
-              label="Singer"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="type"
-              label="Type"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="style"
-              label="Style"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="year"
-              label="Year"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <TableHead className="text-tango-light w-[120px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedSongs.map((song) => (
-            <SongTableRow
-              key={song.id}
-              song={song}
-              isSelected={song.spotify_id === selectedTrackId}
-              isLiked={likedSongs.includes(song.id)}
-              isModerator={isModerator}
-              onSongClick={() => onSongClick(song.spotify_id || null)}
-              onLikeClick={(e) => onLikeClick(e, song.id)}
-              onAddClick={onAddClick ? () => onAddClick(song) : undefined}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      {/* Top scrollbar container */}
+      <div className="overflow-x-auto bg-tango-darkGray border-b border-tango-gray/20">
+        <div className="min-w-[800px] h-2" /> {/* Spacer to create scrollbar */}
+      </div>
+      
+      {/* Table container with synchronized scroll */}
+      <div 
+        className="overflow-x-auto scrollbar-thin"
+        onScroll={(e) => {
+          const topBar = e.currentTarget.previousElementSibling as HTMLElement;
+          if (topBar) topBar.scrollLeft = e.currentTarget.scrollLeft;
+        }}
+      >
+        <div className="min-w-[800px]">
+          <Table>
+            <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
+              <TableRow>
+                <TableHead className="text-tango-light w-[40px]"></TableHead>
+                <SortableTableHeader
+                  field="title"
+                  label="Title"
+                  currentSort={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableTableHeader
+                  field="orchestra"
+                  label="Orchestra"
+                  currentSort={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableTableHeader
+                  field="singer"
+                  label="Singer"
+                  currentSort={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableTableHeader
+                  field="type"
+                  label="Type"
+                  currentSort={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableTableHeader
+                  field="style"
+                  label="Style"
+                  currentSort={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableTableHeader
+                  field="year"
+                  label="Year"
+                  currentSort={sortConfig}
+                  onSort={handleSort}
+                />
+                <TableHead className="text-tango-light w-[120px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedSongs.map((song) => (
+                <SongTableRow
+                  key={song.id}
+                  song={song}
+                  isSelected={song.spotify_id === selectedTrackId}
+                  isLiked={likedSongs.includes(song.id)}
+                  isModerator={isModerator}
+                  onSongClick={() => onSongClick(song.spotify_id || null)}
+                  onLikeClick={(e) => onLikeClick(e, song.id)}
+                  onAddClick={onAddClick ? () => onAddClick(song) : undefined}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 };
