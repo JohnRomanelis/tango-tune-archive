@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings, MessageSquare } from "lucide-react";
+import { Settings, MessageSquare, Music } from "lucide-react";
 
 const Maintenance = () => {
   const { data: userRole } = useUserRole();
@@ -22,7 +22,7 @@ const Maintenance = () => {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <h1 className="text-3xl font-bold text-tango-light mb-8">Maintenance</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card 
           className="bg-tango-darkGray border-tango-gray hover:border-tango-red transition-colors cursor-pointer"
           onClick={() => navigate('/maintenance/issues')}
@@ -49,6 +49,21 @@ const Maintenance = () => {
             </CardTitle>
             <CardDescription className="text-tango-light/70">
               Review and manage song suggestions from users
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card 
+          className="bg-tango-darkGray border-tango-gray hover:border-tango-red transition-colors cursor-pointer"
+          onClick={() => navigate('/maintenance/orchestras')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-tango-light">
+              <Music className="h-5 w-5" />
+              Orchestras
+            </CardTitle>
+            <CardDescription className="text-tango-light/70">
+              Manage orchestras and their information
             </CardDescription>
           </CardHeader>
         </Card>
