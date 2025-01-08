@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SongType, SongStyle } from "@/types/song";
 
 export interface SearchParams {
   title?: string;
@@ -26,14 +25,6 @@ export interface Song {
   orchestra: { id: number; name: string } | null;
   song_singer: Array<{ singer: { id: number; name: string } }>;
 }
-
-const isValidSongType = (type: string): type is SongType => {
-  return ['tango', 'milonga', 'vals'].includes(type);
-};
-
-const isValidSongStyle = (style: string): style is SongStyle => {
-  return ['rhythmic', 'melodic', 'dramatic'].includes(style);
-};
 
 export const useSongQuery = (searchParams: SearchParams | null) => {
   return useQuery({
@@ -70,6 +61,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.orchestra) {
+          // First get the orchestra ID for the given name
           const { data: orchestraData } = await supabase
             .from('orchestra')
             .select('id')
@@ -84,6 +76,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.alsoPlayedBy) {
+          // Get songs with the same title played by the specified orchestra
           const { data: orchestraData } = await supabase
             .from('orchestra')
             .select('id')
@@ -104,6 +97,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.singer) {
+          // First get the song IDs that have the specified singer
           const { data: singerSongs } = await supabase
             .from('song_singer')
             .select('song_id, singer!inner(name)')
@@ -125,15 +119,11 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.type) {
-          if (isValidSongType(searchParams.type)) {
-            query = query.eq('type', searchParams.type);
-          }
+          query = query.eq('type', searchParams.type);
         }
 
         if (searchParams.style) {
-          if (isValidSongStyle(searchParams.style)) {
-            query = query.eq('style', searchParams.style);
-          }
+          query = query.eq('style', searchParams.style);
         }
 
         if (searchParams.isInstrumental !== undefined) {
@@ -158,6 +148,7 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         throw error;
       }
 
+      // Transform the data to ensure it matches the Song interface
       const transformedData = (data || []).map(song => ({
         ...song,
         orchestra: song.orchestra || null,

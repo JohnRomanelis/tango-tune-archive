@@ -11,7 +11,6 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { updateTandasVisibility } from "@/utils/playlistUtils";
-import { parseId } from "@/utils/idConversion";
 
 interface Tanda {
   id: number;
@@ -52,7 +51,7 @@ const EditPlaylist = () => {
             )
           )
         `)
-        .eq('id', parseId(id))
+        .eq('id', id)
         .single();
 
       if (error) {

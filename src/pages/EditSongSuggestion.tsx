@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import SongForm from "@/components/song/SongForm";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { parseId } from "@/utils/idConversion";
 
 const EditSongSuggestion = () => {
   const { id } = useParams();
@@ -30,9 +29,6 @@ const EditSongSuggestion = () => {
   const { data: suggestion, isLoading } = useQuery({
     queryKey: ["song-suggestion", id],
     queryFn: async () => {
-      if (!id) throw new Error("Suggestion ID is required");
-      const suggestionId = parseId(id);
-      
       const { data: suggestionData, error: suggestionError } = await supabase
         .from("suggested_song")
         .select(`
@@ -41,7 +37,7 @@ const EditSongSuggestion = () => {
             singer_id
           )
         `)
-        .eq("id", suggestionId)
+        .eq("id", id)
         .single();
 
       if (suggestionError) throw suggestionError;
@@ -68,6 +64,7 @@ const EditSongSuggestion = () => {
 
   const handleSubmit = async (formData: any) => {
     try {
+      // First, create the new song
       const { data: song, error: songError } = await supabase
         .from("song")
         .insert({
@@ -85,6 +82,7 @@ const EditSongSuggestion = () => {
 
       if (songError) throw songError;
 
+      // Add singers if any
       if (formData.singers.length > 0) {
         const songSingerData = formData.singers.map((singerId: number) => ({
           song_id: song.id,
@@ -98,16 +96,14 @@ const EditSongSuggestion = () => {
         if (singerError) throw singerError;
       }
 
-      if (!id) throw new Error("Suggestion ID is required");
-      const suggestionId = parseId(id);
-
+      // Update suggestion status
       const { error: updateError } = await supabase
         .from("suggested_song")
         .update({ 
           status: "approved-edited",
           updated_at: new Date().toISOString()
         })
-        .eq("id", suggestionId);
+        .eq("id", id);
 
       if (updateError) throw updateError;
 

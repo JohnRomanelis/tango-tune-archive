@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import SongForm from "@/components/song/SongForm";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { parseId } from "@/utils/idConversion";
 
 const EditSong = () => {
   const { id } = useParams();
@@ -30,13 +29,10 @@ const EditSong = () => {
   const { data: song, isLoading } = useQuery({
     queryKey: ["song", id],
     queryFn: async () => {
-      if (!id) throw new Error("Song ID is required");
-      const songId = parseId(id);
-      
       const { data: songData, error: songError } = await supabase
         .from("song")
         .select("*")
-        .eq("id", songId)
+        .eq("id", id)
         .single();
 
       if (songError) throw songError;
@@ -44,7 +40,7 @@ const EditSong = () => {
       const { data: singerData, error: singerError } = await supabase
         .from("song_singer")
         .select("singer_id")
-        .eq("song_id", songId);
+        .eq("song_id", id);
 
       if (singerError) throw singerError;
 
@@ -70,9 +66,6 @@ const EditSong = () => {
 
   const handleSubmit = async (formData: any) => {
     try {
-      if (!id) throw new Error("Song ID is required");
-      const songId = parseId(id);
-
       const { error: songError } = await supabase
         .from("song")
         .update({
@@ -83,22 +76,24 @@ const EditSong = () => {
           is_instrumental: formData.is_instrumental,
           orchestra_id: formData.orchestra_id || null,
           spotify_id: formData.spotify_id || null,
-          duration: formData.duration,
+          duration: formData.duration, // Make sure duration is included in the update
         })
-        .eq("id", songId);
+        .eq("id", id);
 
       if (songError) throw songError;
 
+      // Delete existing singer associations
       const { error: deleteError } = await supabase
         .from("song_singer")
         .delete()
-        .eq("song_id", songId);
+        .eq("song_id", id);
 
       if (deleteError) throw deleteError;
 
+      // Add new singer associations
       if (formData.singers.length > 0) {
         const songSingerData = formData.singers.map((singerId: number) => ({
-          song_id: songId,
+          song_id: id,
           singer_id: singerId,
         }));
 
@@ -114,6 +109,7 @@ const EditSong = () => {
         description: "Song updated successfully",
       });
 
+      // Redirect to songs page after successful update
       navigate("/songs");
     } catch (error) {
       console.error("Error updating song:", error);
