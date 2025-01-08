@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Song, SongType, SongStyle } from "@/types/song";
 
 export interface SearchParams {
   title?: string;
@@ -14,17 +15,13 @@ export interface SearchParams {
   alsoPlayedBy?: string;
 }
 
-export interface Song {
-  id: number;
-  title: string;
-  type: "tango" | "milonga" | "vals";
-  style: "rhythmic" | "melodic" | "dramatic";
-  recording_year: number | null;
-  is_instrumental: boolean | null;
-  spotify_id: string | null;
-  orchestra: { id: number; name: string } | null;
-  song_singer: Array<{ singer: { id: number; name: string } }>;
-}
+const isSongType = (type: string): type is SongType => {
+  return ['tango', 'milonga', 'vals'].includes(type);
+};
+
+const isSongStyle = (style: string): style is SongStyle => {
+  return ['rhythmic', 'melodic', 'dramatic'].includes(style);
+};
 
 export const useSongQuery = (searchParams: SearchParams | null) => {
   return useQuery({
@@ -61,7 +58,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.orchestra) {
-          // First get the orchestra ID for the given name
           const { data: orchestraData } = await supabase
             .from('orchestra')
             .select('id')
@@ -76,7 +72,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.alsoPlayedBy) {
-          // Get songs with the same title played by the specified orchestra
           const { data: orchestraData } = await supabase
             .from('orchestra')
             .select('id')
@@ -97,7 +92,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         }
 
         if (searchParams.singer) {
-          // First get the song IDs that have the specified singer
           const { data: singerSongs } = await supabase
             .from('song_singer')
             .select('song_id, singer!inner(name)')
@@ -118,11 +112,11 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
           query = query.lte('recording_year', searchParams.yearTo);
         }
 
-        if (searchParams.type) {
+        if (searchParams.type && isSongType(searchParams.type)) {
           query = query.eq('type', searchParams.type);
         }
 
-        if (searchParams.style) {
+        if (searchParams.style && isSongStyle(searchParams.style)) {
           query = query.eq('style', searchParams.style);
         }
 
@@ -148,7 +142,6 @@ export const useSongQuery = (searchParams: SearchParams | null) => {
         throw error;
       }
 
-      // Transform the data to ensure it matches the Song interface
       const transformedData = (data || []).map(song => ({
         ...song,
         orchestra: song.orchestra || null,
