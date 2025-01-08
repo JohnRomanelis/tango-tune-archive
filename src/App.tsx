@@ -1,55 +1,73 @@
-import { BrowserRouter } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TopNav from "@/components/TopNav";
-import "./App.css";
-import { Routes, Route } from "react-router-dom";
-import Login from "@/pages/Login";
-import Songs from "@/pages/Songs";
-import Tandas from "@/pages/Tandas";
-import Playlists from "@/pages/Playlists";
-import Settings from "@/pages/Settings";
-import Index from "@/pages/Index";
-import Maintenance from "@/pages/Maintenance";
-import Issues from "@/pages/Issues";
-import SongSuggestions from "@/pages/SongSuggestions";
-import Orchestras from "@/pages/Orchestras";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Songs from "./pages/Songs";
+import AddSong from "./pages/AddSong";
+import AddMultipleSongs from "./pages/AddMultipleSongs";
+import EditSong from "./pages/EditSong";
+import SuggestSong from "./pages/SuggestSong";
+import Tandas from "./pages/Tandas";
+import CreateTanda from "./pages/CreateTanda";
+import EditTanda from "./pages/EditTanda";
+import Playlists from "./pages/Playlists";
+import CreatePlaylist from "./pages/CreatePlaylist";
+import EditPlaylist from "./pages/EditPlaylist";
+import Maintenance from "./pages/Maintenance";
+import Issues from "./pages/Issues";
+import SongSuggestions from "./pages/SongSuggestions";
+import EditSongSuggestion from "./pages/EditSongSuggestion";
+import ReportIssue from "./pages/ReportIssue";
+import Settings from "./pages/Settings";
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
       <BrowserRouter>
         <div className="min-h-screen bg-tango-darkGray">
-          <TopNav />
-          <div className="container mx-auto">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/songs" element={<Songs />} />
-              <Route path="/tandas" element={<Tandas />} />
-              <Route path="/playlists" element={<Playlists />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/maintenance" element={<Maintenance />} />
-              <Route path="/maintenance/issues" element={<Issues />} />
-              <Route path="/maintenance/song-suggestions" element={<SongSuggestions />} />
-              <Route path="/maintenance/orchestras" element={<Orchestras />} />
-            </Routes>
-          </div>
-          <Toaster />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <>
+                  <TopNav />
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/songs" element={<Songs />} />
+                    <Route path="/songs/add" element={<AddSong />} />
+                    <Route path="/songs/add-multiple" element={<AddMultipleSongs />} />
+                    <Route path="/songs/suggest" element={<SuggestSong />} />
+                    <Route path="/songs/:id/edit" element={<EditSong />} />
+                    <Route path="/tandas" element={<Tandas />} />
+                    <Route path="/tandas/create" element={<CreateTanda />} />
+                    <Route path="/tandas/:id/edit" element={<EditTanda />} />
+                    <Route path="/playlists" element={<Playlists />} />
+                    <Route path="/playlists/create" element={<CreatePlaylist />} />
+                    <Route path="/playlists/edit/:id" element={<EditPlaylist />} />
+                    <Route path="/maintenance" element={<Maintenance />} />
+                    <Route path="/maintenance/issues" element={<Issues />} />
+                    <Route path="/maintenance/song-suggestions" element={<SongSuggestions />} />
+                    <Route path="/maintenance/song-suggestions/:id/edit" element={<EditSongSuggestion />} />
+                    <Route path="/report-issue" element={<ReportIssue />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Routes>
+                </>
+              }
+            />
+          </Routes>
         </div>
       </BrowserRouter>
-    </QueryClientProvider>
-  );
-}
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
