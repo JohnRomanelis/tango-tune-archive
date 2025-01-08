@@ -1,20 +1,46 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { parseId } from "@/utils/idConversion";
+import { Database } from "@/integrations/supabase/types";
+import IssueTable from "@/components/issue/IssueTable";
+import IssueFilters from "@/components/issue/IssueFilters";
+import { Loader2 } from "lucide-react";
 
-type IssueStatus = "pending" | "resolved" | "rejected";
+type IssueStatus = Database["public"]["Enums"]["issue_status"];
+type SortField = 'type' | 'user_id' | 'created_at';
+type SortDirection = 'asc' | 'desc';
 
 const Issues = () => {
   const { toast } = useToast();
+  const [statusFilter, setStatusFilter] = useState<IssueStatus | 'all'>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [sortField, setSortField] = useState<SortField>('created_at');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const { data: issues, refetch } = useQuery({
-    queryKey: ['issues'],
+  const { data: issues, isLoading, refetch } = useQuery({
+    queryKey: ['issues', statusFilter, typeFilter, sortField, sortDirection],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('issue')
-        .select('*');
+        .select(`
+          *,
+          issue_type (
+            name
+          )
+        `);
+
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      if (typeFilter !== 'all') {
+        query = query.eq('type_id', parseInt(typeFilter));
+      }
+
+      query = query.order(sortField, { ascending: sortDirection === 'asc' });
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching issues:', error);
@@ -25,12 +51,12 @@ const Issues = () => {
     },
   });
 
-  const handleUpdateIssue = async (issueId: string, newStatus: IssueStatus) => {
+  const handleUpdateIssue = async (issueId: number, newStatus: IssueStatus) => {
     try {
       const { error } = await supabase
         .from('issue')
         .update({ status: newStatus })
-        .eq('id', parseId(issueId));
+        .eq('id', issueId);
 
       if (error) throw error;
 
@@ -49,24 +75,44 @@ const Issues = () => {
     }
   };
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Issues</h1>
-      <ul>
-        {issues?.map(issue => (
-          <li key={issue.id}>
-            {issue.description} - {issue.status}
-            <button onClick={() => handleUpdateIssue(issue.id.toString(), 'resolved')}>
-              Resolve
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <h1 className="text-3xl font-bold text-tango-light mb-8">General Issues</h1>
+      
+      <div className="bg-tango-gray rounded-lg p-6">
+        <IssueFilters
+          statusFilter={statusFilter}
+          typeFilter={typeFilter}
+          onStatusChange={setStatusFilter}
+          onTypeChange={setTypeFilter}
+        />
+
+        <IssueTable
+          issues={issues || []}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSort}
+          onStatusChange={handleUpdateIssue}
+        />
+      </div>
+    </main>
   );
 };
 
