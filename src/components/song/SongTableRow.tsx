@@ -22,7 +22,6 @@ interface SongTableRowProps {
   onSongClick: () => void;
   onLikeClick: (e: React.MouseEvent) => void;
   onAddClick?: () => void;
-  showAddButtonFirst?: boolean;
 }
 
 const SongTableRow = ({
@@ -33,9 +32,11 @@ const SongTableRow = ({
   onSongClick,
   onLikeClick,
   onAddClick,
-  showAddButtonFirst = false,
 }: SongTableRowProps) => {
+  // Safely get orchestra name
   const orchestraName = song.orchestra?.name || 'Unknown';
+
+  // Safely get singer names
   const singerNames = song.song_singer && song.song_singer.length > 0
     ? song.song_singer.map(s => s.singer?.name || 'Unknown').join(', ')
     : 'Instrumental';
@@ -45,18 +46,6 @@ const SongTableRow = ({
       className="hover:bg-tango-darkGray/50 cursor-pointer transition-colors rounded-lg group"
       onClick={onSongClick}
     >
-      {showAddButtonFirst && onAddClick && (
-        <TableCell>
-          <SongRowActions
-            songId={song.id}
-            isLiked={isLiked}
-            isModerator={isModerator}
-            onLikeClick={onLikeClick}
-            onAddClick={onAddClick}
-            showAddButtonFirst={true}
-          />
-        </TableCell>
-      )}
       <TableCell>
         {song.spotify_id && (
           <PlayCircle
@@ -86,17 +75,15 @@ const SongTableRow = ({
       <TableCell className="text-tango-light">
         {song.recording_year || '-'}
       </TableCell>
-      {!showAddButtonFirst && (
-        <TableCell>
-          <SongRowActions
-            songId={song.id}
-            isLiked={isLiked}
-            isModerator={isModerator}
-            onLikeClick={onLikeClick}
-            onAddClick={onAddClick}
-          />
-        </TableCell>
-      )}
+      <TableCell>
+        <SongRowActions
+          songId={song.id}
+          isLiked={isLiked}
+          isModerator={isModerator}
+          onLikeClick={onLikeClick}
+          onAddClick={onAddClick}
+        />
+      </TableCell>
     </TableRow>
   );
 };

@@ -40,6 +40,7 @@ const SongResultsTable = ({
       let comparison = 0;
       const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
+      // Primary sort based on selected field
       switch (sortConfig.field) {
         case 'title':
           comparison = a.title.localeCompare(b.title);
@@ -65,9 +66,11 @@ const SongResultsTable = ({
           break;
       }
 
+      // If primary sort yields equality, sort by type
       if (comparison === 0) {
         comparison = a.type.localeCompare(b.type);
         
+        // If type is also equal, sort by year
         if (comparison === 0) {
           const yearA = a.recording_year || 0;
           const yearB = b.recording_year || 0;
@@ -86,9 +89,6 @@ const SongResultsTable = ({
       <Table>
         <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
           <TableRow>
-            {onAddClick && (
-              <TableHead className="text-tango-light w-[40px]"></TableHead>
-            )}
             <TableHead className="text-tango-light w-[40px]"></TableHead>
             <SortableTableHeader
               field="title"
@@ -126,6 +126,7 @@ const SongResultsTable = ({
               currentSort={sortConfig}
               onSort={handleSort}
             />
+            <TableHead className="text-tango-light w-[120px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -139,7 +140,6 @@ const SongResultsTable = ({
               onSongClick={() => onSongClick(song.spotify_id || null)}
               onLikeClick={(e) => onLikeClick(e, song.id)}
               onAddClick={onAddClick ? () => onAddClick(song) : undefined}
-              showAddButtonFirst={true}
             />
           ))}
         </TableBody>
