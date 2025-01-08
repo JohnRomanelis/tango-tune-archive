@@ -30,7 +30,9 @@ const EditSong = () => {
   const { data: song, isLoading } = useQuery({
     queryKey: ["song", id],
     queryFn: async () => {
+      if (!id) throw new Error("Song ID is required");
       const parsedId = parseId(id);
+      
       const { data: songData, error: songError } = await supabase
         .from("song")
         .select("*")

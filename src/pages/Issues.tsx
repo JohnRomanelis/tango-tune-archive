@@ -4,6 +4,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { parseId } from "@/utils/idConversion";
 
+type IssueStatus = "pending" | "resolved" | "rejected";
+
 const Issues = () => {
   const { toast } = useToast();
 
@@ -23,7 +25,7 @@ const Issues = () => {
     },
   });
 
-  const handleUpdateIssue = async (issueId: string, newStatus: string) => {
+  const handleUpdateIssue = async (issueId: string, newStatus: IssueStatus) => {
     try {
       const { error } = await supabase
         .from('issue')
@@ -48,7 +50,6 @@ const Issues = () => {
   };
 
   useEffect(() => {
-    // Fetch issues on mount
     refetch();
   }, [refetch]);
 
@@ -59,7 +60,9 @@ const Issues = () => {
         {issues?.map(issue => (
           <li key={issue.id}>
             {issue.description} - {issue.status}
-            <button onClick={() => handleUpdateIssue(issue.id.toString(), 'resolved')}>Resolve</button>
+            <button onClick={() => handleUpdateIssue(issue.id.toString(), 'resolved')}>
+              Resolve
+            </button>
           </li>
         ))}
       </ul>
