@@ -26,7 +26,10 @@ const Orchestras = () => {
         .select("*")
         .order("name");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching orchestras:", error);
+        throw error;
+      }
       return data;
     },
   });
