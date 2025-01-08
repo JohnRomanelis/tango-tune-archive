@@ -85,65 +85,67 @@ const SongResultsTable = ({
   }, [songs, sortConfig]);
 
   return (
-    <div className="rounded-md bg-tango-gray">
-      <Table>
-        <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
-          <TableRow>
-            <TableHead className="text-tango-light w-[40px]"></TableHead>
-            <SortableTableHeader
-              field="title"
-              label="Title"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="orchestra"
-              label="Orchestra"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="singer"
-              label="Singer"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="type"
-              label="Type"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="style"
-              label="Style"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableTableHeader
-              field="year"
-              label="Year"
-              currentSort={sortConfig}
-              onSort={handleSort}
-            />
-            <TableHead className="text-tango-light w-[120px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedSongs.map((song) => (
-            <SongTableRow
-              key={song.id}
-              song={song}
-              isSelected={song.spotify_id === selectedTrackId}
-              isLiked={likedSongs.includes(song.id)}
-              isModerator={isModerator}
-              onSongClick={() => onSongClick(song.spotify_id || null)}
-              onLikeClick={(e) => onLikeClick(e, song.id)}
-              onAddClick={onAddClick ? () => onAddClick(song) : undefined}
-            />
-          ))}
-        </TableBody>
-      </Table>
+    <div className="rounded-md bg-tango-gray overflow-x-auto">
+      <div className="min-w-[800px]">
+        <Table>
+          <TableHeader className="bg-tango-darkGray border-b border-tango-gray/20">
+            <TableRow>
+              <TableHead className="text-tango-light w-[40px]"></TableHead>
+              <SortableTableHeader
+                field="title"
+                label="Title"
+                currentSort={sortConfig}
+                onSort={handleSort}
+              />
+              <SortableTableHeader
+                field="orchestra"
+                label="Orchestra"
+                currentSort={sortConfig}
+                onSort={handleSort}
+              />
+              <SortableTableHeader
+                field="singer"
+                label="Singer"
+                currentSort={sortConfig}
+                onSort={handleSort}
+              />
+              <SortableTableHeader
+                field="type"
+                label="Type"
+                currentSort={sortConfig}
+                onSort={handleSort}
+              />
+              <SortableTableHeader
+                field="style"
+                label="Style"
+                currentSort={sortConfig}
+                onSort={handleSort}
+              />
+              <SortableTableHeader
+                field="year"
+                label="Year"
+                currentSort={sortConfig}
+                onSort={handleSort}
+              />
+              <TableHead className="text-tango-light w-[120px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedSongs.map((song) => (
+              <SongTableRow
+                key={song.id}
+                song={song}
+                isSelected={song.spotify_id === selectedTrackId}
+                isLiked={likedSongs.includes(song.id)}
+                isModerator={isModerator}
+                onSongClick={() => onSongClick(song.spotify_id || null)}
+                onLikeClick={(e) => onLikeClick(e, song.id)}
+                onAddClick={onAddClick ? () => onAddClick(song) : undefined}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };
