@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings, MessageSquare, Music } from "lucide-react";
+import { Settings, MessageSquare, Music, Users } from "lucide-react";
 
 const Maintenance = () => {
   const { data: userRole } = useUserRole();
@@ -64,6 +64,21 @@ const Maintenance = () => {
             </CardTitle>
             <CardDescription className="text-tango-light/70">
               Manage orchestras and their information
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card 
+          className="bg-tango-darkGray border-tango-gray hover:border-tango-red transition-colors cursor-pointer"
+          onClick={() => navigate('/maintenance/singers')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-tango-light">
+              <Users className="h-5 w-5" />
+              Singers
+            </CardTitle>
+            <CardDescription className="text-tango-light/70">
+              Manage singers and their information
             </CardDescription>
           </CardHeader>
         </Card>
