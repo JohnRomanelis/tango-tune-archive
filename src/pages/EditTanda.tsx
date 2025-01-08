@@ -8,6 +8,7 @@ import TandaForm from "@/components/tanda/TandaForm";
 import SelectedSongsList from "@/components/tanda/SelectedSongsList";
 import SongSearchSection from "@/components/tanda/SongSearchSection";
 import { Loader2 } from "lucide-react";
+import { parseId } from "@/utils/idConversion";
 
 const EditTanda = () => {
   const { id } = useParams();
@@ -27,6 +28,7 @@ const EditTanda = () => {
       if (!id) return;
 
       try {
+        const parsedId = parseId(id);
         const { data: tanda, error } = await supabase
           .from("tanda")
           .select(`
@@ -47,7 +49,7 @@ const EditTanda = () => {
               )
             )
           `)
-          .eq("id", id)
+          .eq("id", parsedId)
           .single();
 
         if (error) throw error;
