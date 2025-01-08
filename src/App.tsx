@@ -16,7 +16,14 @@ import SongSuggestions from "@/pages/SongSuggestions";
 import Orchestras from "@/pages/Orchestras";
 
 // Create a client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
@@ -38,8 +45,8 @@ function App() {
               <Route path="/maintenance/orchestras" element={<Orchestras />} />
             </Routes>
           </div>
+          <Toaster />
         </div>
-        <Toaster />
       </BrowserRouter>
     </QueryClientProvider>
   );
