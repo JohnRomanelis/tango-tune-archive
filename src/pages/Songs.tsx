@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SongSearch from "@/components/SongSearch";
 import { Loader2, Plus, LightbulbIcon } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import { useToast } from "@/components/ui/use-toast";
 import SongResultsTable from "@/components/SongResultsTable";
@@ -93,7 +92,7 @@ const Songs = () => {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
+    <main className="h-screen overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[calc(33vh)]">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-tango-light">Songs</h1>
@@ -119,8 +118,9 @@ const Songs = () => {
         </div>
         <SongSearch onSearch={handleSearch} />
       </div>
-      
-      <ScrollArea className="h-[calc(100vh-300px)]">
+  
+      {/* Scrollable Results Area */}
+      <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex justify-center p-6">
             <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
@@ -130,17 +130,17 @@ const Songs = () => {
             songs={songs || []}
             likedSongs={likedSongs}
             selectedTrackId={selectedTrackId}
-            isModerator={userRole === 'moderator'}
+            isModerator={userRole === "moderator"}
             onSongClick={handleSongClick}
             onLikeClick={handleLikeClick}
           />
         )}
-      </ScrollArea>
+      </div>
       {selectedTrackId && (
         <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
       )}
     </main>
-  );
+  );  
 };
 
 export default Songs;
