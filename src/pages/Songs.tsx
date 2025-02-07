@@ -92,7 +92,7 @@ const Songs = () => {
   };
 
   return (
-    <main className="h-screen overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[calc(33vh)]">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-tango-light">Songs</h1>

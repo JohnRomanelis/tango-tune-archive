@@ -69,7 +69,7 @@ const Tandas = () => {
   }
 
   return (
-    <main className="h-screen overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[calc(33vh)] relative">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
       <TandasHeader onSearch={setSearchParams} />
       
