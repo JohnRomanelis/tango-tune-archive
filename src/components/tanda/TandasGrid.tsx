@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import TandaCard from "./TandaCard";
 import TandaDetailsDialog from "./TandaDetailsDialog";
 import { useState } from "react";
@@ -64,29 +63,28 @@ const TandasGrid = ({
 
   return (
     <>
-      <ScrollArea className="h-[calc(100vh-300px)]">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tandas.map((tanda) => (
-            <div
-              key={tanda.id}
-              onClick={() => onTandaClick ? onTandaClick(tanda) : setSelectedTanda(tanda)}
-              className="cursor-pointer"
-            >
-              <TandaCard
-                tanda={tanda}
-                currentUserId={currentUserId}
-                onDelete={() => handleDeleteTanda(tanda.id)}
-                onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
-                onSongClick={onSongClick}
-                onEditClick={() => handleEditTanda(tanda)}
-                onLikeClick={onLikeClick ? () => onLikeClick(tanda.id, likedTandaIds.includes(tanda.id)) : undefined}
-                isLiked={likedTandaIds.includes(tanda.id)}
-                showAddButton={showAddButton}
-              />
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
+      {/* Removed ScrollArea - Outer scroll handled in main container */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 2xl:grid-cols-5 gap-6 w-full">
+        {tandas.map((tanda) => (
+          <div
+            key={tanda.id}
+            onClick={() => onTandaClick ? onTandaClick(tanda) : setSelectedTanda(tanda)}
+            className="cursor-pointer"
+          >
+            <TandaCard
+              tanda={tanda}
+              currentUserId={currentUserId}
+              onDelete={() => handleDeleteTanda(tanda.id)}
+              onAddClick={onAddClick ? () => onAddClick(tanda) : undefined}
+              onSongClick={onSongClick}
+              onEditClick={() => handleEditTanda(tanda)}
+              onLikeClick={onLikeClick ? () => onLikeClick(tanda.id, likedTandaIds.includes(tanda.id)) : undefined}
+              isLiked={likedTandaIds.includes(tanda.id)}
+              showAddButton={showAddButton}
+            />
+          </div>
+        ))}
+      </div>
 
       <TandaDetailsDialog
         tanda={selectedTanda}

@@ -44,7 +44,7 @@ const SongSearchSection = ({
     <div className="space-y-6">
       <SongSearch onSearch={handleSearch} />
       
-      <ScrollArea className="h-[calc(100vh-500px)]">
+      <div className="space-y-4">
         {isLoading ? (
           <div className="flex justify-center p-6">
             <Loader2 className="h-8 w-8 animate-spin text-tango-red" />
@@ -60,7 +60,7 @@ const SongSearchSection = ({
             onAddClick={onAddSong}
           />
         )}
-      </ScrollArea>
+      </div>
       {selectedTrackId && (
         <SpotifyPlayer trackId={selectedTrackId} onClose={handleClosePlayer} />
       )}

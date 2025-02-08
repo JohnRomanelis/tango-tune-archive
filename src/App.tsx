@@ -34,7 +34,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-tango-darkGray">
+        <div className="h-screen overflow-y-auto bg-tango-darkGray flex flex-col pb-[calc(33vh)]">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route

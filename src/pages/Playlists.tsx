@@ -172,8 +172,9 @@ const Playlists = () => {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="flex justify-between items-center mb-6">
+    <main className="h-screen flex flex-col">
+      {/* Header Section */}
+      <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-700">
         <div className="flex items-center gap-2">
           <Columns className="h-6 w-6 text-tango-light" />
           <h1 className="text-2xl font-bold text-tango-light">Playlists</h1>
@@ -187,52 +188,50 @@ const Playlists = () => {
         </Button>
       </div>
 
-      <div className="flex gap-6">
-        <div className="w-1/2 space-y-6">
-          <div className="space-y-4">
-            <PlaylistVisibilityFilters
-              includeMine={includeMine}
-              includeShared={includeShared}
-              includePublic={includePublic}
-              likedOnly={likedOnly}
-              onVisibilityChange={(type, checked) => {
-                switch (type) {
-                  case "mine":
-                    setIncludeMine(checked);
-                    break;
-                  case "shared":
-                    setIncludeShared(checked);
-                    break;
-                  case "public":
-                    setIncludePublic(checked);
-                    break;
-                  case "liked":
-                    setLikedOnly(checked);
-                    break;
-                }
-              }}
-            />
-            <Button 
-              onClick={() => setSearchTrigger(prev => prev + 1)}
-              className="w-full bg-tango-red hover:bg-tango-red/90"
-            >
-              Search Playlists
-            </Button>
-          </div>
-
-          {searchTrigger > 0 && (
-            <PlaylistsGrid
-              playlists={playlists || []}
-              onDeletePlaylist={handleDeletePlaylist}
-              onSelectPlaylist={setSelectedPlaylistId}
-              currentUserId={user?.id}
-              likedPlaylistIds={likedPlaylistIds}
-              onLikeToggle={handleLikeToggle}
-            />
-          )}
+      {/* Split-Screen Content */}
+      <div className="flex flex-grow overflow-hidden">
+        {/* Left Panel */}
+        <div className="w-1/2 flex flex-col space-y-4 overflow-y-auto px-4 py-4">
+          <PlaylistVisibilityFilters
+            includeMine={includeMine}
+            includeShared={includeShared}
+            includePublic={includePublic}
+            likedOnly={likedOnly}
+            onVisibilityChange={(type, checked) => {
+              switch (type) {
+                case "mine":
+                  setIncludeMine(checked);
+                  break;
+                case "shared":
+                  setIncludeShared(checked);
+                  break;
+                case "public":
+                  setIncludePublic(checked);
+                  break;
+                case "liked":
+                  setLikedOnly(checked);
+                  break;
+              }
+            }}
+          />
+          <Button 
+            onClick={() => setSearchTrigger((prev) => prev + 1)}
+            className="w-full bg-tango-red hover:bg-tango-red/90"
+          >
+            Search Playlists
+          </Button>
+          <PlaylistsGrid
+            playlists={searchTrigger > 0 ? playlists || [] : []}
+            onDeletePlaylist={handleDeletePlaylist}
+            onSelectPlaylist={setSelectedPlaylistId}
+            currentUserId={user?.id}
+            likedPlaylistIds={likedPlaylistIds}
+            onLikeToggle={handleLikeToggle}
+          />
         </div>
 
-        <div className="w-1/2">
+        {/* Right Panel */}
+        <div className="w-1/2 flex flex-col space-y-4 overflow-y-auto px-4 py-4">
           <PlaylistDetails playlistId={selectedPlaylistId} />
         </div>
       </div>

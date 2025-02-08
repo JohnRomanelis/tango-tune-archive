@@ -33,7 +33,7 @@ const TandaCard = ({
   const style = firstSong?.style || '-';
 
   return (
-    <div className="bg-tango-gray rounded-lg p-4 relative group hover:bg-tango-gray/90 transition-colors h-full">
+    <div className="bg-tango-gray rounded-xl overflow-hidden p-4 relative group hover:bg-tango-gray/90 transition-colors h-full shadow-md">
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-lg font-semibold text-tango-light">{tanda.title}</h3>
         <div className="flex items-center gap-2">
