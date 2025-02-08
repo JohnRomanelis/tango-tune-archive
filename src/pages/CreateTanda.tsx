@@ -31,7 +31,7 @@ const CreateTanda = () => {
   };
 
   const handleAddSong = (song: Song) => {
-    if (selectedSongs.some(s => s.id === song.id)) {
+    if (selectedSongs.some((s) => s.id === song.id)) {
       toast({
         title: "Song already in tanda",
         description: "This song is already part of the tanda.",
@@ -39,11 +39,11 @@ const CreateTanda = () => {
       });
       return;
     }
-    setSelectedSongs(prev => [...prev, song]);
+    setSelectedSongs((prev) => [...prev, song]);
   };
 
   const handleRemoveSong = (songId: number) => {
-    setSelectedSongs(prev => prev.filter(song => song.id !== songId));
+    setSelectedSongs((prev) => prev.filter((song) => song.id !== songId));
   };
 
   const handleDragEnd = (result: any) => {
@@ -76,17 +76,19 @@ const CreateTanda = () => {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
       const { data: tanda, error: tandaError } = await supabase
-        .from('tanda')
+        .from("tanda")
         .insert({
           title,
           comments,
           spotify_link: spotifyLink,
           user_id: user.id,
-          visibility: isPublic ? 'public' : 'private'
+          visibility: isPublic ? "public" : "private",
         })
         .select()
         .single();
@@ -96,11 +98,11 @@ const CreateTanda = () => {
       const tandaSongEntries = selectedSongs.map((song, index) => ({
         tanda_id: tanda.id,
         song_id: song.id,
-        order_in_tanda: index + 1
+        order_in_tanda: index + 1,
       }));
 
       const { error: tandaSongError } = await supabase
-        .from('tanda_song')
+        .from("tanda_song")
         .insert(tandaSongEntries);
 
       if (tandaSongError) throw tandaSongError;
@@ -110,9 +112,9 @@ const CreateTanda = () => {
         description: "Tanda created successfully!",
       });
 
-      navigate('/tandas');
+      navigate("/tandas");
     } catch (error) {
-      console.error('Error creating tanda:', error);
+      console.error("Error creating tanda:", error);
       toast({
         title: "Error",
         description: "Failed to create tanda. Please try again.",
@@ -122,9 +124,16 @@ const CreateTanda = () => {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-[200px]">
-      <div className="flex space-x-6">
-        <div className="w-2/5 space-y-6">
+    <main className="h-screen flex flex-col">
+      {/* Header Section */}
+      <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-700">
+        <h1 className="text-2xl font-bold text-tango-light">Create Tanda</h1>
+      </div>
+
+      {/* Split-Screen Content */}
+      <div className="flex flex-grow overflow-hidden">
+        {/* Left Panel - 40% */}
+        <div className="w-2/5 flex flex-col space-y-4 overflow-y-auto px-4 py-4">
           <TandaForm
             title={title}
             comments={comments}
@@ -153,7 +162,8 @@ const CreateTanda = () => {
           </div>
         </div>
 
-        <div className="w-3/5">
+        {/* Right Panel - 60% */}
+        <div className="w-3/5 flex flex-col space-y-4 overflow-y-auto px-4 py-4">
           <SongSearchSection
             selectedTrackId={selectedTrackId}
             onSongClick={handleSongClick}
